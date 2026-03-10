@@ -939,6 +939,7 @@
     let DATASET = [];
     let playerNames = [];
     let playerDirectory = new Map();
+    let isSelectingSuggestion = false;
 
     const clueGameEl = document.getElementById("clueGame");
     const gameNumberTagEl = document.getElementById("gameNumberTag");
@@ -1004,18 +1005,18 @@
         btn.className = "player-suggestion";
         btn.textContent = name;
         btn.setAttribute("role", "option");
-        const selectSuggestion = (e) => {
-          e.preventDefault();
+        btn.addEventListener("pointerdown", () => {
+          isSelectingSuggestion = true;
+        });
+        btn.addEventListener("mousedown", () => {
+          isSelectingSuggestion = true;
+        });
+        btn.addEventListener("click", () => {
           guessInput.value = name;
           hidePlayerSuggestions();
           submitGuessFromInput();
-        };
-        if (window.PointerEvent) {
-          btn.addEventListener("pointerdown", selectSuggestion);
-        } else {
-          btn.addEventListener("mousedown", selectSuggestion);
-          btn.addEventListener("touchstart", selectSuggestion, { passive: false });
-        }
+          isSelectingSuggestion = false;
+        });
         playerSuggestions.appendChild(btn);
       });
       if (shouldOpen && matches.length) {
@@ -1592,7 +1593,10 @@
         renderPlayerSuggestions(guessInput.value.trim(), true);
       });
       guessInput.addEventListener("blur", () => {
-        setTimeout(() => hidePlayerSuggestions(), 120);
+        setTimeout(() => {
+          if (!isSelectingSuggestion) hidePlayerSuggestions();
+          isSelectingSuggestion = false;
+        }, 180);
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);

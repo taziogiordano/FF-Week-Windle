@@ -184,6 +184,9 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-weight: 800;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.15;
     }
 
     .clue-table td {
@@ -565,8 +568,21 @@
       .card { padding: 13px; }
       .brand { font-size: clamp(2rem, 9vw, 2.6rem); }
       .game-tag { font-size: 0.72rem; padding: 5px 8px; }
-      .clue-table th,
-      .clue-table td { padding: 9px 6px; }
+      .clue-table th {
+        font-size: 0.67rem;
+        letter-spacing: 0.02em;
+        padding: 8px 4px;
+      }
+      .clue-table td {
+        font-size: 0.86rem;
+        padding: 8px 4px;
+      }
+      .clue-game {
+        font-size: 0.8rem;
+      }
+      .clue-ppr {
+        font-size: 0.94rem !important;
+      }
     }
   </style>
 </head>

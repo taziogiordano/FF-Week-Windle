@@ -1448,15 +1448,6 @@
       let active = puzzleInfo(dailyBase, practiceOffset);
       let state = loadState(active.puzzleKey);
 
-      if (state.solved && DATASET.length > 1) {
-        practiceOffset = randomPracticeOffset(practiceOffset);
-        active = puzzleInfo(dailyBase, practiceOffset);
-        state = loadState(active.puzzleKey);
-        if (!state.solved) {
-          updateFeedback("", "");
-        }
-      }
-
       const rerender = () => {
         gameNumberTagEl.textContent = `Game #${active.puzzleNumber}`;
         renderPuzzle(active.puzzle);

@@ -940,7 +940,6 @@
     let playerNames = [];
     let playerDirectory = new Map();
     let isSelectingSuggestion = false;
-    let lastSuggestionSelectAt = 0;
 
     const clueGameEl = document.getElementById("clueGame");
     const gameNumberTagEl = document.getElementById("gameNumberTag");
@@ -1131,9 +1130,9 @@
       return Math.abs(hash);
     }
 
-    const DAILY_ROTATION_VERSION = 3;
+    const DAILY_ROTATION_VERSION = 4;
     const STATE_VERSION = 3;
-    const STATE_RESET_TOKEN = "2026-03-10-c";
+    const STATE_RESET_TOKEN = "2026-03-10-d";
 
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
@@ -1655,7 +1654,6 @@
         isSelectingSuggestion = true;
       });
       playerSuggestions.addEventListener("click", (e) => {
-        if (Date.now() - lastSuggestionSelectAt < 250) return;
         const rawTarget = e.target;
         const targetEl = rawTarget instanceof Element
           ? rawTarget
@@ -1666,24 +1664,6 @@
         if (!target) return;
         const selectedName = target.dataset.player || target.textContent || "";
         if (!selectedName) return;
-        guessInput.value = selectedName;
-        hidePlayerSuggestions();
-        submitGuessFromInput(selectedName, true);
-        isSelectingSuggestion = false;
-      });
-      playerSuggestions.addEventListener("pointerup", (e) => {
-        const rawTarget = e.target;
-        const targetEl = rawTarget instanceof Element
-          ? rawTarget
-          : rawTarget && rawTarget.parentElement
-            ? rawTarget.parentElement
-            : null;
-        const target = targetEl ? targetEl.closest(".player-suggestion") : null;
-        if (!target) return;
-        const selectedName = target.dataset.player || target.textContent || "";
-        if (!selectedName) return;
-        lastSuggestionSelectAt = Date.now();
-        e.preventDefault();
         guessInput.value = selectedName;
         hidePlayerSuggestions();
         submitGuessFromInput(selectedName, true);

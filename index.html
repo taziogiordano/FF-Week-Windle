@@ -1465,7 +1465,7 @@
         guessInput.focus();
       };
 
-      const submitGuessFromInput = (selectedName = null) => {
+      const submitGuessFromInput = (selectedName = null, fromSuggestion = false) => {
         if (state.solved || state.revealed) {
           updateFeedback("", "");
           return;
@@ -1523,7 +1523,7 @@
         renderState(active.puzzle, state);
         guessInput.value = "";
         renderPlayerSuggestions("", false);
-        if (solvedNow || revealedNow) {
+        if (solvedNow || revealedNow || fromSuggestion) {
           hidePlayerSuggestions();
           guessInput.blur();
         } else {
@@ -1599,7 +1599,7 @@
         const selectedName = target.dataset.player || target.textContent || "";
         guessInput.value = selectedName;
         hidePlayerSuggestions();
-        submitGuessFromInput(selectedName);
+        submitGuessFromInput(selectedName, true);
         isSelectingSuggestion = false;
       });
 

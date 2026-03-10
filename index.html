@@ -1144,11 +1144,12 @@
     function puzzleInfo(base, practiceOffset) {
       const index = (base.index + practiceOffset) % DATASET.length;
       const isPractice = practiceOffset > 0;
+      const versionedBaseKey = `${base.dailyKey}::v${DAILY_ROTATION_VERSION}`;
       return {
         index,
         puzzle: DATASET[index],
         dailyKey: base.dailyKey,
-        puzzleKey: isPractice ? `${base.dailyKey}::practice-${practiceOffset}` : base.dailyKey,
+        puzzleKey: isPractice ? `${versionedBaseKey}::practice-${practiceOffset}` : versionedBaseKey,
         puzzleNumber: index + 1,
         isPractice
       };

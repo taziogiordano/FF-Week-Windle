@@ -1133,6 +1133,7 @@
     const DAILY_ROTATION_VERSION = 4;
     const STATE_VERSION = 3;
     const STATE_RESET_TOKEN = "2026-03-10-d";
+    const FORCE_FRESH_STATE_ON_LOAD = true;
 
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
@@ -1351,6 +1352,10 @@
       localStorage.setItem(stateStorageKey(puzzleKey), JSON.stringify(state));
     }
 
+    function freshState() {
+      return { guesses: [], solved: false, solvedAtGuess: null, revealed: false, revealedAnswer: null };
+    }
+
     function applyStateResetIfNeeded() {
       const markerKey = "fantasy-stat-line-daily::state-reset-token";
       const existing = localStorage.getItem(markerKey);
@@ -1474,6 +1479,10 @@
       let practiceOffset = 0;
       let active = puzzleInfo(dailyBase, practiceOffset);
       let state = loadState(active.puzzleKey);
+      if (FORCE_FRESH_STATE_ON_LOAD) {
+        state = freshState();
+        saveState(active.puzzleKey, state);
+      }
 
       const rerender = () => {
         gameNumberTagEl.textContent = "Game #1";
@@ -1489,6 +1498,10 @@
         practiceOffset = randomPracticeOffset(practiceOffset);
         active = puzzleInfo(dailyBase, practiceOffset);
         state = loadState(active.puzzleKey);
+        if (FORCE_FRESH_STATE_ON_LOAD) {
+          state = freshState();
+          saveState(active.puzzleKey, state);
+        }
         rerender();
         hideResultModal();
         updateFeedback("Loaded a new stat line.", "ok");

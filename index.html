@@ -960,7 +960,7 @@
 
     function updateDatalistNames(names = null) {
       playerNames = names ? [...new Set(names)].sort() : [...new Set(DATASET.map(x => x.player))].sort();
-      renderPlayerSuggestions(guessInput.value || "");
+      renderPlayerSuggestions("", false);
     }
 
     function hidePlayerSuggestions() {
@@ -988,7 +988,7 @@
       return startsWith.concat(includes);
     }
 
-    function renderPlayerSuggestions(rawQuery) {
+    function renderPlayerSuggestions(rawQuery, shouldOpen = true) {
       const matches = filteredPlayerNames(rawQuery);
       playerSuggestions.innerHTML = "";
       const maxRender = 250;
@@ -1006,7 +1006,7 @@
         });
         playerSuggestions.appendChild(btn);
       });
-      if (matches.length) {
+      if (shouldOpen && matches.length) {
         showPlayerSuggestions();
       } else {
         hidePlayerSuggestions();
@@ -1465,7 +1465,7 @@
         hideResultModal();
         updateFeedback("Loaded a new stat line.", "ok");
         guessInput.value = "";
-        renderPlayerSuggestions("");
+        renderPlayerSuggestions("", false);
         guessInput.focus();
       };
 
@@ -1526,7 +1526,7 @@
         saveState(active.puzzleKey, state);
         renderState(active.puzzle, state);
         guessInput.value = "";
-        renderPlayerSuggestions("");
+        renderPlayerSuggestions("", false);
         if (solvedNow || revealedNow) {
           hidePlayerSuggestions();
           guessInput.blur();
@@ -1577,14 +1577,13 @@
       guessInput.addEventListener("change", submitGuessFromInput);
       guessInput.addEventListener("input", () => {
         const rawGuess = guessInput.value.trim();
-        renderPlayerSuggestions(rawGuess);
+        renderPlayerSuggestions(rawGuess, true);
         if (!rawGuess) return;
         const matchedName = playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
         if (matchedName) submitGuessFromInput();
       });
       guessInput.addEventListener("focus", () => {
-        renderPlayerSuggestions(guessInput.value.trim());
-        showPlayerSuggestions();
+        renderPlayerSuggestions(guessInput.value.trim(), true);
       });
       guessInput.addEventListener("blur", () => {
         setTimeout(() => hidePlayerSuggestions(), 120);

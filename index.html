@@ -1133,6 +1133,7 @@
     }
 
     const DAILY_ROTATION_VERSION = 2;
+    const STATE_VERSION = 2;
 
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
@@ -1299,7 +1300,7 @@
     }
 
     function stateStorageKey(puzzleKey) {
-      return `fantasy-stat-line-daily::${puzzleKey}`;
+      return `fantasy-stat-line-daily::v${STATE_VERSION}::${puzzleKey}`;
     }
 
     function streakStorageKey() {

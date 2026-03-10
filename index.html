@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week Windle</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --text: #1a2240;
+      --muted: #6b7695;
+      --border: #d6deee;
+      --line: #e7ecf6;
+      --accent: #c5112f;
+      --accent-soft: #eef3fc;
+      --danger: #c5112f;
+      --radius: 12px;
+      --maxw: 900px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(197, 17, 47, 0.03), transparent 42%),
+        radial-gradient(circle at 85% 12%, rgba(16, 66, 153, 0.04), transparent 46%),
+        linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      color: var(--text);
+    }
+
+    .wrap {
+      width: min(calc(100% - 24px), var(--maxw));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      position: relative;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .topbar-btn {
+      position: absolute;
+      top: 2px;
+      right: 0;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: #2a3f74;
+      font-size: 0.85rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .topbar-btn svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
+    .brand {
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0;
+      color: #c5112f;
+    }
+
+    .game-tag {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-badge {
+      display: none;
+    }
+
+    .pill {
+      display: inline-block;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .top-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .card {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 8px 0;
+      margin-bottom: 6px;
+      box-shadow: none;
+    }
+
+    .hero {
+      text-align: center;
+    }
+
+    .hero-grid {
+      display: block;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--muted);
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.35rem, 3vw, 1.9rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    p.lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .statline {
+      margin-top: 12px;
+    }
+
+
+    .clue-table-wrap {
+      width: 100%;
+      background: transparent;
+    }
+
+    .clue-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border: 1px solid #d2daed;
+    }
+
+    .clue-table th,
+    .clue-table td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 9px 6px;
+      text-align: center;
+      vertical-align: middle;
+      white-space: normal;
+    }
+
+    .clue-table th:last-child,
+    .clue-table td:last-child {
+      border-right: 0;
+    }
+
+    .clue-table th {
+      background: #edf2fb;
+      color: #334a81;
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+    }
+
+    .clue-table td {
+      font-size: 1.04rem;
+      font-weight: 700;
+      color: #20315e;
+      background: #ffffff;
+    }
+
+    .clue-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .clue-player {
+      font-size: 0.96rem;
+      letter-spacing: 0.04em;
+      font-weight: 900;
+      color: #123472;
+    }
+
+    .clue-game {
+      font-size: 0.98rem;
+      line-height: 1.25;
+      color: #5d6b92;
+      font-weight: 700;
+    }
+
+    .clue-ppr {
+      background: var(--accent-soft) !important;
+      color: #143775 !important;
+      font-size: 1.14rem !important;
+      font-weight: 900 !important;
+      border-left: 3px solid #d73956;
+    }
+
+    .play-area {
+      padding-top: 14px;
+    }
+
+    .section-title {
+      margin: 0 0 24px;
+      font-size: 1.22rem;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    form.guess-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: #1f2e56;
+      outline: none;
+      font-size: 1rem;
+    }
+
+    input[type="text"] {
+      min-height: 56px;
+      padding: 14px 44px 14px 12px;
+      background-color: #ffffff;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%236b7695' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 14px 14px;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(12, 45, 107, 0.14);
+    }
+
+    input[type="text"]::placeholder { color: #9aa6c3; }
+
+    .player-suggestions {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 260px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      z-index: 15;
+    }
+
+    .player-suggestion {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-bottom: 1px solid #e9edf7;
+      background: #ffffff;
+      color: #1f2e56;
+      font-size: 0.98rem;
+      font-weight: 700;
+      padding: 10px 12px;
+      border-radius: 0;
+    }
+
+    .player-suggestion:last-child {
+      border-bottom: 0;
+    }
+
+    .player-suggestion:hover,
+    .player-suggestion:focus {
+      background: #f3f7ff;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      transition: filter 0.15s ease;
+    }
+
+    button:hover { filter: brightness(0.96); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #f1f4fb;
+      color: #2a3f74;
+      border: 1px solid var(--border);
+    }
+
+    .score-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 8px 0 4px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .score-chip {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+    }
+
+    .feedback {
+      min-height: 20px;
+      margin: 10px 0 4px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .feedback.error { color: var(--danger); }
+    .feedback.ok { color: var(--accent); }
+
+    .guess-header {
+      display: grid;
+      grid-template-columns: 1.8fr 0.6fr 0.6fr;
+      margin-top: 10px;
+      margin-bottom: 2px;
+    }
+
+    .guess-header-cell {
+      padding: 2px 6px;
+      font-size: 0.92rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #415687;
+    }
+
+    .guess-header-cell:nth-child(2),
+    .guess-header-cell:last-child {
+      text-align: center;
+    }
+
+    .guess-list {
+      display: grid;
+      gap: 0;
+      margin-top: 0;
+      border: 1px solid #d2daed;
+      background: #ffffff;
+    }
+
+    .guess-item {
+      display: grid;
+      grid-template-columns: 1.8fr 0.6fr 0.6fr;
+      align-items: stretch;
+      border-top: 1px solid #dbe2f2;
+    }
+
+    .guess-item:first-child {
+      border-top: 0;
+    }
+
+    .guess-col {
+      border-right: 1px solid #dbe2f2;
+      padding: 9px 10px;
+      font-size: 1.02rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      text-align: center;
+      background: #f9fbff;
+      color: #3f4f75;
+    }
+
+    .guess-col:last-child {
+      border-right: 0;
+    }
+
+    .guess-col.name {
+      text-align: left;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 700;
+      font-size: 1.08rem;
+      color: #111111;
+      background: #f7f9ff;
+    }
+
+    .guess-col.name.correct {
+      background: #e7f8ee;
+      color: #111111;
+      border-color: #b6e3c5;
+    }
+
+    .guess-col.team.correct,
+    .guess-col.pos.correct {
+      background: #e7f8ee;
+      color: #111111;
+      border-color: #b6e3c5;
+    }
+
+    .guess-col.team.wrong,
+    .guess-col.pos.wrong {
+      background: #ffeef2;
+      color: #111111;
+      border-color: #f1c7d1;
+    }
+
+    .guess-col.team.unknown,
+    .guess-col.pos.unknown {
+      background: #f1f4fb;
+      color: #111111;
+      border-color: #d8dfef;
+    }
+
+    .footer-card {
+      padding: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .footer-card code {
+      color: #1d3f83;
+      background: #edf2fc;
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.42);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 20;
+    }
+
+    .modal-card {
+      width: min(100%, 480px);
+      min-height: 340px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-title {
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #1d2d58;
+    }
+
+    .modal-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .modal-stat {
+      margin: 0 0 14px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #28477f;
+      background: #eef3fc;
+      border: 1px solid #ccd8ee;
+      border-radius: 7px;
+      padding: 8px 10px;
+    }
+
+    .modal-stats-box {
+      margin: 0 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #f9fbff;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .modal-stats-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #1f2e56;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .modal-stats-body {
+      min-height: 28px;
+    }
+
+    .modal-player {
+      margin: 0 0 14px;
+      text-align: center;
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: #1a2240;
+    }
+
+    .modal-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .modal-actions .btn-share {
+      background: var(--accent);
+      color: #ffffff;
+      border: 1px solid #9d0e26;
+      font-size: 1rem;
+      font-weight: 900;
+      padding: 12px 12px;
+      box-shadow: 0 4px 10px rgba(197, 17, 47, 0.22);
+    }
+
+    .hidden { display: none; }
+    .modal-backdrop.hidden { display: none; }
+
+    @media (max-width: 540px) {
+      .wrap { width: min(calc(100% - 16px), var(--maxw)); }
+      .card { padding: 13px; }
+      .brand { font-size: clamp(2rem, 9vw, 2.6rem); }
+      .game-tag { font-size: 0.72rem; padding: 5px 8px; }
+      .clue-table th,
+      .clue-table td { padding: 9px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <button class="topbar-btn" type="button" id="openStatusModalBtn" aria-label="Open stats popup" title="Stats">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          <path d="M5 15l4-4 3 2 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="5" cy="15" r="1.2" fill="currentColor"></circle>
+          <circle cx="9" cy="11" r="1.2" fill="currentColor"></circle>
+          <circle cx="12" cy="13" r="1.2" fill="currentColor"></circle>
+          <circle cx="18" cy="7" r="1.2" fill="currentColor"></circle>
+        </svg>
+      </button>
+      <div class="brand">
+        Week Windle
+      </div>
+      <div class="game-tag" id="gameNumberTag">Game #—</div>
+    </div>
+
+    <section class="card hero">
+      <div class="hero-grid">
+        <div>
+          <h1>We all remember the feeling.</h1>
+          <p class="lead">
+            It’s Sunday night, and instead of cramming your homework you cant stop looking at your phone. You should have won your matchup this week, except for that one player on your buddies team… You got boomed.
+          </p>
+          <p class="lead" style="margin-top:10px;">
+            A single NFL game boxscore with 30+ PPR points is below: do you remember this week winner?
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card statline">
+      <div class="clue-table-wrap">
+        <table class="clue-table" aria-label="Daily fantasy stat clue">
+          <colgroup>
+            <col style="width: 34%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+            <col style="width: 11%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Matchup + Date</th>
+              <th>Rush Yds</th>
+              <th>Rush TD</th>
+              <th>Rec</th>
+              <th>Rec Yds</th>
+              <th>Rec TD</th>
+              <th>PPR Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="clueGame" class="clue-game">—</td>
+              <td id="clueRushYds">—</td>
+              <td id="clueRushTd">—</td>
+              <td id="clueReceptions">—</td>
+              <td id="clueRecYds">—</td>
+              <td id="clueRecTd">—</td>
+              <td id="cluePpr" class="clue-ppr">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card play-area">
+      <h2 class="section-title" id="guessCount">0 of 5 guesses</h2>
+
+      <form class="guess-form" id="guessForm" autocomplete="off">
+        <input
+          id="guessInput"
+          type="text"
+          placeholder="Search and select a player..."
+          autocapitalize="words"
+          autocorrect="off"
+          spellcheck="false"
+          aria-label="Guess the player"
+        />
+        <div class="player-suggestions hidden" id="playerSuggestions" role="listbox" aria-label="Player suggestions"></div>
+      </form>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="guess-header hidden" id="guessHeader" aria-hidden="true">
+        <div class="guess-header-cell">Player</div>
+        <div class="guess-header-cell">Team</div>
+        <div class="guess-header-cell">Pos</div>
+      </div>
+      <div class="guess-list" id="guessList"></div>
+
+    </section>
+
+    <section class="card footer-card">
+      <strong>How the daily puzzle works:</strong><br />
+      The app picks one puzzle deterministically from the calendar date. It will load
+      <code>data/puzzles.json</code> if present (recommended), and falls back to the built-in demo data.
+      Generate/update <code>data/puzzles.json</code> from nflverse with the script in <code>scripts/</code>.
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultModalTitle">
+    <div class="modal-card">
+      <h3 class="modal-title" id="resultModalTitle">Play another game</h3>
+      <p class="modal-text" id="resultModalText"></p>
+      <div class="modal-stats-box">
+        <p class="modal-stats-title">Your stats</p>
+        <div class="modal-stats-body" id="resultModalStatsBody"></div>
+      </div>
+      <p class="modal-player" id="resultModalPlayer">Player: ?</p>
+      <div class="modal-actions">
+        <button class="btn-share" type="button" id="modalShareBtn">Share Result</button>
+        <button class="btn-secondary" type="button" id="modalCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./data/puzzles_data.js"></script>
+  <script src="./data/player_profiles_data.js"></script>
+  <script src="./data/player_search_data.js"></script>
+  <script>
+    const FALLBACK_DATASET = [
+      {
+        player: "Jamaal Charles",
+        date: "2013-12-15",
+        matchup: "Chiefs vs Raiders",
+        team: "KC",
+        opponent: "OAK",
+        position: "RB",
+        ppr: 51.50,
+        stats: [
+          { label: "Rush Yards", value: 20 },
+          { label: "Rush TD", value: 1 },
+          { label: "Receptions", value: 8 },
+          { label: "Rec Yards", value: 195 },
+          { label: "Rec TD", value: 4 }
+        ]
+      },
+      {
+        player: "Antonio Brown",
+        date: "2014-10-20",
+        matchup: "Texans vs Steelers",
+        team: "PIT",
+        opponent: "HOU",
+        position: "WR",
+        ppr: 41.30,
+        stats: [
+          { label: "Receptions", value: 9 },
+          { label: "Rec Yards", value: 90 },
+          { label: "Rec TD", value: 2 },
+          { label: "Return TD", value: 1 }
+        ]
+      },
+      {
+        player: "Arian Foster",
+        date: "2010-09-12",
+        matchup: "Colts vs Texans",
+        team: "HOU",
+        opponent: "IND",
+        position: "RB",
+        ppr: 42.10,
+        stats: [
+          { label: "Rush Yards", value: 231 },
+          { label: "Rush TD", value: 3 },
+          { label: "Receptions", value: 3 },
+          { label: "Rec Yards", value: 33 }
+        ]
+      },
+      {
+        player: "Alvin Kamara",
+        date: "2020-12-25",
+        matchup: "Vikings vs Saints",
+        team: "NO",
+        opponent: "MIN",
+        position: "RB",
+        ppr: 56.20,
+        stats: [
+          { label: "Rush Yards", value: 155 },
+          { label: "Rush TD", value: 6 },
+          { label: "Receptions", value: 3 },
+          { label: "Rec Yards", value: 17 }
+        ]
+      },
+      {
+        player: "Tyreek Hill",
+        date: "2021-11-21",
+        matchup: "Cowboys vs Chiefs",
+        team: "KC",
+        opponent: "DAL",
+        position: "WR",
+        ppr: 39.70,
+        stats: [
+          { label: "Receptions", value: 9 },
+          { label: "Rec Yards", value: 77 },
+          { label: "Rec TD", value: 1 },
+          { label: "Rush Yards", value: 33 },
+          { label: "Rush TD", value: 1 }
+        ]
+      },
+      {
+        player: "Cooper Kupp",
+        date: "2021-11-15",
+        matchup: "49ers vs Rams",
+        team: "LAR",
+        opponent: "SF",
+        position: "WR",
+        ppr: 35.20,
+        stats: [
+          { label: "Receptions", value: 11 },
+          { label: "Rec Yards", value: 122 },
+          { label: "Rec TD", value: 0 },
+          { label: "Rush Yards", value: 18 }
+        ]
+      },
+      {
+        player: "Davante Adams",
+        date: "2020-11-16",
+        matchup: "Jaguars vs Packers",
+        team: "GB",
+        opponent: "JAX",
+        position: "WR",
+        ppr: 36.60,
+        stats: [
+          { label: "Receptions", value: 8 },
+          { label: "Rec Yards", value: 66 },
+          { label: "Rec TD", value: 1 },
+          { label: "Rush TD", value: 1 }
+        ]
+      },
+      {
+        player: "Austin Ekeler",
+        date: "2021-10-10",
+        matchup: "Browns vs Chargers",
+        team: "LAC",
+        opponent: "CLE",
+        position: "RB",
+        ppr: 40.90,
+        stats: [
+          { label: "Rush Yards", value: 66 },
+          { label: "Rush TD", value: 2 },
+          { label: "Receptions", value: 5 },
+          { label: "Rec Yards", value: 53 },
+          { label: "Rec TD", value: 1 }
+        ]
+      },
+      {
+        player: "Christian McCaffrey",
+        date: "2019-11-03",
+        matchup: "Titans vs Panthers",
+        team: "CAR",
+        opponent: "TEN",
+        position: "RB",
+        ppr: 47.10,
+        stats: [
+          { label: "Rush Yards", value: 146 },
+          { label: "Rush TD", value: 2 },
+          { label: "Receptions", value: 3 },
+          { label: "Rec Yards", value: 20 },
+          { label: "Rec TD", value: 1 }
+        ]
+      },
+      {
+        player: "Deebo Samuel",
+        date: "2021-12-05",
+        matchup: "49ers vs Seahawks",
+        team: "SF",
+        opponent: "SEA",
+        position: "WR",
+        ppr: 37.60,
+        stats: [
+          { label: "Rush Yards", value: 79 },
+          { label: "Rush TD", value: 1 },
+          { label: "Receptions", value: 7 },
+          { label: "Rec Yards", value: 43 },
+          { label: "Rec TD", value: 1 }
+        ]
+      },
+      {
+        player: "Derrick Henry",
+        date: "2020-10-06",
+        matchup: "Bills vs Titans",
+        team: "TEN",
+        opponent: "BUF",
+        position: "RB",
+        ppr: 40.40,
+        stats: [
+          { label: "Rush Yards", value: 57 },
+          { label: "Rush TD", value: 2 },
+          { label: "Receptions", value: 2 },
+          { label: "Rec Yards", value: 3 },
+          { label: "Rec TD", value: 1 }
+        ]
+      },
+      {
+        player: "Doug Martin",
+        date: "2012-11-04",
+        matchup: "Buccaneers vs Raiders",
+        team: "TB",
+        opponent: "OAK",
+        position: "RB",
+        ppr: 54.20,
+        stats: [
+          { label: "Rush Yards", value: 251 },
+          { label: "Rush TD", value: 4 },
+          { label: "Receptions", value: 4 },
+          { label: "Rec Yards", value: 21 }
+        ]
+      },
+      {
+        player: "Keenan Allen",
+        date: "2021-12-05",
+        matchup: "Chargers vs Bengals",
+        team: "LAC",
+        opponent: "CIN",
+        position: "WR",
+        ppr: 40.20,
+        stats: [
+          { label: "Receptions", value: 10 },
+          { label: "Rec Yards", value: 106 },
+          { label: "Rec TD", value: 2 },
+          { label: "Rush Yards", value: 0 }
+        ]
+      },
+      {
+        player: "Demaryius Thomas",
+        date: "2014-10-05",
+        matchup: "Cardinals vs Broncos",
+        team: "DEN",
+        opponent: "ARI",
+        position: "WR",
+        ppr: 39.60,
+        stats: [
+          { label: "Receptions", value: 8 },
+          { label: "Rec Yards", value: 226 },
+          { label: "Rec TD", value: 2 }
+        ]
+      },
+      {
+        player: "Saquon Barkley",
+        date: "2018-12-09",
+        matchup: "Giants vs Washington",
+        team: "NYG",
+        opponent: "WAS",
+        position: "RB",
+        ppr: 44.00,
+        stats: [
+          { label: "Rush Yards", value: 170 },
+          { label: "Rush TD", value: 1 },
+          { label: "Receptions", value: 4 },
+          { label: "Rec Yards", value: 27 },
+          { label: "Rec TD", value: 1 }
+        ]
+      }
+    ];
+
+    let DATASET = [];
+    let playerNames = [];
+    let playerDirectory = new Map();
+
+    const clueGameEl = document.getElementById("clueGame");
+    const gameNumberTagEl = document.getElementById("gameNumberTag");
+    const clueRushYdsEl = document.getElementById("clueRushYds");
+    const clueRushTdEl = document.getElementById("clueRushTd");
+    const clueReceptionsEl = document.getElementById("clueReceptions");
+    const clueRecYdsEl = document.getElementById("clueRecYds");
+    const clueRecTdEl = document.getElementById("clueRecTd");
+    const cluePprEl = document.getElementById("cluePpr");
+    const guessForm = document.getElementById("guessForm");
+    const guessInput = document.getElementById("guessInput");
+    const playerSuggestions = document.getElementById("playerSuggestions");
+    const guessCountEl = document.getElementById("guessCount");
+    const guessHeader = document.getElementById("guessHeader");
+    const feedback = document.getElementById("feedback");
+    const guessList = document.getElementById("guessList");
+    const openStatusModalBtn = document.getElementById("openStatusModalBtn");
+    const resultModal = document.getElementById("resultModal");
+    const resultModalTitle = document.getElementById("resultModalTitle");
+    const resultModalText = document.getElementById("resultModalText");
+    const resultModalStatsBody = document.getElementById("resultModalStatsBody");
+    const resultModalPlayer = document.getElementById("resultModalPlayer");
+    const modalShareBtn = document.getElementById("modalShareBtn");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+
+    function updateDatalistNames(names = null) {
+      playerNames = names ? [...new Set(names)].sort() : [...new Set(DATASET.map(x => x.player))].sort();
+      renderPlayerSuggestions(guessInput.value || "");
+    }
+
+    function hidePlayerSuggestions() {
+      playerSuggestions.classList.add("hidden");
+    }
+
+    function showPlayerSuggestions() {
+      if (!playerNames.length) return;
+      playerSuggestions.classList.remove("hidden");
+    }
+
+    function filteredPlayerNames(rawQuery) {
+      const query = normalizeName(rawQuery || "");
+      if (!query) return playerNames;
+      const startsWith = [];
+      const includes = [];
+      playerNames.forEach((name) => {
+        const norm = normalizeName(name);
+        if (norm.startsWith(query)) {
+          startsWith.push(name);
+        } else if (norm.includes(query)) {
+          includes.push(name);
+        }
+      });
+      return startsWith.concat(includes);
+    }
+
+    function renderPlayerSuggestions(rawQuery) {
+      const matches = filteredPlayerNames(rawQuery);
+      playerSuggestions.innerHTML = "";
+      const maxRender = 250;
+      matches.slice(0, maxRender).forEach((name) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "player-suggestion";
+        btn.textContent = name;
+        btn.setAttribute("role", "option");
+        btn.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          guessInput.value = name;
+          hidePlayerSuggestions();
+          submitGuessFromInput();
+        });
+        playerSuggestions.appendChild(btn);
+      });
+      if (matches.length) {
+        showPlayerSuggestions();
+      } else {
+        hidePlayerSuggestions();
+      }
+    }
+
+    function rebuildPlayerDirectory() {
+      playerDirectory = new Map();
+      DATASET.forEach(entry => {
+        const key = normalizeName(entry.player || "");
+        if (!key) return;
+        if (!playerDirectory.has(key)) {
+          playerDirectory.set(key, {
+            default: { team: entry.team || "—", position: entry.position || "—" },
+            bySeason: new Map()
+          });
+        }
+        const record = playerDirectory.get(key);
+        const season = extractSeason(entry);
+        if (season) {
+          record.bySeason.set(season, {
+            team: entry.team || "—",
+            position: entry.position || "—"
+          });
+        }
+      });
+    }
+
+    function extractSeason(entry) {
+      if (entry && Number.isFinite(Number(entry.season))) return String(entry.season);
+      const text = String(entry?.date || "");
+      const match = text.match(/(19|20)\d{2}/);
+      return match ? match[0] : "";
+    }
+
+    function playerProfileForGuess(playerName, puzzleSeason) {
+      const record = playerDirectory.get(normalizeName(playerName));
+      if (!record) return { team: "—", position: "—" };
+      if (puzzleSeason && record.bySeason.has(puzzleSeason)) {
+        return record.bySeason.get(puzzleSeason);
+      }
+      return record.default;
+    }
+
+    function hintStatus(value, target) {
+      const v = String(value || "").toUpperCase();
+      const t = String(target || "").toUpperCase();
+      if (!v || v === "—" || v === "UNK") return "unknown";
+      if (!t || t === "—" || t === "UNK") return "unknown";
+      return v === t ? "correct" : "wrong";
+    }
+
+    function positionHintStatus(value, target) {
+      const normalize = (x) => String(x || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9/,-]/g, "")
+        .trim();
+
+      const v = normalize(value);
+      const t = normalize(target);
+      if (!v || v === "UNK") return "unknown";
+      if (!t || t === "UNK") return "unknown";
+
+      const splitTokens = (s) => s.split(/[\/,-]/).map(x => x.trim()).filter(Boolean);
+      const vTokens = new Set(splitTokens(v));
+      const tTokens = splitTokens(t);
+      const overlap = tTokens.some(tok => vTokens.has(tok));
+      return overlap ? "correct" : "wrong";
+    }
+
+    function formatDisplayDate(yyyyMmDd) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(yyyyMmDd)) {
+        return yyyyMmDd;
+      }
+      const [y, m, d] = yyyyMmDd.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      return dt.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function puzzleWeekLabel(puzzle) {
+      if (Number.isFinite(Number(puzzle?.season)) && Number.isFinite(Number(puzzle?.week))) {
+        return `Week ${puzzle.week}, ${puzzle.season}`;
+      }
+      const text = String(puzzle?.date || "");
+      const match = text.match(/^Season\s+(\d{4})\s+Week\s+(\d+)$/i);
+      if (match) {
+        return `Week ${match[2]}, ${match[1]}`;
+      }
+      const season = extractSeason(puzzle);
+      return season ? `Week ?, ${season}` : "Week ?, ?";
+    }
+
+    function dateKeyForDailyPuzzle() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function hashString(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash);
+    }
+
+    function pickDailyPuzzle() {
+      const dailyKey = dateKeyForDailyPuzzle();
+      const index = hashString(dailyKey) % DATASET.length;
+      return { puzzle: DATASET[index], dailyKey, index };
+    }
+
+    function puzzleInfo(base, practiceOffset) {
+      const index = (base.index + practiceOffset) % DATASET.length;
+      const isPractice = practiceOffset > 0;
+      return {
+        index,
+        puzzle: DATASET[index],
+        dailyKey: base.dailyKey,
+        puzzleKey: isPractice ? `${base.dailyKey}::practice-${practiceOffset}` : base.dailyKey,
+        puzzleNumber: index + 1,
+        isPractice
+      };
+    }
+
+    function randomPracticeOffset(currentOffset = 0) {
+      if (DATASET.length <= 1) return 0;
+      if (DATASET.length === 2) return 1;
+      let candidate = currentOffset;
+      while (candidate === 0 || candidate === currentOffset) {
+        candidate = 1 + Math.floor(Math.random() * (DATASET.length - 1));
+      }
+      return candidate;
+    }
+
+    function isValidPuzzle(puzzle) {
+      return Boolean(
+        puzzle &&
+        typeof puzzle.player === "string" &&
+        typeof puzzle.date === "string" &&
+        typeof puzzle.matchup === "string" &&
+        typeof puzzle.ppr === "number" &&
+        Array.isArray(puzzle.stats)
+      );
+    }
+
+    async function loadExternalPuzzles() {
+      if (Array.isArray(window.__FSL_PUZZLES__) && window.__FSL_PUZZLES__.length) {
+        const filtered = window.__FSL_PUZZLES__.filter(isValidPuzzle);
+        if (filtered.length) {
+          DATASET = filtered;
+          localStorage.setItem("fantasy-stat-line-daily::puzzles-cache", JSON.stringify(filtered));
+          return true;
+        }
+      }
+
+      const paths = [
+        "./data/puzzles.json",
+        "data/puzzles.json",
+        "/data/puzzles.json"
+      ];
+      try {
+        for (const path of paths) {
+          const url = `${path}?v=${dateKeyForDailyPuzzle()}`;
+          const res = await fetch(url, { cache: "no-store" });
+          if (!res.ok) continue;
+          const payload = await res.json();
+          if (!Array.isArray(payload)) continue;
+          const filtered = payload.filter(isValidPuzzle);
+          if (!filtered.length) continue;
+          DATASET = filtered;
+          localStorage.setItem("fantasy-stat-line-daily::puzzles-cache", JSON.stringify(filtered));
+          return true;
+        }
+      } catch {
+        // Try cache below.
+      }
+      try {
+        const raw = localStorage.getItem("fantasy-stat-line-daily::puzzles-cache");
+        if (!raw) return false;
+        const payload = JSON.parse(raw);
+        if (!Array.isArray(payload)) return false;
+        const filtered = payload.filter(isValidPuzzle);
+        if (!filtered.length) return false;
+        DATASET = filtered;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function asProfileRecord(raw) {
+      const fallback = { team: "—", position: "—" };
+      if (!raw || typeof raw !== "object") {
+        return { player: "", default: fallback, bySeason: new Map() };
+      }
+      const bySeason = new Map();
+      const seasons = raw.by_season || {};
+      Object.keys(seasons).forEach(season => {
+        const seasonObj = seasons[season] || {};
+        bySeason.set(String(season), {
+          team: seasonObj.team || fallback.team,
+          position: seasonObj.position || fallback.position
+        });
+      });
+      return {
+        player: raw.player || "",
+        default: {
+          team: raw.default?.team || fallback.team,
+          position: raw.default?.position || fallback.position
+        },
+        bySeason
+      };
+    }
+
+    async function loadPlayerProfiles() {
+      if (window.__FSL_PLAYER_PROFILES__ && typeof window.__FSL_PLAYER_PROFILES__ === "object") {
+        const payload = window.__FSL_PLAYER_PROFILES__;
+        const allNames = new Set(playerNames);
+        Object.keys(payload).forEach(normName => {
+          const record = asProfileRecord(payload[normName]);
+          playerDirectory.set(normName, record);
+          if (record.player) allNames.add(record.player);
+        });
+        updateDatalistNames([...allNames]);
+        return true;
+      }
+
+      try {
+        const res = await fetch(`./data/player_profiles.json?v=${dateKeyForDailyPuzzle()}`, { cache: "no-store" });
+        if (!res.ok) return false;
+        const payload = await res.json();
+        if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
+
+        const allNames = new Set(playerNames);
+        Object.keys(payload).forEach(normName => {
+          const record = asProfileRecord(payload[normName]);
+          playerDirectory.set(normName, record);
+          if (record.player) allNames.add(record.player);
+        });
+        updateDatalistNames([...allNames]);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    async function loadSearchPlayers() {
+      if (Array.isArray(window.__FSL_PLAYER_SEARCH__) && window.__FSL_PLAYER_SEARCH__.length) {
+        const clean = window.__FSL_PLAYER_SEARCH__.filter(name => typeof name === "string" && name.trim());
+        if (clean.length) {
+          updateDatalistNames(clean);
+          return true;
+        }
+      }
+
+      try {
+        const res = await fetch(`./data/player_search.json?v=${dateKeyForDailyPuzzle()}`, { cache: "no-store" });
+        if (!res.ok) return false;
+        const payload = await res.json();
+        if (!Array.isArray(payload) || !payload.length) return false;
+        const clean = payload.filter(name => typeof name === "string" && name.trim());
+        if (!clean.length) return false;
+        updateDatalistNames(clean);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function stateStorageKey(puzzleKey) {
+      return `fantasy-stat-line-daily::${puzzleKey}`;
+    }
+
+    function streakStorageKey() {
+      return "fantasy-stat-line-daily::meta";
+    }
+
+    function normalizeName(value) {
+      return value.trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function currentScore(guessCount) {
+      return Math.max(100 - ((guessCount - 1) * 10), 10);
+    }
+
+    const MAX_GUESSES = 5;
+
+    function loadMeta() {
+      const raw = localStorage.getItem(streakStorageKey());
+      if (!raw) return { streak: 0, lastSolvedDate: null };
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return { streak: 0, lastSolvedDate: null };
+      }
+    }
+
+    function saveMeta(meta) {
+      localStorage.setItem(streakStorageKey(), JSON.stringify(meta));
+    }
+
+    function loadState(puzzleKey) {
+      const raw = localStorage.getItem(stateStorageKey(puzzleKey));
+      if (!raw) return { guesses: [], solved: false, solvedAtGuess: null, revealed: false, revealedAnswer: null };
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          guesses: Array.isArray(parsed?.guesses) ? parsed.guesses : [],
+          solved: Boolean(parsed?.solved),
+          solvedAtGuess: parsed?.solvedAtGuess ?? null,
+          revealed: Boolean(parsed?.revealed),
+          revealedAnswer: parsed?.revealedAnswer ?? null
+        };
+      } catch {
+        return { guesses: [], solved: false, solvedAtGuess: null, revealed: false, revealedAnswer: null };
+      }
+    }
+
+    function saveState(puzzleKey, state) {
+      localStorage.setItem(stateStorageKey(puzzleKey), JSON.stringify(state));
+    }
+
+    function msToNextLocalMidnight() {
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(24, 0, 0, 0);
+      return next.getTime() - now.getTime();
+    }
+
+    function formatCountdown(ms) {
+      const total = Math.max(0, Math.floor(ms / 1000));
+      const h = String(Math.floor(total / 3600)).padStart(2, "0");
+      const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+      const s = String(total % 60).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    function renderPuzzle(puzzle) {
+      const statLookup = new Map(
+        (puzzle.stats || []).map(stat => [String(stat.label || "").toLowerCase(), stat.value])
+      );
+
+      const getStat = (label) => {
+        const value = statLookup.get(label.toLowerCase());
+        return Number.isFinite(Number(value)) ? Number(value) : 0;
+      };
+
+      clueGameEl.textContent = `${puzzle.matchup} • ${puzzleWeekLabel(puzzle)}`;
+      clueRushYdsEl.textContent = String(getStat("Rush Yards"));
+      clueRushTdEl.textContent = String(getStat("Rush TD"));
+      clueReceptionsEl.textContent = String(getStat("Receptions"));
+      clueRecYdsEl.textContent = String(getStat("Rec Yards"));
+      clueRecTdEl.textContent = String(getStat("Rec TD"));
+      cluePprEl.textContent = puzzle.ppr.toFixed(1);
+    }
+
+    function renderState(puzzle, state) {
+      guessCountEl.textContent = `${state.guesses.length} of ${MAX_GUESSES} guesses`;
+      guessHeader.classList.toggle("hidden", state.guesses.length === 0);
+
+      guessList.innerHTML = "";
+      const puzzleSeason = extractSeason(puzzle);
+
+      state.guesses.forEach((guess) => {
+        const item = document.createElement("div");
+        const isCorrect = normalizeName(guess) === normalizeName(puzzle.player);
+        const profile = playerProfileForGuess(guess, puzzleSeason);
+        const teamHint = hintStatus(profile.team, puzzle.team);
+        const posHint = positionHintStatus(profile.position, puzzle.position);
+        item.className = "guess-item";
+        item.innerHTML = `
+          <div class="guess-col name ${isCorrect ? "correct" : ""}">${guess}</div>
+          <div class="guess-col team ${teamHint}">${profile.team || "?"}</div>
+          <div class="guess-col pos ${posHint}">${profile.position || "?"}</div>
+        `;
+        guessList.appendChild(item);
+      });
+
+      // Result details are shown in the popup only.
+    }
+
+    function updateFeedback(message, type = "") {
+      feedback.className = `feedback ${type}`.trim();
+      feedback.textContent = message;
+    }
+
+    function showResultModal(playerName, info, state, didSolve = true) {
+      resultModalTitle.textContent = "Play another game";
+      resultModalText.textContent = "";
+      resultModalStatsBody.textContent = "";
+      resultModalPlayer.textContent = `Player: ${playerName}`;
+      resultModal.classList.remove("hidden");
+    }
+
+    function showUnsolvedModal(state) {
+      resultModalTitle.textContent = "Play another game";
+      resultModalText.textContent = "";
+      resultModalStatsBody.textContent = "";
+      resultModalPlayer.textContent = "Player: ?";
+      resultModal.classList.remove("hidden");
+    }
+
+    function hideResultModal() {
+      resultModal.classList.add("hidden");
+    }
+
+    async function init() {
+      hideResultModal();
+      const loadedPuzzles = await loadExternalPuzzles();
+      if (!loadedPuzzles || !DATASET.length) {
+        updateFeedback("Could not load puzzle data. Start server in /Users/taziogiordano/Documents/HTML and refresh.", "error");
+        return;
+      }
+      updateDatalistNames();
+      rebuildPlayerDirectory();
+      await loadPlayerProfiles();
+      await loadSearchPlayers();
+
+      const dailyBase = pickDailyPuzzle();
+      let practiceOffset = 0;
+      let active = puzzleInfo(dailyBase, practiceOffset);
+      let state = loadState(active.puzzleKey);
+
+      if (state.solved && DATASET.length > 1) {
+        practiceOffset = randomPracticeOffset(practiceOffset);
+        active = puzzleInfo(dailyBase, practiceOffset);
+        state = loadState(active.puzzleKey);
+        if (!state.solved) {
+          updateFeedback("", "");
+        }
+      }
+
+      const rerender = () => {
+        gameNumberTagEl.textContent = `Game #${active.puzzleNumber}`;
+        renderPuzzle(active.puzzle);
+        renderState(active.puzzle, state);
+      };
+
+      const loadAnotherPuzzle = () => {
+        if (DATASET.length <= 1) {
+          updateFeedback("Need more than one puzzle in the dataset to load another.", "error");
+          return;
+        }
+        practiceOffset = randomPracticeOffset(practiceOffset);
+        active = puzzleInfo(dailyBase, practiceOffset);
+        state = loadState(active.puzzleKey);
+        rerender();
+        hideResultModal();
+        updateFeedback("Loaded a new stat line.", "ok");
+        guessInput.value = "";
+        renderPlayerSuggestions("");
+        guessInput.focus();
+      };
+
+      const submitGuessFromInput = () => {
+        if (state.solved || state.revealed) {
+          updateFeedback("", "");
+          return;
+        }
+
+        const rawGuess = guessInput.value.trim();
+        if (!rawGuess) return;
+        const matchedName = playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
+        if (!matchedName) {
+          updateFeedback("Select a valid player name from the list.", "error");
+          return;
+        }
+
+        if (state.guesses.some(g => normalizeName(g) === normalizeName(matchedName))) {
+          updateFeedback("You already guessed that player.", "error");
+          return;
+        }
+
+        state.guesses.push(matchedName);
+
+        let solvedNow = false;
+        let revealedNow = false;
+        if (normalizeName(matchedName) === normalizeName(active.puzzle.player)) {
+          state.solved = true;
+          state.solvedAtGuess = state.guesses.length;
+          solvedNow = true;
+          updateFeedback(`Correct. It was ${active.puzzle.player}.`, "ok");
+
+          const meta = loadMeta();
+          if (!active.isPractice && meta.lastSolvedDate !== active.dailyKey) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,"0")}-${String(yesterday.getDate()).padStart(2,"0")}`;
+
+            if (meta.lastSolvedDate === yKey) {
+              meta.streak = (meta.streak || 0) + 1;
+            } else {
+              meta.streak = 1;
+            }
+            meta.lastSolvedDate = active.dailyKey;
+            saveMeta(meta);
+          }
+        } else {
+          updateFeedback("", "");
+        }
+
+        if (!state.solved && state.guesses.length >= MAX_GUESSES) {
+          state.revealed = true;
+          state.revealedAnswer = active.puzzle.player;
+          revealedNow = true;
+          updateFeedback(`Out of guesses. The answer was ${active.puzzle.player}.`, "error");
+        }
+
+        saveState(active.puzzleKey, state);
+        renderState(active.puzzle, state);
+        guessInput.value = "";
+        renderPlayerSuggestions("");
+        if (solvedNow || revealedNow) {
+          hidePlayerSuggestions();
+          guessInput.blur();
+        } else {
+          guessInput.focus();
+          showPlayerSuggestions();
+        }
+
+        if (solvedNow) {
+          showResultModal(active.puzzle.player, active, state, true);
+        } else if (revealedNow) {
+          showResultModal(active.puzzle.player, active, state, false);
+        }
+      };
+
+      const shareCurrentResult = async () => {
+        const solved = state.solved;
+        const score = solved ? currentScore(state.solvedAtGuess) : 0;
+        const text = solved
+          ? `Week Windle — solved in ${state.solvedAtGuess} guess${state.solvedAtGuess === 1 ? "" : "es"} for ${score} points.`
+          : `Week Windle — not solved yet.`;
+
+        try {
+          if (navigator.share) {
+            await navigator.share({
+              title: "Week Windle",
+              text
+            });
+            updateFeedback("Result shared.", "ok");
+          } else if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+            updateFeedback("Share text copied to clipboard.", "ok");
+          } else {
+            updateFeedback("Sharing not supported on this browser.", "error");
+          }
+        } catch {
+          updateFeedback("Share canceled.", "error");
+        }
+      };
+
+      rerender();
+
+      guessForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        submitGuessFromInput();
+      });
+
+      guessInput.addEventListener("change", submitGuessFromInput);
+      guessInput.addEventListener("input", () => {
+        const rawGuess = guessInput.value.trim();
+        renderPlayerSuggestions(rawGuess);
+        if (!rawGuess) return;
+        const matchedName = playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
+        if (matchedName) submitGuessFromInput();
+      });
+      guessInput.addEventListener("focus", () => {
+        renderPlayerSuggestions(guessInput.value.trim());
+        showPlayerSuggestions();
+      });
+      guessInput.addEventListener("blur", () => {
+        setTimeout(() => hidePlayerSuggestions(), 120);
+      });
+
+      modalShareBtn.addEventListener("click", shareCurrentResult);
+      openStatusModalBtn.addEventListener("click", () => {
+        if (state.solved) {
+          showResultModal(active.puzzle.player, active, state, true);
+          return;
+        }
+        if (state.revealed) {
+          showResultModal(active.puzzle.player, active, state, false);
+          return;
+        }
+        showUnsolvedModal(state);
+      });
+      modalCloseBtn.addEventListener("click", hideResultModal);
+      resultModal.addEventListener("click", (e) => {
+        if (e.target === resultModal) hideResultModal();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

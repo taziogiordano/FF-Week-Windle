@@ -1,0 +1,41 @@
+{
+  "generated_at_utc": "2026-03-10T13:21:03Z",
+  "summary": {
+    "puzzle_count": 1122,
+    "profile_count": 7637,
+    "season_count": 16
+  },
+  "issues": {
+    "missing_team": 0,
+    "missing_position": 0,
+    "missing_required_stats": 0,
+    "missing_season": 0,
+    "duplicate_puzzle_keys": 0,
+    "profiles_without_default_team_or_position": 3,
+    "profiles_without_season_history": 0
+  },
+  "strict_criteria": [
+    "missing_required_stats",
+    "duplicate_puzzle_keys",
+    "missing_season"
+  ],
+  "season_distribution": {
+    "2010": 70,
+    "2011": 58,
+    "2012": 64,
+    "2013": 82,
+    "2014": 74,
+    "2015": 77,
+    "2016": 68,
+    "2017": 51,
+    "2018": 88,
+    "2019": 85,
+    "2020": 70,
+    "2021": 71,
+    "2022": 77,
+    "2023": 62,
+    "2024": 57,
+    "2025": 68
+  },
+  "strict_fail": false
+}

@@ -1136,7 +1136,7 @@
     const STATE_VERSION = 3;
     const STATE_RESET_TOKEN = "2026-03-10-f";
     const FORCE_FRESH_STATE_ON_LOAD = false;
-    const RESULT_MODAL_DELAY_MS = 220;
+    const RESULT_MODAL_DELAY_MS = 120;
 
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
@@ -1628,7 +1628,7 @@
           state.solved = true;
           state.solvedAtGuess = state.guesses.length;
           solvedNow = true;
-          updateFeedback(`Correct. It was ${active.puzzle.player}.`, "ok");
+          updateFeedback("", "");
 
           const meta = loadMeta();
           if (!active.isPractice && meta.lastSolvedDate !== active.dailyKey) {

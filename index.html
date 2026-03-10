@@ -1133,7 +1133,7 @@
     const DAILY_ROTATION_VERSION = 4;
     const STATE_VERSION = 3;
     const STATE_RESET_TOKEN = "2026-03-10-d";
-    const FORCE_FRESH_STATE_ON_LOAD = true;
+    const FORCE_FRESH_STATE_ON_LOAD = false;
 
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
@@ -1377,6 +1377,62 @@
       localStorage.setItem(markerKey, STATE_RESET_TOKEN);
     }
 
+    function getAnonUserId() {
+      const key = "fantasy-stat-line-daily::anon-user-id";
+      const existing = localStorage.getItem(key);
+      if (existing) return existing;
+      const generated = (
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `u-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      );
+      localStorage.setItem(key, generated);
+      return generated;
+    }
+
+    function formatModalStats(stats) {
+      if (!stats) return "Games played: --\nWin%: --\nWin streak: --\nLongest streak: --";
+      return [
+        `Games played: ${Number(stats.gamesPlayed || 0)}`,
+        `Win%: ${Number(stats.winPct || 0).toFixed(1)}%`,
+        `Win streak: ${Number(stats.winStreak || 0)}`,
+        `Longest streak: ${Number(stats.longestStreak || 0)}`,
+      ].join("\n");
+    }
+
+    function renderModalStats(stats) {
+      resultModalStatsBody.style.whiteSpace = "pre-line";
+      resultModalStatsBody.textContent = formatModalStats(stats);
+    }
+
+    async function fetchUserStats() {
+      const userId = encodeURIComponent(getAnonUserId());
+      const res = await fetch(`/api/user-stats?userId=${userId}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Could not load user stats.");
+      const payload = await res.json();
+      if (!payload?.ok) throw new Error(payload?.error || "Could not load user stats.");
+      return payload.stats;
+    }
+
+    async function recordGameResult(didWin, info) {
+      if (info?.isPractice) return null;
+      const body = {
+        userId: getAnonUserId(),
+        dailyKey: info?.dailyKey,
+        didWin: Boolean(didWin),
+        isPractice: Boolean(info?.isPractice),
+      };
+      const res = await fetch("/api/user-stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Could not save user stats.");
+      const payload = await res.json();
+      if (!payload?.ok) throw new Error(payload?.error || "Could not save user stats.");
+      return payload.stats || null;
+    }
+
     function msToNextLocalMidnight() {
       const now = new Date();
       const next = new Date(now);
@@ -1445,17 +1501,23 @@
     function showResultModal(playerName, info, state, didSolve = true) {
       resultModalTitle.textContent = "Play another game";
       resultModalText.textContent = "";
-      resultModalStatsBody.textContent = "";
+      renderModalStats(null);
       resultModalPlayer.textContent = `Player: ${playerName}`;
       resultModal.classList.remove("hidden");
+      fetchUserStats()
+        .then((stats) => renderModalStats(stats))
+        .catch(() => renderModalStats(null));
     }
 
     function showUnsolvedModal(state) {
       resultModalTitle.textContent = "Play another game";
       resultModalText.textContent = "";
-      resultModalStatsBody.textContent = "";
+      renderModalStats(null);
       resultModalPlayer.textContent = "Player: ?";
       resultModal.classList.remove("hidden");
+      fetchUserStats()
+        .then((stats) => renderModalStats(stats))
+        .catch(() => renderModalStats(null));
     }
 
     function hideResultModal() {
@@ -1577,8 +1639,14 @@
         }
 
         if (solvedNow) {
+          recordGameResult(true, active)
+            .then((stats) => { if (stats) renderModalStats(stats); })
+            .catch(() => {});
           showResultModal(active.puzzle.player, active, state, true);
         } else if (revealedNow) {
+          recordGameResult(false, active)
+            .then((stats) => { if (stats) renderModalStats(stats); })
+            .catch(() => {});
           showResultModal(active.puzzle.player, active, state, false);
         }
       };

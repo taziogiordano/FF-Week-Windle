@@ -1004,19 +1004,8 @@
         btn.type = "button";
         btn.className = "player-suggestion";
         btn.textContent = name;
+        btn.dataset.player = name;
         btn.setAttribute("role", "option");
-        btn.addEventListener("pointerdown", () => {
-          isSelectingSuggestion = true;
-        });
-        btn.addEventListener("mousedown", () => {
-          isSelectingSuggestion = true;
-        });
-        btn.addEventListener("click", () => {
-          guessInput.value = name;
-          hidePlayerSuggestions();
-          submitGuessFromInput();
-          isSelectingSuggestion = false;
-        });
         playerSuggestions.appendChild(btn);
       });
       if (shouldOpen && matches.length) {
@@ -1476,15 +1465,15 @@
         guessInput.focus();
       };
 
-      const submitGuessFromInput = () => {
+      const submitGuessFromInput = (selectedName = null) => {
         if (state.solved || state.revealed) {
           updateFeedback("", "");
           return;
         }
 
-        const rawGuess = guessInput.value.trim();
+        const rawGuess = selectedName || guessInput.value.trim();
         if (!rawGuess) return;
-        const matchedName = playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
+        const matchedName = selectedName || playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
         if (!matchedName) {
           updateFeedback("Select a valid player name from the list.", "error");
           return;
@@ -1597,6 +1586,21 @@
           if (!isSelectingSuggestion) hidePlayerSuggestions();
           isSelectingSuggestion = false;
         }, 180);
+      });
+      playerSuggestions.addEventListener("pointerdown", () => {
+        isSelectingSuggestion = true;
+      });
+      playerSuggestions.addEventListener("mousedown", () => {
+        isSelectingSuggestion = true;
+      });
+      playerSuggestions.addEventListener("click", (e) => {
+        const target = e.target.closest(".player-suggestion");
+        if (!target) return;
+        const selectedName = target.dataset.player || target.textContent || "";
+        guessInput.value = selectedName;
+        hidePlayerSuggestions();
+        submitGuessFromInput(selectedName);
+        isSelectingSuggestion = false;
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);

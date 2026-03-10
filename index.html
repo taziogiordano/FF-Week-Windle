@@ -608,11 +608,7 @@
     <section class="card hero">
       <div class="hero-grid">
         <div>
-          <h1>We all remember the feeling.</h1>
           <p class="lead">
-            It’s Sunday night, and instead of cramming your homework you cant stop looking at your phone. You should have won your matchup this week, except for that one player on your buddies team… You got boomed.
-          </p>
-          <p class="lead" style="margin-top:10px;">
             A single NFL game boxscore with 30+ PPR points is below: do you remember this week winner?
           </p>
         </div>
@@ -1001,19 +997,25 @@
     function renderPlayerSuggestions(rawQuery, shouldOpen = true) {
       const matches = filteredPlayerNames(rawQuery);
       playerSuggestions.innerHTML = "";
-      const maxRender = 250;
+      const maxRender = 80;
       matches.slice(0, maxRender).forEach((name) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "player-suggestion";
         btn.textContent = name;
         btn.setAttribute("role", "option");
-        btn.addEventListener("mousedown", (e) => {
+        const selectSuggestion = (e) => {
           e.preventDefault();
           guessInput.value = name;
           hidePlayerSuggestions();
           submitGuessFromInput();
-        });
+        };
+        if (window.PointerEvent) {
+          btn.addEventListener("pointerdown", selectSuggestion);
+        } else {
+          btn.addEventListener("mousedown", selectSuggestion);
+          btn.addEventListener("touchstart", selectSuggestion, { passive: false });
+        }
         playerSuggestions.appendChild(btn);
       });
       if (shouldOpen && matches.length) {
@@ -1130,9 +1132,11 @@
       return Math.abs(hash);
     }
 
+    const DAILY_ROTATION_VERSION = 2;
+
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
-      const index = hashString(dailyKey) % DATASET.length;
+      const index = hashString(`${dailyKey}::v${DAILY_ROTATION_VERSION}`) % DATASET.length;
       return { puzzle: DATASET[index], dailyKey, index };
     }
 

@@ -2372,7 +2372,6 @@
               title: "Week Windle",
               text
             });
-            showTopToast("Shared ✅", 1100);
           } else if (navigator.clipboard) {
             if (typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
               const item = new ClipboardItem({
@@ -2388,7 +2387,9 @@
             showTopToast("Clipboard not supported");
           }
         } catch {
-          showTopToast("Share canceled", 900);
+          if (!(isMobileDevice() && navigator.share)) {
+            showTopToast("Share canceled", 900);
+          }
         }
       };
 

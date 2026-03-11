@@ -449,16 +449,16 @@
 
     .guess-col.team.wrong,
     .guess-col.pos.wrong {
-      background: #ffeef2;
+      background: #ffffff;
       color: #111111;
-      border-color: #f1c7d1;
+      border-color: #dbe2f2;
     }
 
     .guess-col.team.unknown,
     .guess-col.pos.unknown {
-      background: #f1f4fb;
+      background: #ffffff;
       color: #111111;
-      border-color: #d8dfef;
+      border-color: #dbe2f2;
     }
 
     .footer-card {
@@ -1953,6 +1953,9 @@
       };
 
       const submitGuessFromInput = async (selectedName = null, fromSuggestion = false) => {
+        if (selectedName && typeof selectedName !== "string") {
+          selectedName = null;
+        }
         if (state.solved || state.revealed) {
           updateFeedback("", "");
           return;
@@ -2031,8 +2034,7 @@
 
       const shareCell = (status) => {
         if (status === "correct") return "🟩";
-        if (status === "wrong") return "🟥";
-        return "⬜";
+        return "⬛";
       };
 
       const buildShareGrid = () => {
@@ -2042,7 +2044,7 @@
           const profile = playerProfileForGuess(guess, puzzleSeason);
           const teamHint = hintStatus(profile.team, active.puzzle.team);
           const posHint = positionHintStatus(profile.position, active.puzzle.position);
-          const playerCell = isCorrect ? "🟩" : "⬜";
+          const playerCell = isCorrect ? "🟩" : "⬛";
           return `${playerCell}${shareCell(teamHint)}${shareCell(posHint)}`;
         }).join("\n");
       };
@@ -2099,7 +2101,7 @@
         submitGuessFromInput();
       });
 
-      guessInput.addEventListener("change", submitGuessFromInput);
+      guessInput.addEventListener("change", () => submitGuessFromInput());
       guessInput.addEventListener("input", () => {
         if (guessInput.disabled) return;
         const rawGuess = guessInput.value.trim();

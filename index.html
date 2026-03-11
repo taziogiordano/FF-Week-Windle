@@ -512,54 +512,47 @@
 
     .modal-prev {
       margin: 4px 0 10px;
-      text-align: left;
+      text-align: center;
     }
 
     .modal-prev-title {
-      margin: 0 0 8px;
-      font-size: 1rem;
+      margin: 0 0 10px;
+      font-size: 1.22rem;
       font-weight: 900;
       color: #243c70;
     }
 
-    .modal-prev-label {
-      margin: 0 0 6px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #3a4f7f;
-    }
-
     .modal-prev-controls {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
+      grid-template-columns: 1fr;
+      gap: 10px;
       align-items: center;
+      justify-items: center;
     }
 
     .modal-prev-date {
-      width: 100%;
+      width: min(100%, 320px);
       border: 1px solid #d2daed;
       border-radius: 8px;
       padding: 10px 11px;
       background: #ffffff;
       color: #233866;
-      font-size: 0.92rem;
+      font-size: 1rem;
       font-weight: 700;
-      min-height: 42px;
+      min-height: 46px;
     }
 
     .modal-prev-btn {
-      width: 100%;
+      width: min(100%, 280px);
       background: #ffffff;
       color: #2f4578;
       border: 1px solid #d2daed;
       border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.92rem;
-      font-weight: 800;
+      padding: 12px 12px;
+      font-size: 1.02rem;
+      font-weight: 900;
       cursor: pointer;
-      min-height: 42px;
-      width: auto;
+      min-height: 48px;
       white-space: nowrap;
     }
 
@@ -818,7 +811,6 @@
       <button class="modal-close-icon" type="button" id="modalCloseBtn" aria-label="Close">×</button>
       <div class="modal-prev">
         <p class="modal-prev-title">Play a previous day</p>
-        <p class="modal-prev-label">Which day would you like to play? xx/xx/xxxx</p>
         <div class="modal-prev-controls">
           <input class="modal-prev-date" id="modalPrevDayInput" type="date" />
           <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>

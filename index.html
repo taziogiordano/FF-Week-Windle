@@ -2098,9 +2098,6 @@
       }
       updateDatalistNames();
       rebuildPlayerDirectory();
-      await loadPlayerProfiles();
-      await loadSearchPlayers();
-      await preloadUserStats();
 
       const dailyBase = pickDailyPuzzle();
       let practiceOffset = 0;
@@ -2336,6 +2333,18 @@
       };
 
       rerender();
+      if (state.solved) {
+        showResultModal(active.puzzle.player, active, state, true);
+      } else if (state.revealed) {
+        showResultModal(active.puzzle.player, active, state, false);
+      }
+      loadPlayerProfiles().catch(() => {});
+      loadSearchPlayers().catch(() => {});
+      preloadUserStats()
+        .then((stats) => {
+          if (stats && !resultModal.classList.contains("hidden")) renderModalStats(stats);
+        })
+        .catch(() => {});
 
       guessForm.addEventListener("submit", (e) => {
         e.preventDefault();

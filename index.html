@@ -1915,11 +1915,7 @@
 
         const rawGuess = selectedName || guessInput.value.trim();
         if (!rawGuess) return;
-        const matchedName = selectedName || playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
-        if (!matchedName) {
-          updateFeedback("Select a valid player name from the list.", "error");
-          return;
-        }
+        const matchedName = selectedName || playerNames.find(name => normalizeName(name) === normalizeName(rawGuess)) || rawGuess;
 
         if (state.guesses.some(g => normalizeName(g) === normalizeName(matchedName))) {
           updateFeedback("You already guessed that player.", "error");
@@ -2058,7 +2054,7 @@
         renderPlayerSuggestions(rawGuess, true);
         if (!rawGuess) return;
         const matchedName = playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
-        if (matchedName) submitGuessFromInput();
+        if (matchedName) submitGuessFromInput(matchedName);
       });
       guessInput.addEventListener("focus", () => {
         if (guessInput.disabled) {
@@ -2066,6 +2062,11 @@
           return;
         }
         renderPlayerSuggestions(guessInput.value.trim(), true);
+      });
+      guessInput.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        submitGuessFromInput();
       });
       guessInput.addEventListener("blur", () => {
         setTimeout(() => {

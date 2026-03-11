@@ -33,6 +33,11 @@
       overflow-x: hidden;
     }
 
+    body.modal-open {
+      overflow: hidden;
+      touch-action: none;
+    }
+
     .wrap {
       width: min(calc(100% - 24px), var(--maxw));
       margin: 0 auto;
@@ -489,7 +494,9 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.42);
+      background: rgba(18, 26, 44, 0.52);
+      backdrop-filter: blur(1.5px);
+      -webkit-backdrop-filter: blur(1.5px);
       display: grid;
       place-items: center;
       padding: 16px;
@@ -1973,6 +1980,7 @@
       resultModalPlayer.textContent = `Player: ${playerName}`;
       setShareEnabled(true);
       resultModal.classList.remove("hidden");
+      syncModalBodyState();
       if (!userStatsLoaded) {
         preloadUserStats().then((stats) => {
           if (stats && !resultModal.classList.contains("hidden")) renderModalStats(stats);
@@ -1986,6 +1994,7 @@
       resultModalPlayer.textContent = "Player: ?";
       setShareEnabled(false);
       resultModal.classList.remove("hidden");
+      syncModalBodyState();
       if (!userStatsLoaded) {
         preloadUserStats().then((stats) => {
           if (stats && !resultModal.classList.contains("hidden")) renderModalStats(stats);
@@ -1995,14 +2004,17 @@
 
     function hideResultModal() {
       resultModal.classList.add("hidden");
+      syncModalBodyState();
     }
 
     function showFlashbackModal() {
       flashbackModal.classList.remove("hidden");
+      syncModalBodyState();
     }
 
     function hideFlashbackModal() {
       flashbackModal.classList.add("hidden");
+      syncModalBodyState();
     }
 
     function showTopToast(message, durationMs = 1400) {
@@ -2017,6 +2029,13 @@
 
     function setShareEnabled(enabled) {
       modalShareBtn.disabled = !enabled;
+    }
+
+    function syncModalBodyState() {
+      const anyModalOpen =
+        !resultModal.classList.contains("hidden") ||
+        !flashbackModal.classList.contains("hidden");
+      document.body.classList.toggle("modal-open", anyModalOpen);
     }
 
     async function init() {

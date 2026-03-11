@@ -36,7 +36,7 @@
     .wrap {
       width: min(calc(100% - 24px), var(--maxw));
       margin: 0 auto;
-      padding: calc(16px + env(safe-area-inset-top)) 0 calc(28px + env(safe-area-inset-bottom));
+      padding: calc(40px + env(safe-area-inset-top)) 0 calc(28px + env(safe-area-inset-bottom));
     }
 
     .topbar {
@@ -791,6 +791,7 @@
 
     @media (max-width: 540px) {
       .wrap { width: min(calc(100% - 16px), var(--maxw)); }
+      .wrap { padding-top: calc(48px + env(safe-area-inset-top)); }
       .topbar {
         padding-left: 96px;
         padding-right: 96px;

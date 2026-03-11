@@ -1095,6 +1095,29 @@
 
   <div class="top-toast hidden" id="topToast">Saved to clipboard 📋</div>
 
+  <script>
+    // Set your real GA4 Measurement ID here (example: G-ABC123XYZ9).
+    window.WEEK_WINDLE_GA4_ID = "G-7EFR7E0721";
+    (function initGA4() {
+      const ga4Id = String(window.WEEK_WINDLE_GA4_ID || "").trim();
+      if (!/^G-[A-Z0-9]+$/i.test(ga4Id) || ga4Id === "G-XXXXXXXXXX") return;
+
+      const gaScript = document.createElement("script");
+      gaScript.async = true;
+      gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4Id)}`;
+      document.head.appendChild(gaScript);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag("js", new Date());
+      gtag("config", ga4Id, {
+        send_page_view: true,
+        anonymize_ip: true,
+      });
+    })();
+  </script>
+
   <script src="./data/puzzles_data.js"></script>
   <script src="./data/player_profiles_data.js"></script>
   <script src="./data/player_search_data.js"></script>

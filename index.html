@@ -2084,16 +2084,15 @@
       const existing = localStorage.getItem(markerKey);
       if (existing === STATE_RESET_TOKEN) return;
 
-      const preserve = new Set([
-        "fantasy-stat-line-daily::puzzles-cache",
-        "fantasy-stat-line-daily::meta",
-        markerKey,
-      ]);
       const toRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i) || "";
         if (!key.startsWith("fantasy-stat-line-daily::")) continue;
-        if (preserve.has(key)) continue;
+        if (key === "fantasy-stat-line-daily::puzzles-cache") continue;
+        if (key === "fantasy-stat-line-daily::meta") continue;
+        if (key === markerKey) continue;
+        if (key.startsWith("fantasy-stat-line-daily::anon-user-id::")) continue;
+        if (key.startsWith("fantasy-stat-line-daily::cached-user-stats::")) continue;
         toRemove.push(key);
       }
       toRemove.forEach((key) => localStorage.removeItem(key));
@@ -2104,6 +2103,16 @@
       const key = `fantasy-stat-line-daily::anon-user-id::${STATS_USER_ID_VERSION}`;
       const existing = localStorage.getItem(key);
       if (existing) return existing;
+      // Migration safety: reuse any prior anon id key so stats identity never rotates on deploys.
+      const legacyPrefix = "fantasy-stat-line-daily::anon-user-id::";
+      for (let i = 0; i < localStorage.length; i++) {
+        const candidateKey = localStorage.key(i) || "";
+        if (!candidateKey.startsWith(legacyPrefix)) continue;
+        const legacyValue = localStorage.getItem(candidateKey);
+        if (!legacyValue) continue;
+        localStorage.setItem(key, legacyValue);
+        return legacyValue;
+      }
       const generated = (
         typeof crypto !== "undefined" && crypto.randomUUID
           ? crypto.randomUUID()

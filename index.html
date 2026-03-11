@@ -732,6 +732,12 @@
       box-shadow: 0 5px 12px rgba(197, 17, 47, 0.25);
     }
 
+    .stats-share-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
     .top-toast {
       position: fixed;
       top: 12px;
@@ -1813,6 +1819,7 @@
       resultModalText.textContent = "";
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = `Player: ${playerName}`;
+      setShareEnabled(true);
       resultModal.classList.remove("hidden");
       if (!userStatsLoaded) {
         preloadUserStats().then((stats) => {
@@ -1825,6 +1832,7 @@
       resultModalText.textContent = "";
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = "Player: ?";
+      setShareEnabled(false);
       resultModal.classList.remove("hidden");
       if (!userStatsLoaded) {
         preloadUserStats().then((stats) => {
@@ -1853,6 +1861,10 @@
         topToast.classList.add("hidden");
         topToastTimer = null;
       }, durationMs);
+    }
+
+    function setShareEnabled(enabled) {
+      modalShareBtn.disabled = !enabled;
     }
 
     async function init() {
@@ -2036,15 +2048,22 @@
       };
 
       const shareCurrentResult = async () => {
+        if (!state.solved && !state.revealed) {
+          setShareEnabled(false);
+          showTopToast("Finish the game first", 1000);
+          return;
+        }
         const solved = state.solved;
         const score = solved ? currentScore(state.solvedAtGuess) : 0;
         const guessLabel = solved ? state.solvedAtGuess : "X";
         const gameNumber = active.puzzleNumber || "—";
         const grid = buildShareGrid();
+        const gameUrl = `${window.location.origin}${window.location.pathname}`;
         const text = [
           `Week Windle #${gameNumber} ${guessLabel}/${MAX_GUESSES}`,
           solved ? `Score: ${score}` : "Not solved",
-          grid
+          grid,
+          gameUrl
         ].filter(Boolean).join("\n");
 
         const isMobileDevice = () => {

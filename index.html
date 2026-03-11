@@ -2081,11 +2081,11 @@
           .replace(/'/g, "&#39;");
         const gridHtml = grid.split("\n").map((row) => `<div>${escapeHtml(row)}</div>`).join("");
         const html = `
-<div style="font-family: Arial, Helvetica, sans-serif; color: #111827; font-size: 22px; line-height: 1.35;">
-  <div style="font-size: 30px; font-weight: 800; margin-bottom: 8px;">🏈 WEEK WINDLE #${escapeHtml(gameNumber)}</div>
-  <div style="font-size: 24px; font-weight: 700; margin-bottom: 14px;">${escapeHtml(solved ? `✅ ${guessLabel}/${MAX_GUESSES} • ${score} pts` : `❌ X/${MAX_GUESSES}`)}</div>
-  <div style="font-size: 28px; line-height: 1.15; letter-spacing: 0.04em; margin-bottom: 14px;">${gridHtml}</div>
-  <a href="${escapeHtml(gameUrl)}" style="font-size: 21px; color: #0f4aa8; text-decoration: underline;">${escapeHtml(gameUrl)}</a>
+<div style="font-family: Arial, Helvetica, sans-serif; color: #111827; font-size: 18px; line-height: 1.35;">
+  <div style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">🏈 WEEK WINDLE #${escapeHtml(gameNumber)}</div>
+  <div style="font-size: 19px; font-weight: 700; margin-bottom: 12px;">${escapeHtml(solved ? `✅ ${guessLabel}/${MAX_GUESSES} • ${score} pts` : `❌ X/${MAX_GUESSES}`)}</div>
+  <div style="font-size: 22px; line-height: 1.15; letter-spacing: 0.03em; margin-bottom: 12px;">${gridHtml}</div>
+  <a href="${escapeHtml(gameUrl)}" style="font-size: 17px; color: #0f4aa8; text-decoration: underline;">${escapeHtml(gameUrl)}</a>
 </div>`.trim();
 
         const isMobileDevice = () => {

@@ -499,8 +499,8 @@
 
     .modal-close-icon {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 4px;
+      right: 4px;
       width: 28px;
       height: 28px;
       border: 0;
@@ -590,9 +590,9 @@
 
     .modal-prev-btn {
       width: min(100%, 280px);
-      background: #ffffff;
-      color: #2f4578;
-      border: 1px solid #d2daed;
+      background: #1f3b73;
+      color: #ffffff;
+      border: 1px solid #17305f;
       border-radius: 8px;
       padding: 12px 12px;
       font-size: 1.02rem;
@@ -600,6 +600,7 @@
       cursor: pointer;
       min-height: 48px;
       white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(31, 59, 115, 0.25);
     }
 
     .modal-prev-note {
@@ -763,9 +764,9 @@
       <div class="topbar-actions">
         <button class="topbar-btn" type="button" id="openFlashbackModalBtn" aria-label="Open flashback popup" title="Flashback">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-            <path d="M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            <rect x="4" y="5" width="16" height="15" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+            <path d="M8 3.8v3.2M16 3.8v3.2M4 9.5h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M8.2 13.2h3.1M12.7 13.2h3.1M8.2 16.4h3.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
           </svg>
         </button>
         <button class="topbar-btn" type="button" id="openStatusModalBtn" aria-label="Open stats popup" title="Stats">

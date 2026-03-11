@@ -558,13 +558,11 @@
     .modal-prev-date-wrap {
       display: inline-flex;
       align-items: center;
-      border-bottom: 2px solid #c8d3ea;
-      padding-bottom: 2px;
       width: fit-content;
     }
 
     .modal-prev-date {
-      width: min(100%, 320px);
+      width: auto;
       border: 0;
       border-bottom: 0;
       border-radius: 0;
@@ -577,8 +575,17 @@
     }
 
     .modal-prev-question-row .modal-prev-date {
-      width: 144px;
-      min-width: 144px;
+      width: auto;
+      min-width: 0;
+    }
+
+    .modal-prev-date::-webkit-datetime-edit {
+      border-bottom: 2px solid #c8d3ea;
+      padding-bottom: 2px;
+    }
+
+    .modal-prev-date::-webkit-calendar-picker-indicator {
+      margin-left: 4px;
     }
 
     .modal-prev-btn {

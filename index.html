@@ -2080,7 +2080,7 @@
 
     function showResultModal(playerName, info, state, didSolve = true) {
       resultModalText.textContent = "";
-      modalOutcome.textContent = didSolve ? "You Win!" : "Out of Guesses.";
+      modalOutcome.textContent = didSolve ? "You Win!" : "Out of Guesses";
       modalOutcome.classList.remove("hidden");
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = `Player: ${playerName}`;
@@ -2334,7 +2334,7 @@
           return;
         }
         const solved = state.solved;
-        const guessLabel = solved ? state.solvedAtGuess : "X";
+        const guessLabel = solved ? state.solvedAtGuess : MAX_GUESSES;
         const gameNumber = active.puzzleNumber || "—";
         const grid = buildShareGrid();
         const gameUrl = `${window.location.origin}${window.location.pathname}`;

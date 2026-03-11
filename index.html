@@ -393,8 +393,12 @@
       display: grid;
       gap: 0;
       margin-top: 0;
-      border: 2px solid #aebad4;
+      border: 0;
       background: #ffffff;
+    }
+
+    .guess-list.has-guesses {
+      border: 2px solid #aebad4;
     }
 
     .guess-item {
@@ -1787,6 +1791,7 @@
     function renderState(puzzle, state) {
       guessCountEl.textContent = `${state.guesses.length} of ${MAX_GUESSES} guesses`;
       guessHeader.classList.toggle("hidden", state.guesses.length === 0);
+      guessList.classList.toggle("has-guesses", state.guesses.length > 0);
       setGuessInputLocked(Boolean(state.solved || state.revealed));
 
       guessList.innerHTML = "";

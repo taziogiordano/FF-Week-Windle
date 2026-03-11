@@ -2073,6 +2073,20 @@
           "",
           gameUrl
         ].filter(Boolean).join("\n");
+        const escapeHtml = (value) => String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+        const gridHtml = grid.split("\n").map((row) => `<div>${escapeHtml(row)}</div>`).join("");
+        const html = `
+<div style="font-family: Arial, Helvetica, sans-serif; color: #111827; font-size: 22px; line-height: 1.35;">
+  <div style="font-size: 30px; font-weight: 800; margin-bottom: 8px;">🏈 WEEK WINDLE #${escapeHtml(gameNumber)}</div>
+  <div style="font-size: 24px; font-weight: 700; margin-bottom: 14px;">${escapeHtml(solved ? `✅ ${guessLabel}/${MAX_GUESSES} • ${score} pts` : `❌ X/${MAX_GUESSES}`)}</div>
+  <div style="font-size: 28px; line-height: 1.15; letter-spacing: 0.04em; margin-bottom: 14px;">${gridHtml}</div>
+  <a href="${escapeHtml(gameUrl)}" style="font-size: 21px; color: #0f4aa8; text-decoration: underline;">${escapeHtml(gameUrl)}</a>
+</div>`.trim();
 
         const isMobileDevice = () => {
           const ua = navigator.userAgent || "";
@@ -2090,7 +2104,15 @@
             });
             showTopToast("Shared ✅", 1100);
           } else if (navigator.clipboard) {
-            await navigator.clipboard.writeText(text);
+            if (typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
+              const item = new ClipboardItem({
+                "text/plain": new Blob([text], { type: "text/plain" }),
+                "text/html": new Blob([html], { type: "text/html" })
+              });
+              await navigator.clipboard.write([item]);
+            } else {
+              await navigator.clipboard.writeText(text);
+            }
             showTopToast("Saved to clipboard 📋");
           } else {
             showTopToast("Clipboard not supported");

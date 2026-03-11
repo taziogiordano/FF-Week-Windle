@@ -1570,6 +1570,7 @@
     const STATE_RESET_TOKEN = "2026-03-10-g";
     const FORCE_FRESH_STATE_ON_LOAD = false;
     const RESULT_MODAL_DELAY_MS = 40;
+    const STATS_USER_ID_VERSION = "v2";
     const PUZZLE_NUMBER_START_KEY = "2026-03-11";
     const PINNED_DAILY_PUZZLES = {
       "2026-03-11": { player: "Albert Wilson", season: 2018, week: 6 },
@@ -1867,7 +1868,7 @@
     }
 
     function getAnonUserId() {
-      const key = "fantasy-stat-line-daily::anon-user-id";
+      const key = `fantasy-stat-line-daily::anon-user-id::${STATS_USER_ID_VERSION}`;
       const existing = localStorage.getItem(key);
       if (existing) return existing;
       const generated = (

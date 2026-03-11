@@ -597,6 +597,20 @@
       box-shadow: 0 4px 10px rgba(197, 17, 47, 0.22);
     }
 
+    .stats-share-btn {
+      margin-top: 10px;
+      width: 100%;
+      background: var(--accent);
+      color: #ffffff;
+      border: 1px solid #9d0e26;
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      box-shadow: 0 5px 12px rgba(197, 17, 47, 0.25);
+    }
+
     .hidden { display: none; }
     .modal-backdrop.hidden { display: none; }
 
@@ -744,11 +758,11 @@
               <div class="modal-stat-value" id="statLongestStreak">--</div>
             </div>
           </div>
+          <button class="stats-share-btn" type="button" id="modalShareBtn">Share Result</button>
         </div>
       </div>
       <p class="modal-player" id="resultModalPlayer">Player: ?</p>
       <div class="modal-actions">
-        <button class="btn-share" type="button" id="modalShareBtn">Share Result</button>
         <button class="btn-secondary" type="button" id="modalCloseBtn">Close</button>
       </div>
     </div>

@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-03-10T13:21:03Z",
+  "generated_at_utc": "2026-03-11T22:27:05Z",
   "summary": {
     "puzzle_count": 1122,
-    "profile_count": 7637,
+    "profile_count": 11126,
     "season_count": 16
   },
   "issues": {
@@ -11,8 +11,10 @@
     "missing_required_stats": 0,
     "missing_season": 0,
     "duplicate_puzzle_keys": 0,
-    "profiles_without_default_team_or_position": 3,
-    "profiles_without_season_history": 0
+    "profiles_without_default_team_or_position": 12,
+    "profiles_without_season_history": 0,
+    "profiles_without_colleges": 30,
+    "profiles_without_career_range": 0
   },
   "strict_criteria": [
     "missing_required_stats",

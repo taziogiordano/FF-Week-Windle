@@ -24,9 +24,25 @@ from datetime import UTC, datetime
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-SEASON_URL_TEMPLATE = "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.{ext}"
+SEASON_URL_TEMPLATES = [
+    "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.{ext}",
+    "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_{season}.{ext}",
+    "https://nflreadr.nflverse.com/data/stats_player_week_{season}.{ext}",
+    "https://nflreadr.nflverse.com/data/player_stats/player_stats_{season}.{ext}",
+    "https://nflverse-data.s3.amazonaws.com/stats_player_week_{season}.{ext}",
+    "https://nflverse-data.s3.amazonaws.com/player_stats_{season}.{ext}",
+]
+PLAYER_META_URLS = [
+    "https://github.com/nflverse/nflverse-data/releases/download/players/players.csv",
+    "https://github.com/nflverse/nflverse-data/releases/download/players/players.csv.gz",
+    "https://nflreadr.nflverse.com/data/players.csv",
+    "https://nflreadr.nflverse.com/data/players.csv.gz",
+    "https://nflverse-data.s3.amazonaws.com/players.csv",
+    "https://nflverse-data.s3.amazonaws.com/players.csv.gz",
+]
 
 NAME_KEYS = ["player_display_name", "player_name", "name", "player"]
+PLAYER_ID_KEYS = ["player_id", "gsis_id", "nfl_id", "pfr_id", "espn_id"]
 DATE_KEYS = ["game_date", "gameday", "date"]
 SEASON_KEYS = ["season", "game_season"]
 WEEK_KEYS = ["week", "game_week"]
@@ -35,6 +51,11 @@ POS_KEYS = ["position_group", "position"]
 SEASON_TYPE_KEYS = ["season_type", "game_type", "type"]
 TEAM_KEYS = ["recent_team", "team", "posteam"]
 OPP_KEYS = ["opponent_team", "opponent", "defteam"]
+COLLEGE_KEYS = ["college_name", "college", "school", "school_name", "collegeName"]
+META_NAME_KEYS = ["display_name", "player_name", "full_name", "player_display_name", "name"]
+META_ID_KEYS = ["gsis_id", "player_id", "nfl_id", "pfr_id", "espn_id"]
+FIRST_SEASON_KEYS = ["rookie_year", "first_season", "rookie_season", "entry_year"]
+LAST_SEASON_KEYS = ["last_season", "final_season"]
 
 
 def first_non_empty(row: dict[str, str], keys: list[str], default: str = "") -> str:
@@ -98,6 +119,22 @@ def open_csv_reader(url: str, insecure: bool = False) -> csv.DictReader:
     return csv.DictReader(lines)
 
 
+def parse_optional_int(value: str | int | float | None) -> int | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return int(round(float(text)))
+    except (TypeError, ValueError):
+        return None
+
+
+def normalize_player_id(value: str) -> str:
+    return str(value or "").strip().upper()
+
+
 def load_rows(season_start: int, season_end: int, insecure: bool = False) -> list[dict[str, str]]:
     all_rows: list[dict[str, str]] = []
     failed_seasons: list[tuple[int, str]] = []
@@ -105,33 +142,88 @@ def load_rows(season_start: int, season_end: int, insecure: bool = False) -> lis
     for season in range(season_start, season_end + 1):
         loaded_this_season = False
         last_error: Exception | None = None
-        for ext in ("csv", "csv.gz"):
-            url = SEASON_URL_TEMPLATE.format(season=season, ext=ext)
-            try:
-                print(f"Trying {url} ...", file=sys.stderr)
-                reader = open_csv_reader(url, insecure=insecure)
-                rows = list(reader)
-                if rows:
-                    all_rows.extend(rows)
-                    loaded_this_season = True
-                    print(f"Loaded {len(rows)} rows from season {season}", file=sys.stderr)
-                    break
-            except (HTTPError, URLError, TimeoutError, OSError, gzip.BadGzipFile) as err:
-                last_error = err
-                continue
+        for template in SEASON_URL_TEMPLATES:
+            for ext in ("csv", "csv.gz"):
+                url = template.format(season=season, ext=ext)
+                try:
+                    print(f"Trying {url} ...", file=sys.stderr)
+                    reader = open_csv_reader(url, insecure=insecure)
+                    rows = list(reader)
+                    if rows:
+                        all_rows.extend(rows)
+                        loaded_this_season = True
+                        print(f"Loaded {len(rows)} rows from season {season}", file=sys.stderr)
+                        break
+                except (HTTPError, URLError, TimeoutError, OSError, gzip.BadGzipFile) as err:
+                    last_error = err
+                    continue
+            if loaded_this_season:
+                break
         if not loaded_this_season:
             failed_seasons.append((season, str(last_error or "unknown error")))
 
     if not all_rows:
+        sample = ", ".join(f"{s}: {e}" for s, e in failed_seasons[:3]) if failed_seasons else "no sample errors"
         raise RuntimeError(
             "Could not load any seasonal nflverse stats files. "
-            "Verify access to https://github.com/nflverse/nflverse-data/releases"
+            f"Sample season errors -> {sample}"
         )
 
     if failed_seasons:
         print(f"Warning: skipped {len(failed_seasons)} seasons due to download errors.", file=sys.stderr)
+        sample = ", ".join(f"{s}: {e}" for s, e in failed_seasons[:3])
+        print(f"Sample season errors -> {sample}", file=sys.stderr)
 
     return all_rows
+
+
+def load_player_metadata(insecure: bool = False) -> dict[str, dict[str, dict[str, object]]]:
+    rows: list[dict[str, str]] = []
+    for url in PLAYER_META_URLS:
+        try:
+            print(f"Trying {url} ...", file=sys.stderr)
+            reader = open_csv_reader(url, insecure=insecure)
+            rows = list(reader)
+            if rows:
+                print(f"Loaded {len(rows)} player metadata rows", file=sys.stderr)
+                break
+        except (HTTPError, URLError, TimeoutError, OSError, gzip.BadGzipFile):
+            continue
+
+    if not rows:
+        print("Warning: could not load player metadata; colleges may be missing.", file=sys.stderr)
+        return {"by_id": {}, "by_name": {}}
+
+    metadata_by_id: dict[str, dict[str, object]] = {}
+    metadata_by_name: dict[str, dict[str, object]] = {}
+
+    def upsert(target: dict[str, dict[str, object]], key: str, college: str, first_season: int | None, last_season: int | None) -> None:
+        if key not in target:
+            target[key] = {"colleges": set(), "first_season": None, "last_season": None}
+        entry = target[key]
+        if college:
+            entry["colleges"].add(college)
+        if first_season is not None and first_season >= 1900:
+            if entry["first_season"] is None or first_season < entry["first_season"]:
+                entry["first_season"] = first_season
+        if last_season is not None and last_season >= 1900:
+            if entry["last_season"] is None or last_season > entry["last_season"]:
+                entry["last_season"] = last_season
+
+    for row in rows:
+        name = first_non_empty(row, META_NAME_KEYS)
+        norm_name = normalize_name(name)
+        player_id = normalize_player_id(first_non_empty(row, META_ID_KEYS))
+        college = first_non_empty(row, COLLEGE_KEYS)
+        first_season = parse_optional_int(first_non_empty(row, FIRST_SEASON_KEYS))
+        last_season = parse_optional_int(first_non_empty(row, LAST_SEASON_KEYS))
+
+        if player_id:
+            upsert(metadata_by_id, player_id, college, first_season, last_season)
+        if norm_name:
+            upsert(metadata_by_name, norm_name, college, first_season, last_season)
+
+    return {"by_id": metadata_by_id, "by_name": metadata_by_name}
 
 
 def build_puzzles(rows: list[dict[str, str]], min_ppr: float, positions: set[str]) -> list[dict[str, object]]:
@@ -216,8 +308,11 @@ def pick_preferred_position(pos_counts: Counter[str]) -> str:
     return sorted(source.items(), key=lambda item: (-item[1], item[0]))[0][0]
 
 
-def build_player_profiles(rows: list[dict[str, str]]) -> dict[str, object]:
+def build_player_profiles(rows: list[dict[str, str]], metadata: dict[str, dict[str, dict[str, object]]] | None = None) -> dict[str, object]:
     aggregate: dict[str, dict[str, object]] = {}
+    metadata = metadata or {"by_id": {}, "by_name": {}}
+    meta_by_id = metadata.get("by_id", {})
+    meta_by_name = metadata.get("by_name", {})
 
     for row in rows:
         season_type = first_non_empty(row, SEASON_TYPE_KEYS, "REG").upper()
@@ -228,16 +323,19 @@ def build_player_profiles(rows: list[dict[str, str]]) -> dict[str, object]:
         if not player:
             continue
 
+        player_id = normalize_player_id(first_non_empty(row, PLAYER_ID_KEYS))
         pos = first_non_empty(row, POS_KEYS, "").upper()
-
         team = first_non_empty(row, TEAM_KEYS, "").upper()
         season = first_non_empty(row, SEASON_KEYS, "")
         season_key = season if season.isdigit() else ""
-        norm = normalize_name(player)
+        norm_name = normalize_name(player)
+        aggregate_key = player_id or f"name::{norm_name}"
 
-        if norm not in aggregate:
-            aggregate[norm] = {
+        if aggregate_key not in aggregate:
+            aggregate[aggregate_key] = {
                 "player": player,
+                "player_id": player_id,
+                "norm_name": norm_name,
                 "team_counts": Counter(),
                 "pos_counts": Counter(),
                 "pos_team_counts": defaultdict(Counter),
@@ -246,7 +344,7 @@ def build_player_profiles(rows: list[dict[str, str]]) -> dict[str, object]:
                 "season_pos_team_counts": defaultdict(lambda: defaultdict(Counter)),
             }
 
-        entry = aggregate[norm]
+        entry = aggregate[aggregate_key]
         if team:
             entry["team_counts"][team] += 1
             if season_key:
@@ -260,8 +358,8 @@ def build_player_profiles(rows: list[dict[str, str]]) -> dict[str, object]:
                 if team:
                     entry["season_pos_team_counts"][season_key][pos][team] += 1
 
-    profiles: dict[str, object] = {}
-    for norm, entry in aggregate.items():
+    grouped: dict[str, list[dict[str, object]]] = defaultdict(list)
+    for _, entry in aggregate.items():
         default_pos = pick_preferred_position(entry["pos_counts"])
         if default_pos in entry["pos_team_counts"] and entry["pos_team_counts"][default_pos]:
             default_team = entry["pos_team_counts"][default_pos].most_common(1)[0][0]
@@ -289,14 +387,45 @@ def build_player_profiles(rows: list[dict[str, str]]) -> dict[str, object]:
                 team = entry["season_pos_team_counts"][season][pos].most_common(1)[0][0]
             by_season[season] = {"team": team, "position": pos}
 
-        profiles[norm] = {
-            "player": entry["player"],
-            "default": {"team": default_team, "position": default_pos},
-            "by_season": by_season,
-        }
+        season_years = sorted(int(s) for s in by_season.keys()) if by_season else []
+        meta = meta_by_id.get(entry.get("player_id", ""), {}) or meta_by_name.get(entry["norm_name"], {})
+        meta_first = parse_optional_int(meta.get("first_season"))
+        meta_last = parse_optional_int(meta.get("last_season"))
+        start_year = season_years[0] if season_years else None
+        end_year = season_years[-1] if season_years else None
+        if meta_first is not None and meta_first >= 1900:
+            start_year = meta_first if start_year is None else min(start_year, meta_first)
+        if meta_last is not None and meta_last >= 1900:
+            end_year = meta_last if end_year is None else max(end_year, meta_last)
+        colleges = sorted(str(c).strip() for c in meta.get("colleges", set()) if str(c).strip())
 
+        grouped[entry["norm_name"]].append(
+            {
+                "player": entry["player"],
+                "player_id": entry.get("player_id", ""),
+                "default": {"team": default_team, "position": default_pos},
+                "by_season": by_season,
+                "career_start": start_year,
+                "career_end": end_year,
+                "colleges": colleges,
+            }
+        )
+
+    profiles: dict[str, object] = {}
+    for norm_name, options in grouped.items():
+        if len(options) == 1:
+            profiles[norm_name] = options[0]
+        else:
+            options_sorted = sorted(
+                options,
+                key=lambda x: (
+                    -(len(x.get("by_season", {}) or {})),
+                    -(x.get("career_end") or 0),
+                    x.get("player_id", ""),
+                ),
+            )
+            profiles[norm_name] = options_sorted
     return profiles
-
 
 def build_search_players(rows: list[dict[str, str]], positions: set[str]) -> list[str]:
     names: set[str] = set()
@@ -359,15 +488,26 @@ def evaluate_quality(puzzles: list[dict[str, object]], profiles: dict[str, objec
 
     profiles_without_default = 0
     profiles_without_seasons = 0
-    for profile in profiles.values():
-        default = profile.get("default", {}) if isinstance(profile, dict) else {}
-        team = str(default.get("team", "")).upper()
-        pos = str(default.get("position", "")).upper()
-        by_season_obj = profile.get("by_season", {}) if isinstance(profile, dict) else {}
-        if team in {"", "UNK", "—"} or pos in {"", "UNK", "—"}:
-            profiles_without_default += 1
-        if not isinstance(by_season_obj, dict) or not by_season_obj:
-            profiles_without_seasons += 1
+    profiles_without_colleges = 0
+    profiles_without_career_range = 0
+    for profile_val in profiles.values():
+        profile_options = profile_val if isinstance(profile_val, list) else [profile_val]
+        for profile in profile_options:
+            default = profile.get("default", {}) if isinstance(profile, dict) else {}
+            team = str(default.get("team", "")).upper()
+            pos = str(default.get("position", "")).upper()
+            by_season_obj = profile.get("by_season", {}) if isinstance(profile, dict) else {}
+            colleges = profile.get("colleges", []) if isinstance(profile, dict) else []
+            career_start = profile.get("career_start") if isinstance(profile, dict) else None
+            career_end = profile.get("career_end") if isinstance(profile, dict) else None
+            if team in {"", "UNK", "—"} or pos in {"", "UNK", "—"}:
+                profiles_without_default += 1
+            if not isinstance(by_season_obj, dict) or not by_season_obj:
+                profiles_without_seasons += 1
+            if not isinstance(colleges, list) or not colleges:
+                profiles_without_colleges += 1
+            if not isinstance(career_start, int) or not isinstance(career_end, int):
+                profiles_without_career_range += 1
 
     issues = {
         "missing_team": missing_team,
@@ -377,6 +517,8 @@ def evaluate_quality(puzzles: list[dict[str, object]], profiles: dict[str, objec
         "duplicate_puzzle_keys": len(duplicate_keys),
         "profiles_without_default_team_or_position": profiles_without_default,
         "profiles_without_season_history": profiles_without_seasons,
+        "profiles_without_colleges": profiles_without_colleges,
+        "profiles_without_career_range": profiles_without_career_range,
     }
 
     critical_issue_keys = [
@@ -441,6 +583,12 @@ def parse_args() -> argparse.Namespace:
         help="Last season to include (default: previous year)",
     )
     parser.add_argument(
+        "--profile-season-start",
+        type=int,
+        default=1999,
+        help="First season to include for player profile history (default: 1999)",
+    )
+    parser.add_argument(
         "--insecure",
         action="store_true",
         help="Disable SSL certificate verification for data download (use only if needed).",
@@ -459,9 +607,19 @@ def main() -> int:
     if args.season_end < args.season_start:
         print("--season-end must be >= --season-start", file=sys.stderr)
         return 1
+    if args.season_end < args.profile_season_start:
+        print("--season-end must be >= --profile-season-start", file=sys.stderr)
+        return 1
 
-    rows = load_rows(args.season_start, args.season_end, insecure=args.insecure)
-    puzzles = build_puzzles(rows, min_ppr=args.min_ppr, positions=positions)
+    puzzle_rows = load_rows(args.season_start, args.season_end, insecure=args.insecure)
+    profile_rows = (
+        puzzle_rows
+        if args.profile_season_start == args.season_start
+        else load_rows(args.profile_season_start, args.season_end, insecure=args.insecure)
+    )
+    metadata = load_player_metadata(insecure=args.insecure)
+
+    puzzles = build_puzzles(puzzle_rows, min_ppr=args.min_ppr, positions=positions)
 
     if not puzzles:
         print("No puzzles generated. Try lowering --min-ppr or expanding --positions.", file=sys.stderr)
@@ -472,13 +630,13 @@ def main() -> int:
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(puzzles, f, indent=2)
 
-    profiles = build_player_profiles(rows)
+    profiles = build_player_profiles(profile_rows, metadata=metadata)
     profiles_out_path = args.profiles_out
     os.makedirs(os.path.dirname(profiles_out_path) or ".", exist_ok=True)
     with open(profiles_out_path, "w", encoding="utf-8") as f:
         json.dump(profiles, f, indent=2)
 
-    search_players = build_search_players(rows, positions={"WR", "RB", "TE"})
+    search_players = build_search_players(puzzle_rows, positions={"WR", "RB", "TE"})
     search_out_path = args.search_out
     os.makedirs(os.path.dirname(search_out_path) or ".", exist_ok=True)
     with open(search_out_path, "w", encoding="utf-8") as f:

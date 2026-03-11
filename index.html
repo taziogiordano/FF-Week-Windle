@@ -59,6 +59,15 @@
       align-items: center;
     }
 
+    .topbar-actions-left {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     .topbar-btn {
       width: 46px;
       height: 46px;
@@ -79,6 +88,7 @@
       width: 21px;
       height: 21px;
       display: block;
+      overflow: visible;
     }
 
     .brand {
@@ -544,7 +554,7 @@
       margin: 0 0 10px;
       font-size: 1.52rem;
       font-weight: 900;
-      color: #243c70;
+      color: #111111;
       text-align: center;
     }
 
@@ -628,6 +638,64 @@
       color: #5a6e99;
       font-weight: 800;
       text-align: center;
+    }
+
+    .hint-intro {
+      margin: 8px 0 10px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #324b7d;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .hint-section {
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .hint-question {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #2b4476;
+    }
+
+    .hint-secondary-title {
+      margin: 2px 0 6px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #111111;
+      text-align: center;
+    }
+
+    .hint-btn {
+      width: min(100%, 300px);
+      margin: 0 auto;
+      background: #1f3b73;
+      color: #ffffff;
+      border: 1px solid #17305f;
+      min-height: 48px;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+    .hint-btn:disabled {
+      opacity: .58;
+      cursor: not-allowed;
+    }
+
+    .hint-result {
+      margin: 8px auto 0;
+      width: min(100%, 440px);
+      border: 2px solid #7f93bd;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
+      padding: 12px 12px;
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #0f2452;
+      line-height: 1.4;
+      box-shadow: 0 0 0 3px rgba(39, 75, 145, 0.12), 0 8px 18px rgba(29, 58, 116, 0.18);
     }
 
     .modal-title {
@@ -817,6 +885,10 @@
         top: -26px;
         right: 2px;
       }
+      .topbar-actions-left {
+        top: -26px;
+        left: 2px;
+      }
       .topbar-btn {
         width: 40px;
         height: 40px;
@@ -902,6 +974,9 @@
         padding-left: 90px;
         padding-right: 90px;
       }
+      .topbar-actions-left {
+        left: 1px;
+      }
       .topbar-btn {
         width: 38px;
         height: 38px;
@@ -943,6 +1018,15 @@
 <body>
   <div class="wrap">
     <div class="topbar">
+      <div class="topbar-actions-left">
+        <button class="topbar-btn" type="button" id="openHintModalBtn" aria-label="Open hints popup" title="Hints">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3.5a6.5 6.5 0 0 0-4.2 11.5c.9.8 1.4 1.7 1.6 2.6h5.2c.2-.9.8-1.8 1.6-2.6A6.5 6.5 0 0 0 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="M9.8 20.5h4.4M10.4 18.8h3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M12 -1v1.8M2.6 2.6l.7.7M21.4 2.6l-.7.7M1.2 11.2h1.2M22.8 11.2h-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </div>
       <div class="topbar-actions">
         <button class="topbar-btn" type="button" id="openFlashbackModalBtn" aria-label="Open flashback popup" title="Flashback">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -1091,13 +1175,31 @@
         <div class="modal-prev-question-row">
           <p class="modal-prev-question">Which day would you like to play?</p>
           <span class="modal-prev-date-wrap">
-            <input class="modal-prev-date" id="modalPrevDayInput" type="date" />
+            <input class="modal-prev-date" id="modalPrevDayInput" type="date" min="2026-03-11" max="2026-03-11" />
           </span>
         </div>
         <div class="modal-prev-controls">
           <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>
         </div>
         <p class="modal-prev-note">Note: This will not count towards your stats or be saved.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="hintModal" role="dialog" aria-modal="true" aria-label="Hints">
+    <div class="modal-card" style="min-height: 260px;">
+      <button class="modal-close-icon" type="button" id="hintCloseBtn" aria-label="Close">×</button>
+      <p class="modal-prev-title">Stuck?</p>
+      <p class="hint-intro">Click below to reveal the player's years played and teams played for</p>
+      <div class="hint-section">
+        <button class="hint-btn" type="button" id="revealCareerHintBtn">Reveal Years + Teams</button>
+        <div class="hint-result hidden" id="careerHintResult">—</div>
+      </div>
+      <div class="hint-section hidden" id="collegeHintSection">
+        <p class="hint-secondary-title">Still Stuck?</p>
+        <p class="hint-question">Click below to reveal what college the player attended</p>
+        <button class="hint-btn" type="button" id="revealCollegeHintBtn">Reveal College</button>
+        <div class="hint-result hidden" id="collegeHintResult">—</div>
       </div>
     </div>
   </div>
@@ -1127,9 +1229,9 @@
     })();
   </script>
 
-  <script src="./data/puzzles_data.js"></script>
-  <script src="./data/player_profiles_data.js"></script>
-  <script src="./data/player_search_data.js"></script>
+  <script src="./data/puzzles_data.js?v=2026-03-11-2"></script>
+  <script src="./data/player_profiles_data.js?v=2026-03-11-2"></script>
+  <script src="./data/player_search_data.js?v=2026-03-11-2"></script>
   <script>
     const FALLBACK_DATASET = [
       {
@@ -1388,10 +1490,12 @@
     const guessHeader = document.getElementById("guessHeader");
     const feedback = document.getElementById("feedback");
     const guessList = document.getElementById("guessList");
+    const openHintModalBtn = document.getElementById("openHintModalBtn");
     const openFlashbackModalBtn = document.getElementById("openFlashbackModalBtn");
     const openStatusModalBtn = document.getElementById("openStatusModalBtn");
     const resultModal = document.getElementById("resultModal");
     const flashbackModal = document.getElementById("flashbackModal");
+    const hintModal = document.getElementById("hintModal");
     const resultModalText = document.getElementById("resultModalText");
     const statGames = document.getElementById("statGames");
     const statWinPct = document.getElementById("statWinPct");
@@ -1404,6 +1508,12 @@
     const modalOutcome = document.getElementById("modalOutcome");
     const resultModalCloseBtn = document.getElementById("resultModalCloseBtn");
     const flashbackCloseBtn = document.getElementById("flashbackCloseBtn");
+    const hintCloseBtn = document.getElementById("hintCloseBtn");
+    const revealCareerHintBtn = document.getElementById("revealCareerHintBtn");
+    const revealCollegeHintBtn = document.getElementById("revealCollegeHintBtn");
+    const careerHintResult = document.getElementById("careerHintResult");
+    const collegeHintSection = document.getElementById("collegeHintSection");
+    const collegeHintResult = document.getElementById("collegeHintResult");
     const topToast = document.getElementById("topToast");
     let topToastTimer = null;
 
@@ -1520,8 +1630,25 @@
       return match ? match[0] : "";
     }
 
-    function playerProfileForGuess(playerName, puzzleSeason) {
-      const record = playerDirectory.get(normalizeName(playerName));
+    function selectProfileRecord(playerName, puzzleSeason = "", puzzleTeam = "") {
+      const raw = playerDirectory.get(normalizeName(playerName));
+      const records = Array.isArray(raw) ? raw : (raw ? [raw] : []);
+      if (!records.length) return null;
+
+      const seasonMatches = puzzleSeason
+        ? records.filter((r) => r.bySeason && r.bySeason.has(puzzleSeason))
+        : [];
+      if (seasonMatches.length === 1) return seasonMatches[0];
+      if (seasonMatches.length > 1 && puzzleTeam) {
+        const teamMatches = seasonMatches.filter((r) => (r.bySeason.get(puzzleSeason)?.team || "").toUpperCase() === String(puzzleTeam || "").toUpperCase());
+        if (teamMatches.length >= 1) return teamMatches[0];
+      }
+      if (seasonMatches.length > 0) return seasonMatches[0];
+      return records[0];
+    }
+
+    function playerProfileForGuess(playerName, puzzleSeason, puzzleTeam = "") {
+      const record = selectProfileRecord(playerName, puzzleSeason, puzzleTeam);
       if (!record) return { team: "—", position: "—" };
       if (puzzleSeason && record.bySeason.has(puzzleSeason)) {
         return record.bySeason.get(puzzleSeason);
@@ -1602,17 +1729,37 @@
 
     const DAILY_ROTATION_VERSION = 7;
     const STATE_VERSION = 3;
-    const STATE_RESET_TOKEN = "2026-03-10-g";
+    const STATE_RESET_TOKEN = "2026-03-11-reset-17";
+    const HINT_STATE_VERSION = 15;
     const FORCE_FRESH_STATE_ON_LOAD = false;
     const RESULT_MODAL_DELAY_MS = 40;
+    const DATA_REFRESH_VERSION = "2026-03-11-2";
     const STATS_USER_ID_VERSION = "v2";
     const PUZZLE_NUMBER_START_KEY = "2026-03-11";
+    const FLASHBACK_MIN_KEY = PUZZLE_NUMBER_START_KEY;
+    const FLASHBACK_MAX_KEY = PUZZLE_NUMBER_START_KEY;
     const PINNED_DAILY_PUZZLES = {
       "2026-03-11": { player: "Albert Wilson", season: 2018, week: 6 },
       "2026-03-12": { player: "Jack Doyle", season: 2017, week: 8 },
-      "2026-03-13": { player: "Nate Washington", season: 2015, week: 7 },
+      "2026-03-13": { player: "Albert Wilson", season: 2018, week: 6 },
     };
-
+    const PLAYER_DISPLAY_NAME_OVERRIDES = {
+      "steve smith::BAL": "Steve Smith Sr.",
+    };
+    const PLAYER_COLLEGE_ORDER_OVERRIDES = {
+      "steve smith::BAL": ["Santa Monica", "Utah"],
+    };
+    const PLAYER_COLLEGE_DISPLAY_OVERRIDES = {
+      "tony gonzalez::ATL": {
+        "California": "University of California, Berkeley",
+      },
+    };
+    const COLLEGE_DISPLAY_ALIASES = {
+      "California": "University of California, Berkeley",
+      "USC": "University of Southern California",
+      "Southern California": "University of Southern California",
+      "University of Southern California": "University of Southern California",
+    };
     function findPinnedPuzzleIndex(pinned) {
       if (!pinned || !pinned.player) return -1;
       const targetName = normalizeName(pinned.player);
@@ -1638,6 +1785,23 @@
       if (startMs == null || targetMs == null) return 1;
       const dayDiff = Math.floor((targetMs - startMs) / 86400000);
       return Math.max(1, dayDiff + 1);
+    }
+
+    function clampFlashbackDateKey(value) {
+      const key = String(value || "").trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return FLASHBACK_MAX_KEY;
+      if (key < FLASHBACK_MIN_KEY) return FLASHBACK_MIN_KEY;
+      if (key > FLASHBACK_MAX_KEY) return FLASHBACK_MAX_KEY;
+      return key;
+    }
+
+    function playerKey(name, team = "") {
+      return `${normalizeName(name || "")}::${String(team || "").toUpperCase()}`;
+    }
+
+    function displayPlayerNameForPuzzle(puzzle) {
+      const key = playerKey(puzzle?.player, puzzle?.team);
+      return PLAYER_DISPLAY_NAME_OVERRIDES[key] || String(puzzle?.player || "");
     }
 
     function pickDailyPuzzle() {
@@ -1748,7 +1912,7 @@
     function asProfileRecord(raw) {
       const fallback = { team: "—", position: "—" };
       if (!raw || typeof raw !== "object") {
-        return { player: "", default: fallback, bySeason: new Map() };
+        return { player: "", default: fallback, bySeason: new Map(), colleges: [], careerStart: null, careerEnd: null };
       }
       const bySeason = new Map();
       const seasons = raw.by_season || {};
@@ -1765,39 +1929,44 @@
           team: raw.default?.team || fallback.team,
           position: raw.default?.position || fallback.position
         },
-        bySeason
+        bySeason,
+        colleges: Array.isArray(raw.colleges) ? raw.colleges.filter(Boolean).map(String) : [],
+        careerStart: Number.isFinite(Number(raw.career_start)) ? Number(raw.career_start) : null,
+        careerEnd: Number.isFinite(Number(raw.career_end)) ? Number(raw.career_end) : null,
       };
     }
 
-    async function loadPlayerProfiles() {
-      if (window.__FSL_PLAYER_PROFILES__ && typeof window.__FSL_PLAYER_PROFILES__ === "object") {
-        const payload = window.__FSL_PLAYER_PROFILES__;
-        const allNames = new Set(playerNames);
-        Object.keys(payload).forEach(normName => {
-          const record = asProfileRecord(payload[normName]);
-          playerDirectory.set(normName, record);
-          if (record.player) allNames.add(record.player);
-        });
-        updateDatalistNames([...allNames]);
-        return true;
+    function asProfileRecords(raw) {
+      if (Array.isArray(raw)) {
+        return raw.map(asProfileRecord).filter((x) => x && x.player);
       }
+      const one = asProfileRecord(raw);
+      return one.player ? [one] : [];
+    }
 
+    async function loadPlayerProfiles() {
       try {
-        const res = await fetch(`./data/player_profiles.json?v=${dateKeyForDailyPuzzle()}`, { cache: "no-store" });
-        if (!res.ok) return false;
+        const res = await fetch(`./data/player_profiles.json?v=${encodeURIComponent(DATA_REFRESH_VERSION)}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("profile json fetch failed");
         const payload = await res.json();
-        if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
-
-        const allNames = new Set(playerNames);
+        if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("invalid profile json payload");
         Object.keys(payload).forEach(normName => {
-          const record = asProfileRecord(payload[normName]);
-          playerDirectory.set(normName, record);
-          if (record.player) allNames.add(record.player);
+          const records = asProfileRecords(payload[normName]);
+          if (!records.length) return;
+          playerDirectory.set(normalizeName(normName), records);
         });
-        updateDatalistNames([...allNames]);
         return true;
       } catch {
-        return false;
+        if (!(window.__FSL_PLAYER_PROFILES__ && typeof window.__FSL_PLAYER_PROFILES__ === "object")) {
+          return false;
+        }
+        const payload = window.__FSL_PLAYER_PROFILES__;
+        Object.keys(payload).forEach(normName => {
+          const records = asProfileRecords(payload[normName]);
+          if (!records.length) return;
+          playerDirectory.set(normalizeName(normName), records);
+        });
+        return true;
       }
     }
 
@@ -1828,12 +1997,20 @@
       return `fantasy-stat-line-daily::v${STATE_VERSION}::${puzzleKey}`;
     }
 
+    function hintStorageKey(puzzleKey) {
+      return `fantasy-stat-line-daily::hint::v${HINT_STATE_VERSION}::${puzzleKey}`;
+    }
+
     function streakStorageKey() {
       return "fantasy-stat-line-daily::meta";
     }
 
     function normalizeName(value) {
-      return value.trim().toLowerCase().replace(/\s+/g, " ");
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
     }
 
     function currentScore(guessCount) {
@@ -1875,6 +2052,27 @@
 
     function saveState(puzzleKey, state) {
       localStorage.setItem(stateStorageKey(puzzleKey), JSON.stringify(state));
+    }
+
+    function loadHintState(puzzleKey) {
+      const raw = localStorage.getItem(hintStorageKey(puzzleKey));
+      if (!raw) return { career: false, college: false };
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          career: Boolean(parsed?.career),
+          college: Boolean(parsed?.college),
+        };
+      } catch {
+        return { career: false, college: false };
+      }
+    }
+
+    function saveHintState(puzzleKey, value) {
+      localStorage.setItem(hintStorageKey(puzzleKey), JSON.stringify({
+        career: Boolean(value?.career),
+        college: Boolean(value?.college),
+      }));
     }
 
     function freshState() {
@@ -2048,7 +2246,7 @@
       state.guesses.forEach((guess) => {
         const item = document.createElement("div");
         const isCorrect = normalizeName(guess) === normalizeName(puzzle.player);
-        const profile = playerProfileForGuess(guess, puzzleSeason);
+        const profile = playerProfileForGuess(guess, puzzleSeason, puzzle.team);
         const teamHint = hintStatus(profile.team, puzzle.team);
         const posHint = positionHintStatus(profile.position, puzzle.position);
         item.className = "guess-item";
@@ -2125,6 +2323,16 @@
       syncModalBodyState();
     }
 
+    function showHintModal() {
+      hintModal.classList.remove("hidden");
+      syncModalBodyState();
+    }
+
+    function hideHintModal() {
+      hintModal.classList.add("hidden");
+      syncModalBodyState();
+    }
+
     function showTopToast(message, durationMs = 1400) {
       topToast.textContent = message;
       topToast.classList.remove("hidden");
@@ -2142,7 +2350,8 @@
     function syncModalBodyState() {
       const anyModalOpen =
         !resultModal.classList.contains("hidden") ||
-        !flashbackModal.classList.contains("hidden");
+        !flashbackModal.classList.contains("hidden") ||
+        !hintModal.classList.contains("hidden");
       document.body.classList.toggle("modal-open", anyModalOpen);
     }
 
@@ -2163,26 +2372,84 @@
       let practiceOffset = 0;
       let active = puzzleInfo(dailyBase, practiceOffset);
       let state = loadState(active.puzzleKey);
+      let hintState = loadHintState(active.puzzleKey);
+      modalPrevDayInput.setAttribute("min", FLASHBACK_MIN_KEY);
+      modalPrevDayInput.setAttribute("max", FLASHBACK_MAX_KEY);
+      modalPrevDayInput.value = FLASHBACK_MAX_KEY;
       if (FORCE_FRESH_STATE_ON_LOAD) {
         state = freshState();
         saveState(active.puzzleKey, state);
       }
 
+      const careerHintTextForActive = () => {
+        const rec = selectProfileRecord(active.puzzle.player || "", extractSeason(active.puzzle), active.puzzle.team);
+        if (!rec || !rec.bySeason || rec.bySeason.size === 0) {
+          return "Career years/teams are unavailable for this player.";
+        }
+        const seasons = [...rec.bySeason.keys()]
+          .map((x) => Number(x))
+          .filter((x) => Number.isFinite(x))
+          .sort((a, b) => a - b);
+        if (!seasons.length) return "Career years/teams are unavailable for this player.";
+        const teams = [];
+        seasons.forEach((seasonNum) => {
+          const team = rec.bySeason.get(String(seasonNum))?.team;
+          if (team && team !== "—" && !teams.includes(team)) teams.push(team);
+        });
+        const startYear = Number.isFinite(Number(rec.careerStart)) ? Number(rec.careerStart) : seasons[0];
+        const endYear = Number.isFinite(Number(rec.careerEnd)) ? Number(rec.careerEnd) : seasons[seasons.length - 1];
+        const years = startYear === endYear ? String(startYear) : `${startYear}-${endYear}`;
+        const teamsText = teams.length ? teams.join(" → ") : "Team history unavailable";
+        return `${years} • ${teamsText}`;
+      };
+
+      const collegeHintTextForActive = () => {
+        const rec = selectProfileRecord(active.puzzle.player || "", extractSeason(active.puzzle), active.puzzle.team);
+        const rawColleges = Array.isArray(rec?.colleges) ? rec.colleges : [];
+        const splitColleges = rawColleges
+          .flatMap((item) => String(item || "").split(/[;|]/))
+          .map((item) => item.trim())
+          .filter(Boolean);
+        const unique = [];
+        splitColleges.forEach((item) => {
+          if (!unique.some((u) => normalizeName(u) === normalizeName(item))) unique.push(item);
+        });
+        const key = playerKey(active.puzzle.player, active.puzzle.team);
+        const preferredOrder = PLAYER_COLLEGE_ORDER_OVERRIDES[key];
+        const colleges = Array.isArray(preferredOrder) && preferredOrder.length
+          ? preferredOrder.filter((p) => unique.some((u) => normalizeName(u) === normalizeName(p)))
+              .concat(unique.filter((u) => !preferredOrder.some((p) => normalizeName(p) === normalizeName(u))))
+          : unique;
+        const displayMap = PLAYER_COLLEGE_DISPLAY_OVERRIDES[key] || {};
+        const displayColleges = colleges.map((c) => displayMap[c] || COLLEGE_DISPLAY_ALIASES[c] || c);
+        if (displayColleges.length) return displayColleges.join(" • ");
+        return "College data coming soon for this player.";
+      };
+
+      const renderHintModal = () => {
+        const gameOver = Boolean(state.solved || state.revealed);
+        careerHintResult.classList.toggle("hidden", !hintState.career);
+        careerHintResult.textContent = hintState.career ? careerHintTextForActive() : "—";
+        collegeHintSection.classList.toggle("hidden", !hintState.career);
+        collegeHintResult.classList.toggle("hidden", !hintState.college);
+        collegeHintResult.textContent = hintState.college ? collegeHintTextForActive() : "—";
+        revealCareerHintBtn.disabled = gameOver || hintState.career;
+        revealCollegeHintBtn.disabled = gameOver || !hintState.career || hintState.college;
+      };
+
       const rerender = () => {
         gameNumberTagEl.textContent = `Game #${active.puzzleNumber || 1}`;
         renderPuzzle(active.puzzle);
         renderState(active.puzzle, state);
+        renderHintModal();
         if (!state.solved && !state.revealed) {
           setGuessInputLocked(false);
         }
       };
 
       const loadPreviousDayPuzzle = () => {
-        const picked = modalPrevDayInput.value;
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(picked || "")) {
-          updateFeedback("Select a valid date first.", "error");
-          return;
-        }
+        const picked = clampFlashbackDateKey(modalPrevDayInput.value);
+        modalPrevDayInput.value = picked;
         const base = pickPuzzleForDate(picked);
         active = {
           index: base.index,
@@ -2194,6 +2461,7 @@
           isEphemeral: true,
         };
         state = freshState();
+        hintState = loadHintState(active.puzzleKey);
         rerender();
         hideFlashbackModal();
         updateFeedback("", "");
@@ -2210,6 +2478,7 @@
         practiceOffset = randomPracticeOffset(practiceOffset);
         active = puzzleInfo(dailyBase, practiceOffset);
         state = loadState(active.puzzleKey);
+        hintState = loadHintState(active.puzzleKey);
         if (FORCE_FRESH_STATE_ON_LOAD) {
           state = freshState();
           saveState(active.puzzleKey, state);
@@ -2280,13 +2549,14 @@
           state.revealed = true;
           state.revealedAnswer = active.puzzle.player;
           revealedNow = true;
-          updateFeedback(`Out of guesses. The answer was ${active.puzzle.player}.`, "error");
+          updateFeedback(`Out of guesses. The answer was ${displayPlayerNameForPuzzle(active.puzzle)}.`, "error");
         }
 
         if (!active.isEphemeral) {
           saveState(active.puzzleKey, state);
         }
         renderState(active.puzzle, state);
+        renderHintModal();
         guessInput.value = "";
         renderPlayerSuggestions("", false);
         if (solvedNow || revealedNow || fromSuggestion) {
@@ -2301,12 +2571,12 @@
           const stats = await recordGameResult(true, active).catch(() => null);
           if (stats) cacheUserStats(stats);
           await sleep(RESULT_MODAL_DELAY_MS);
-          showResultModal(active.puzzle.player, active, state, true);
+          showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, true);
         } else if (revealedNow) {
           const stats = await recordGameResult(false, active).catch(() => null);
           if (stats) cacheUserStats(stats);
           await sleep(RESULT_MODAL_DELAY_MS);
-          showResultModal(active.puzzle.player, active, state, false);
+          showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, false);
         }
       };
 
@@ -2319,7 +2589,7 @@
         const puzzleSeason = extractSeason(active.puzzle);
         return state.guesses.map((guess) => {
           const isCorrect = normalizeName(guess) === normalizeName(active.puzzle.player);
-          const profile = playerProfileForGuess(guess, puzzleSeason);
+          const profile = playerProfileForGuess(guess, puzzleSeason, active.puzzle.team);
           const teamHint = hintStatus(profile.team, active.puzzle.team);
           const posHint = positionHintStatus(profile.position, active.puzzle.position);
           const playerCell = isCorrect ? "🟩" : "⬛";
@@ -2395,11 +2665,13 @@
 
       rerender();
       if (state.solved) {
-        showResultModal(active.puzzle.player, active, state, true);
+        showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, true);
       } else if (state.revealed) {
-        showResultModal(active.puzzle.player, active, state, false);
+        showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, false);
       }
-      loadPlayerProfiles().catch(() => {});
+      loadPlayerProfiles().then(() => {
+        renderHintModal();
+      }).catch(() => {});
       loadSearchPlayers().catch(() => {});
       preloadUserStats()
         .then((stats) => {
@@ -2490,26 +2762,60 @@
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);
+      openHintModalBtn.addEventListener("click", () => {
+        showHintModal();
+      });
       openFlashbackModalBtn.addEventListener("click", showFlashbackModal);
       modalPrevDayBtn.addEventListener("click", loadPreviousDayPuzzle);
+      const enforceFlashbackDate = () => {
+        const clamped = clampFlashbackDateKey(modalPrevDayInput.value);
+        if (modalPrevDayInput.value !== clamped) {
+          modalPrevDayInput.value = clamped;
+        }
+      };
+      modalPrevDayInput.addEventListener("change", enforceFlashbackDate);
+      modalPrevDayInput.addEventListener("input", enforceFlashbackDate);
+      modalPrevDayInput.addEventListener("blur", enforceFlashbackDate);
+      revealCareerHintBtn.addEventListener("click", () => {
+        if (state.solved || state.revealed) return;
+        hintState.career = true;
+        saveHintState(active.puzzleKey, hintState);
+        careerHintResult.classList.remove("hidden");
+        careerHintResult.textContent = careerHintTextForActive();
+        collegeHintSection.classList.remove("hidden");
+        renderHintModal();
+      });
+      revealCollegeHintBtn.addEventListener("click", () => {
+        if (state.solved || state.revealed) return;
+        hintState.career = true;
+        hintState.college = true;
+        saveHintState(active.puzzleKey, hintState);
+        collegeHintResult.classList.remove("hidden");
+        collegeHintResult.textContent = collegeHintTextForActive();
+        renderHintModal();
+      });
       openStatusModalBtn.addEventListener("click", () => {
         if (state.solved) {
-          showResultModal(active.puzzle.player, active, state, true);
+          showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, true);
           return;
         }
         if (state.revealed) {
-          showResultModal(active.puzzle.player, active, state, false);
+          showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, false);
           return;
         }
         showUnsolvedModal(state);
       });
       resultModalCloseBtn.addEventListener("click", hideResultModal);
       flashbackCloseBtn.addEventListener("click", hideFlashbackModal);
+      hintCloseBtn.addEventListener("click", hideHintModal);
       resultModal.addEventListener("click", (e) => {
         if (e.target === resultModal) hideResultModal();
       });
       flashbackModal.addEventListener("click", (e) => {
         if (e.target === flashbackModal) hideFlashbackModal();
+      });
+      hintModal.addEventListener("click", (e) => {
+        if (e.target === hintModal) hideHintModal();
       });
 
       const initialDailyKey = active.dailyKey;

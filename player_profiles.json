@@ -92004,7 +92004,10 @@
         "team": "SF",
         "position": "RB"
       }
-    }
+    },
+    "colleges": [
+      "none"
+    ]
   },
   "jordan berry": {
     "player": "Jordan Berry",

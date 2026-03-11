@@ -512,14 +512,40 @@
 
     .modal-prev {
       margin: 4px 0 10px;
-      text-align: center;
+      text-align: left;
     }
 
     .modal-prev-title {
       margin: 0 0 8px;
+      font-size: 1rem;
+      font-weight: 900;
+      color: #243c70;
+    }
+
+    .modal-prev-label {
+      margin: 0 0 6px;
       font-size: 0.9rem;
-      font-weight: 800;
-      color: #334c80;
+      font-weight: 700;
+      color: #3a4f7f;
+    }
+
+    .modal-prev-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .modal-prev-date {
+      width: 100%;
+      border: 1px solid #d2daed;
+      border-radius: 8px;
+      padding: 10px 11px;
+      background: #ffffff;
+      color: #233866;
+      font-size: 0.92rem;
+      font-weight: 700;
+      min-height: 42px;
     }
 
     .modal-prev-btn {
@@ -532,6 +558,16 @@
       font-size: 0.92rem;
       font-weight: 800;
       cursor: pointer;
+      min-height: 42px;
+      width: auto;
+      white-space: nowrap;
+    }
+
+    .modal-prev-note {
+      margin: 8px 0 0;
+      font-size: 0.78rem;
+      color: #5a6e99;
+      font-weight: 700;
     }
 
     .modal-title {
@@ -782,7 +818,12 @@
       <button class="modal-close-icon" type="button" id="modalCloseBtn" aria-label="Close">×</button>
       <div class="modal-prev">
         <p class="modal-prev-title">Play a previous day</p>
-        <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Select a previous day</button>
+        <p class="modal-prev-label">Which day would you like to play? xx/xx/xxxx</p>
+        <div class="modal-prev-controls">
+          <input class="modal-prev-date" id="modalPrevDayInput" type="date" />
+          <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>
+        </div>
+        <p class="modal-prev-note">NOTE: This will NOT count towards your stats or be saved.</p>
       </div>
       <p class="modal-text" id="resultModalText"></p>
       <div class="modal-stats-box">
@@ -1082,6 +1123,8 @@
     const statWinStreak = document.getElementById("statWinStreak");
     const statLongestStreak = document.getElementById("statLongestStreak");
     const resultModalPlayer = document.getElementById("resultModalPlayer");
+    const modalPrevDayInput = document.getElementById("modalPrevDayInput");
+    const modalPrevDayBtn = document.getElementById("modalPrevDayBtn");
     const modalShareBtn = document.getElementById("modalShareBtn");
     const modalCloseBtn = document.getElementById("modalCloseBtn");
 
@@ -1260,6 +1303,11 @@
       const dailyKey = dateKeyForDailyPuzzle();
       const index = hashString(`${dailyKey}::v${DAILY_ROTATION_VERSION}`) % DATASET.length;
       return { puzzle: DATASET[index], dailyKey, index };
+    }
+
+    function pickPuzzleForDate(dateKey) {
+      const index = hashString(`${dateKey}::v${DAILY_ROTATION_VERSION}`) % DATASET.length;
+      return { puzzle: DATASET[index], dailyKey: dateKey, index };
     }
 
     function puzzleInfo(base, practiceOffset) {
@@ -1706,6 +1754,31 @@
         renderState(active.puzzle, state);
       };
 
+      const loadPreviousDayPuzzle = () => {
+        const picked = modalPrevDayInput.value;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(picked || "")) {
+          updateFeedback("Select a valid date first.", "error");
+          return;
+        }
+        const base = pickPuzzleForDate(picked);
+        active = {
+          index: base.index,
+          puzzle: base.puzzle,
+          dailyKey: base.dailyKey,
+          puzzleKey: `${base.dailyKey}::v${DAILY_ROTATION_VERSION}::prev-day`,
+          puzzleNumber: base.index + 1,
+          isPractice: true,
+          isEphemeral: true,
+        };
+        state = freshState();
+        rerender();
+        hideResultModal();
+        updateFeedback("", "");
+        guessInput.value = "";
+        renderPlayerSuggestions("", false);
+        guessInput.focus();
+      };
+
       const loadAnotherPuzzle = () => {
         if (DATASET.length <= 1) {
           updateFeedback("Need more than one puzzle in the dataset to load another.", "error");
@@ -1784,7 +1857,9 @@
           updateFeedback(`Out of guesses. The answer was ${active.puzzle.player}.`, "error");
         }
 
-        saveState(active.puzzleKey, state);
+        if (!active.isEphemeral) {
+          saveState(active.puzzleKey, state);
+        }
         renderState(active.puzzle, state);
         guessInput.value = "";
         renderPlayerSuggestions("", false);
@@ -1917,6 +1992,7 @@
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);
+      modalPrevDayBtn.addEventListener("click", loadPreviousDayPuzzle);
       openStatusModalBtn.addEventListener("click", () => {
         if (state.solved) {
           showResultModal(active.puzzle.player, active, state, true);

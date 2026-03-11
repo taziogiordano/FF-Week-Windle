@@ -791,7 +791,21 @@
 
     @media (max-width: 540px) {
       .wrap { width: min(calc(100% - 16px), var(--maxw)); }
-      .topbar-actions { top: 0; }
+      .topbar {
+        padding-right: 96px;
+      }
+      .topbar-actions {
+        top: 1px;
+        right: 2px;
+      }
+      .topbar-btn {
+        width: 40px;
+        height: 40px;
+      }
+      .topbar-btn svg {
+        width: 18px;
+        height: 18px;
+      }
       .brand { font-size: clamp(2rem, 9vw, 2.6rem); }
       .game-tag { font-size: 0.76rem; }
       .modal-backdrop { padding: 10px; }
@@ -865,9 +879,16 @@
       .clue-table {
         min-width: 560px;
       }
+      .topbar {
+        padding-right: 90px;
+      }
       .topbar-btn {
-        width: 44px;
-        height: 44px;
+        width: 38px;
+        height: 38px;
+      }
+      .topbar-btn svg {
+        width: 17px;
+        height: 17px;
       }
       .lead {
         font-size: 1.02rem;
@@ -2188,17 +2209,14 @@
           return;
         }
         const solved = state.solved;
-        const score = solved ? currentScore(state.solvedAtGuess) : 0;
         const guessLabel = solved ? state.solvedAtGuess : "X";
         const gameNumber = active.puzzleNumber || "—";
         const grid = buildShareGrid();
         const gameUrl = `${window.location.origin}${window.location.pathname}`;
+        const summaryLine = `Week Windle #${gameNumber} - ${guessLabel}/${MAX_GUESSES}`;
         const text = [
-          `🏈 WEEK WINDLE #${gameNumber}`,
-          solved ? `✅ ${guessLabel}/${MAX_GUESSES} • ${score} pts` : `❌ X/${MAX_GUESSES}`,
-          "",
+          summaryLine,
           grid,
-          "",
           gameUrl
         ].filter(Boolean).join("\n");
         const escapeHtml = (value) => String(value)
@@ -2210,8 +2228,7 @@
         const gridHtml = grid.split("\n").map((row) => `<div>${escapeHtml(row)}</div>`).join("");
         const html = `
 <div style="font-family: Arial, Helvetica, sans-serif; color: #111827; font-size: 18px; line-height: 1.35;">
-  <div style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">🏈 WEEK WINDLE #${escapeHtml(gameNumber)}</div>
-  <div style="font-size: 19px; font-weight: 700; margin-bottom: 12px;">${escapeHtml(solved ? `✅ ${guessLabel}/${MAX_GUESSES} • ${score} pts` : `❌ X/${MAX_GUESSES}`)}</div>
+  <div style="font-size: 21px; font-weight: 800; margin-bottom: 10px;">${escapeHtml(summaryLine)}</div>
   <div style="font-size: 22px; line-height: 1.15; letter-spacing: 0.03em; margin-bottom: 12px;">${gridHtml}</div>
   <a href="${escapeHtml(gameUrl)}" style="font-size: 17px; color: #0f4aa8; text-decoration: underline;">${escapeHtml(gameUrl)}</a>
 </div>`.trim();

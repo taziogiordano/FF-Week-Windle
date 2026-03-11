@@ -480,6 +480,7 @@
     }
 
     .modal-card {
+      position: relative;
       width: min(100%, 560px);
       min-height: 340px;
       background: #ffffff;
@@ -488,6 +489,25 @@
       padding: 18px;
       text-align: center;
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-close-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #ffffff;
+      color: #314a7d;
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      padding: 0;
     }
 
     .modal-title {
@@ -735,6 +755,7 @@
 
   <div class="modal-backdrop hidden" id="resultModal" role="dialog" aria-modal="true" aria-label="Result">
     <div class="modal-card">
+      <button class="modal-close-icon" type="button" id="modalCloseBtn" aria-label="Close">×</button>
       <p class="modal-text" id="resultModalText"></p>
       <div class="modal-stats-box">
         <p class="modal-stats-title">Your stats</p>
@@ -762,9 +783,6 @@
         </div>
       </div>
       <p class="modal-player" id="resultModalPlayer">Player: ?</p>
-      <div class="modal-actions">
-        <button class="btn-secondary" type="button" id="modalCloseBtn">Close</button>
-      </div>
     </div>
   </div>
 

@@ -35,7 +35,6 @@
 
     body.modal-open {
       overflow: hidden;
-      touch-action: none;
     }
 
     .wrap {
@@ -797,6 +796,9 @@
     }
 
     @media (max-width: 540px) {
+      body.modal-open {
+        overflow-y: auto;
+      }
       .wrap { width: min(calc(100% - 16px), var(--maxw)); }
       .wrap { padding-top: calc(48px + env(safe-area-inset-top)); }
       .topbar {
@@ -1904,6 +1906,25 @@
       if (!stats || typeof stats !== "object") return;
       userStatsCache = stats;
       userStatsLoaded = true;
+      try {
+        const key = `fantasy-stat-line-daily::cached-user-stats::${getAnonUserId()}`;
+        localStorage.setItem(key, JSON.stringify(stats));
+      } catch {
+        // ignore local cache write errors
+      }
+    }
+
+    function loadCachedUserStats() {
+      try {
+        const key = `fantasy-stat-line-daily::cached-user-stats::${getAnonUserId()}`;
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+        return parsed;
+      } catch {
+        return null;
+      }
     }
 
     async function preloadUserStats() {
@@ -2098,6 +2119,8 @@
       }
       updateDatalistNames();
       rebuildPlayerDirectory();
+      const cachedStats = loadCachedUserStats();
+      if (cachedStats) cacheUserStats(cachedStats);
 
       const dailyBase = pickDailyPuzzle();
       let practiceOffset = 0;

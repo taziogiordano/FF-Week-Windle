@@ -2134,7 +2134,6 @@
         submitGuessFromInput();
       });
 
-      guessInput.addEventListener("change", () => submitGuessFromInput());
       guessInput.addEventListener("input", () => {
         if (guessInput.disabled) return;
         const rawGuess = guessInput.value.trim();

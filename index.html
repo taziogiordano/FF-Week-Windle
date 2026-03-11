@@ -1053,7 +1053,7 @@
     <div class="modal-card">
       <button class="modal-close-icon" type="button" id="resultModalCloseBtn" aria-label="Close">×</button>
       <p class="modal-text" id="resultModalText"></p>
-      <p class="modal-win-title">You Win!</p>
+      <p class="modal-win-title hidden" id="modalOutcome"></p>
       <div class="modal-stats-box">
         <p class="modal-stats-title">Your stats</p>
         <p class="modal-stats-subtitle">Week Windle - Daily</p>
@@ -1401,6 +1401,7 @@
     const modalPrevDayInput = document.getElementById("modalPrevDayInput");
     const modalPrevDayBtn = document.getElementById("modalPrevDayBtn");
     const modalShareBtn = document.getElementById("modalShareBtn");
+    const modalOutcome = document.getElementById("modalOutcome");
     const resultModalCloseBtn = document.getElementById("resultModalCloseBtn");
     const flashbackCloseBtn = document.getElementById("flashbackCloseBtn");
     const topToast = document.getElementById("topToast");
@@ -2079,6 +2080,8 @@
 
     function showResultModal(playerName, info, state, didSolve = true) {
       resultModalText.textContent = "";
+      modalOutcome.textContent = didSolve ? "You Win!" : "Out of Guesses.";
+      modalOutcome.classList.remove("hidden");
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = `Player: ${playerName}`;
       setShareEnabled(true);
@@ -2093,6 +2096,8 @@
 
     function showUnsolvedModal(state) {
       resultModalText.textContent = "";
+      modalOutcome.textContent = "";
+      modalOutcome.classList.add("hidden");
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = "Player: ?";
       setShareEnabled(false);

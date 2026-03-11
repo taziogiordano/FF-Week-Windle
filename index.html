@@ -43,10 +43,16 @@
       margin-bottom: 14px;
     }
 
-    .topbar-btn {
+    .topbar-actions {
       position: absolute;
       top: 2px;
       right: 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .topbar-btn {
       width: 42px;
       height: 42px;
       padding: 0;
@@ -713,16 +719,25 @@
 <body>
   <div class="wrap">
     <div class="topbar">
-      <button class="topbar-btn" type="button" id="openStatusModalBtn" aria-label="Open stats popup" title="Stats">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-          <path d="M5 15l4-4 3 2 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          <circle cx="5" cy="15" r="1.2" fill="currentColor"></circle>
-          <circle cx="9" cy="11" r="1.2" fill="currentColor"></circle>
-          <circle cx="12" cy="13" r="1.2" fill="currentColor"></circle>
-          <circle cx="18" cy="7" r="1.2" fill="currentColor"></circle>
-        </svg>
-      </button>
+      <div class="topbar-actions">
+        <button class="topbar-btn" type="button" id="openFlashbackModalBtn" aria-label="Open flashback popup" title="Flashback">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <button class="topbar-btn" type="button" id="openStatusModalBtn" aria-label="Open stats popup" title="Stats">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M5 15l4-4 3 2 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="5" cy="15" r="1.2" fill="currentColor"></circle>
+            <circle cx="9" cy="11" r="1.2" fill="currentColor"></circle>
+            <circle cx="12" cy="13" r="1.2" fill="currentColor"></circle>
+            <circle cx="18" cy="7" r="1.2" fill="currentColor"></circle>
+          </svg>
+        </button>
+      </div>
       <div class="brand">
         Week Windle
       </div>
@@ -808,15 +823,7 @@
 
   <div class="modal-backdrop hidden" id="resultModal" role="dialog" aria-modal="true" aria-label="Result">
     <div class="modal-card">
-      <button class="modal-close-icon" type="button" id="modalCloseBtn" aria-label="Close">×</button>
-      <div class="modal-prev">
-        <p class="modal-prev-title">Play a previous day</p>
-        <div class="modal-prev-controls">
-          <input class="modal-prev-date" id="modalPrevDayInput" type="date" />
-          <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>
-        </div>
-        <p class="modal-prev-note">NOTE: This will NOT count towards your stats or be saved.</p>
-      </div>
+      <button class="modal-close-icon" type="button" id="resultModalCloseBtn" aria-label="Close">×</button>
       <p class="modal-text" id="resultModalText"></p>
       <div class="modal-stats-box">
         <p class="modal-stats-title">Your stats</p>
@@ -844,6 +851,20 @@
         </div>
       </div>
       <p class="modal-player" id="resultModalPlayer">Player: ?</p>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="flashbackModal" role="dialog" aria-modal="true" aria-label="Flashback">
+    <div class="modal-card" style="min-height: 250px;">
+      <button class="modal-close-icon" type="button" id="flashbackCloseBtn" aria-label="Close">×</button>
+      <div class="modal-prev">
+        <p class="modal-prev-title">Play a previous day</p>
+        <div class="modal-prev-controls">
+          <input class="modal-prev-date" id="modalPrevDayInput" type="date" />
+          <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>
+        </div>
+        <p class="modal-prev-note">NOTE: This will NOT count towards your stats or be saved.</p>
+      </div>
     </div>
   </div>
 
@@ -1107,8 +1128,10 @@
     const guessHeader = document.getElementById("guessHeader");
     const feedback = document.getElementById("feedback");
     const guessList = document.getElementById("guessList");
+    const openFlashbackModalBtn = document.getElementById("openFlashbackModalBtn");
     const openStatusModalBtn = document.getElementById("openStatusModalBtn");
     const resultModal = document.getElementById("resultModal");
+    const flashbackModal = document.getElementById("flashbackModal");
     const resultModalText = document.getElementById("resultModalText");
     const statGames = document.getElementById("statGames");
     const statWinPct = document.getElementById("statWinPct");
@@ -1118,7 +1141,8 @@
     const modalPrevDayInput = document.getElementById("modalPrevDayInput");
     const modalPrevDayBtn = document.getElementById("modalPrevDayBtn");
     const modalShareBtn = document.getElementById("modalShareBtn");
-    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const resultModalCloseBtn = document.getElementById("resultModalCloseBtn");
+    const flashbackCloseBtn = document.getElementById("flashbackCloseBtn");
 
     function updateDatalistNames(names = null) {
       playerNames = names ? [...new Set(names)].sort() : [...new Set(DATASET.map(x => x.player))].sort();
@@ -1713,6 +1737,14 @@
       resultModal.classList.add("hidden");
     }
 
+    function showFlashbackModal() {
+      flashbackModal.classList.remove("hidden");
+    }
+
+    function hideFlashbackModal() {
+      flashbackModal.classList.add("hidden");
+    }
+
     async function init() {
       applyStateResetIfNeeded();
       hideResultModal();
@@ -1764,7 +1796,7 @@
         };
         state = freshState();
         rerender();
-        hideResultModal();
+        hideFlashbackModal();
         updateFeedback("", "");
         guessInput.value = "";
         renderPlayerSuggestions("", false);
@@ -1984,6 +2016,7 @@
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);
+      openFlashbackModalBtn.addEventListener("click", showFlashbackModal);
       modalPrevDayBtn.addEventListener("click", loadPreviousDayPuzzle);
       openStatusModalBtn.addEventListener("click", () => {
         if (state.solved) {
@@ -1996,9 +2029,13 @@
         }
         showUnsolvedModal(state);
       });
-      modalCloseBtn.addEventListener("click", hideResultModal);
+      resultModalCloseBtn.addEventListener("click", hideResultModal);
+      flashbackCloseBtn.addEventListener("click", hideFlashbackModal);
       resultModal.addEventListener("click", (e) => {
         if (e.target === resultModal) hideResultModal();
+      });
+      flashbackModal.addEventListener("click", (e) => {
+        if (e.target === flashbackModal) hideFlashbackModal();
       });
     }
 

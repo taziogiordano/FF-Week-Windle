@@ -1963,7 +1963,11 @@
 
         const rawGuess = selectedName || guessInput.value.trim();
         if (!rawGuess) return;
-        const matchedName = selectedName || playerNames.find(name => normalizeName(name) === normalizeName(rawGuess)) || rawGuess;
+        const matchedName = selectedName || playerNames.find(name => normalizeName(name) === normalizeName(rawGuess));
+        if (!matchedName) {
+          updateFeedback("Select a valid player from the list.", "error");
+          return;
+        }
 
         if (state.guesses.some(g => normalizeName(g) === normalizeName(matchedName))) {
           updateFeedback("You already guessed that player.", "error");
@@ -2045,7 +2049,7 @@
           const teamHint = hintStatus(profile.team, active.puzzle.team);
           const posHint = positionHintStatus(profile.position, active.puzzle.position);
           const playerCell = isCorrect ? "🟩" : "⬛";
-          return `${playerCell}${shareCell(teamHint)}${shareCell(posHint)}`;
+          return `${playerCell} ${shareCell(teamHint)} ${shareCell(posHint)}`;
         }).join("\n");
       };
 
@@ -2062,9 +2066,11 @@
         const grid = buildShareGrid();
         const gameUrl = `${window.location.origin}${window.location.pathname}`;
         const text = [
-          `Week Windle #${gameNumber} ${guessLabel}/${MAX_GUESSES}`,
-          solved ? `Score: ${score}` : "Not solved",
+          `🏈 WEEK WINDLE #${gameNumber}`,
+          solved ? `✅ ${guessLabel}/${MAX_GUESSES} • ${score} pts` : `❌ X/${MAX_GUESSES}`,
+          "",
           grid,
+          "",
           gameUrl
         ].filter(Boolean).join("\n");
 

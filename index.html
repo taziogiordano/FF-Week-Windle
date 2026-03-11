@@ -732,6 +732,22 @@
       box-shadow: 0 5px 12px rgba(197, 17, 47, 0.25);
     }
 
+    .top-toast {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f3b73;
+      color: #ffffff;
+      border: 1px solid #17305f;
+      border-radius: 9px;
+      padding: 9px 13px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      z-index: 60;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
     .hidden { display: none; }
     .modal-backdrop.hidden { display: none; }
 
@@ -914,6 +930,8 @@
       </div>
     </div>
   </div>
+
+  <div class="top-toast hidden" id="topToast">Saved to clipboard 📋</div>
 
   <script src="./data/puzzles_data.js"></script>
   <script src="./data/player_profiles_data.js"></script>
@@ -1190,6 +1208,8 @@
     const modalShareBtn = document.getElementById("modalShareBtn");
     const resultModalCloseBtn = document.getElementById("resultModalCloseBtn");
     const flashbackCloseBtn = document.getElementById("flashbackCloseBtn");
+    const topToast = document.getElementById("topToast");
+    let topToastTimer = null;
 
     function updateDatalistNames(names = null) {
       playerNames = names ? [...new Set(names)].sort() : [...new Set(DATASET.map(x => x.player))].sort();
@@ -1792,6 +1812,16 @@
       flashbackModal.classList.add("hidden");
     }
 
+    function showTopToast(message, durationMs = 1400) {
+      topToast.textContent = message;
+      topToast.classList.remove("hidden");
+      if (topToastTimer) clearTimeout(topToastTimer);
+      topToastTimer = setTimeout(() => {
+        topToast.classList.add("hidden");
+        topToastTimer = null;
+      }, durationMs);
+    }
+
     async function init() {
       applyStateResetIfNeeded();
       hideResultModal();
@@ -1996,20 +2026,21 @@
         };
 
         try {
+          updateFeedback("", "");
           if (isMobileDevice() && navigator.share) {
             await navigator.share({
               title: "Week Windle",
               text
             });
-            updateFeedback("Result shared.", "ok");
+            showTopToast("Shared ✅", 1100);
           } else if (navigator.clipboard) {
             await navigator.clipboard.writeText(text);
-            updateFeedback("Share text copied to clipboard.", "ok");
+            showTopToast("Saved to clipboard 📋");
           } else {
-            updateFeedback("Sharing not supported on this browser.", "error");
+            showTopToast("Clipboard not supported");
           }
         } catch {
-          updateFeedback("Share canceled.", "error");
+          showTopToast("Share canceled", 900);
         }
       };
 

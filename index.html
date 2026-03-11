@@ -1359,7 +1359,7 @@
     const DAILY_ROTATION_VERSION = 7;
     const STATE_VERSION = 3;
     const STATE_RESET_TOKEN = "2026-03-10-g";
-    const FORCE_FRESH_STATE_ON_LOAD = false;
+    const FORCE_FRESH_STATE_ON_LOAD = true;
     const RESULT_MODAL_DELAY_MS = 40;
 
     function pickDailyPuzzle() {
@@ -1823,6 +1823,9 @@
         gameNumberTagEl.textContent = "Game #1";
         renderPuzzle(active.puzzle);
         renderState(active.puzzle, state);
+        if (!state.solved && !state.revealed) {
+          setGuessInputLocked(false);
+        }
       };
 
       const loadPreviousDayPuzzle = () => {

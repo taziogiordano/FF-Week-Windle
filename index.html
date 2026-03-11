@@ -16,7 +16,7 @@
       --accent-soft: #eef3fc;
       --danger: #c5112f;
       --radius: 12px;
-      --maxw: 900px;
+      --maxw: 980px;
     }
 
     * { box-sizing: border-box; }
@@ -24,23 +24,26 @@
     body {
       margin: 0;
       font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.35;
       background:
         radial-gradient(circle at 12% 8%, rgba(197, 17, 47, 0.03), transparent 42%),
         radial-gradient(circle at 85% 12%, rgba(16, 66, 153, 0.04), transparent 46%),
         linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       color: var(--text);
+      overflow-x: hidden;
     }
 
     .wrap {
       width: min(calc(100% - 24px), var(--maxw));
       margin: 0 auto;
-      padding: 24px 0 40px;
+      padding: calc(16px + env(safe-area-inset-top)) 0 calc(28px + env(safe-area-inset-bottom));
     }
 
     .topbar {
       position: relative;
       text-align: center;
       margin-bottom: 14px;
+      padding-top: 2px;
     }
 
     .topbar-actions {
@@ -53,8 +56,8 @@
     }
 
     .topbar-btn {
-      width: 42px;
-      height: 42px;
+      width: 46px;
+      height: 46px;
       padding: 0;
       display: grid;
       place-items: center;
@@ -159,6 +162,8 @@
     .clue-table-wrap {
       width: 100%;
       background: transparent;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .clue-table {
@@ -285,7 +290,7 @@
       top: calc(100% + 4px);
       left: 0;
       right: 0;
-      max-height: 260px;
+      max-height: min(320px, 45vh);
       overflow-y: auto;
       background: #ffffff;
       border: 1px solid var(--border);
@@ -303,7 +308,8 @@
       color: #1f2e56;
       font-size: 0.98rem;
       font-weight: 700;
-      padding: 10px 12px;
+      padding: 11px 12px;
+      min-height: 44px;
       border-radius: 0;
     }
 
@@ -422,6 +428,7 @@
       text-align: center;
       background: #f9fbff;
       color: #3f4f75;
+      overflow-wrap: anywhere;
     }
 
     .guess-col:last-child {
@@ -493,6 +500,8 @@
       position: relative;
       width: min(100%, 620px);
       min-height: 390px;
+      max-height: min(92vh, 760px);
+      overflow-y: auto;
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -762,6 +771,8 @@
       padding: 9px 13px;
       font-size: 0.92rem;
       font-weight: 800;
+      text-align: center;
+      width: min(94vw, 380px);
       z-index: 60;
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
@@ -769,11 +780,20 @@
     .hidden { display: none; }
     .modal-backdrop.hidden { display: none; }
 
+    input[type="text"]:focus-visible,
+    button:focus-visible,
+    .player-suggestion:focus-visible,
+    .modal-close-icon:focus-visible,
+    .modal-prev-date:focus-visible {
+      outline: 3px solid rgba(197, 17, 47, 0.35);
+      outline-offset: 2px;
+    }
+
     @media (max-width: 540px) {
       .wrap { width: min(calc(100% - 16px), var(--maxw)); }
-      .card { padding: 13px; }
+      .topbar-actions { top: 0; }
       .brand { font-size: clamp(2rem, 9vw, 2.6rem); }
-      .game-tag { font-size: 0.72rem; padding: 5px 8px; }
+      .game-tag { font-size: 0.76rem; }
       .modal-backdrop { padding: 10px; }
       .modal-card {
         width: min(100%, 98vw);
@@ -808,19 +828,73 @@
         max-width: 320px;
       }
       .clue-table th {
-        font-size: 0.67rem;
+        font-size: 0.66rem;
         letter-spacing: 0.02em;
-        padding: 8px 4px;
+        padding: 7px 3px;
       }
       .clue-table td {
-        font-size: 0.86rem;
-        padding: 8px 4px;
+        font-size: 0.82rem;
+        padding: 7px 3px;
       }
       .clue-game {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
       }
       .clue-ppr {
-        font-size: 0.94rem !important;
+        font-size: 0.9rem !important;
+      }
+      .guess-header-cell {
+        font-size: 0.8rem;
+      }
+      .guess-col {
+        font-size: 0.92rem;
+        padding: 8px 7px;
+      }
+      .guess-col.name {
+        font-size: 0.96rem;
+      }
+      .modal-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .modal-stat-item {
+        grid-template-rows: 1.7em 1.3em;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .clue-table {
+        min-width: 560px;
+      }
+      .topbar-btn {
+        width: 44px;
+        height: 44px;
+      }
+      .lead {
+        font-size: 1.02rem;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .wrap {
+        width: min(calc(100% - 32px), var(--maxw));
+      }
+      .brand {
+        font-size: clamp(2.7rem, 4.8vw, 3.6rem);
+      }
+      .section-title {
+        font-size: 1.32rem;
+      }
+      .clue-table th {
+        font-size: 0.9rem;
+      }
+      .clue-table td {
+        font-size: 1.08rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .wrap {
+        width: min(calc(100% - 56px), 1080px);
       }
     }
   </style>
@@ -913,11 +987,15 @@
           autocorrect="off"
           spellcheck="false"
           aria-label="Guess the player"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-controls="playerSuggestions"
+          aria-autocomplete="list"
         />
         <div class="player-suggestions hidden" id="playerSuggestions" role="listbox" aria-label="Player suggestions"></div>
       </form>
 
-      <div class="feedback" id="feedback"></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
 
       <div class="guess-header hidden" id="guessHeader" aria-hidden="true">
         <div class="guess-header-cell">Player</div>
@@ -1226,6 +1304,7 @@
     let playerNames = [];
     let playerDirectory = new Map();
     let isSelectingSuggestion = false;
+    let activeSuggestionIndex = -1;
     let userStatsCache = null;
     let userStatsLoaded = false;
 
@@ -1269,6 +1348,9 @@
 
     function hidePlayerSuggestions() {
       playerSuggestions.classList.add("hidden");
+      guessInput.setAttribute("aria-expanded", "false");
+      guessInput.removeAttribute("aria-activedescendant");
+      activeSuggestionIndex = -1;
     }
 
     function setGuessInputLocked(locked) {
@@ -1282,6 +1364,26 @@
     function showPlayerSuggestions() {
       if (!playerNames.length) return;
       playerSuggestions.classList.remove("hidden");
+      guessInput.setAttribute("aria-expanded", "true");
+    }
+
+    function setActiveSuggestion(index) {
+      const options = [...playerSuggestions.querySelectorAll(".player-suggestion")];
+      if (!options.length) {
+        activeSuggestionIndex = -1;
+        guessInput.removeAttribute("aria-activedescendant");
+        return;
+      }
+      const bounded = Math.max(0, Math.min(index, options.length - 1));
+      activeSuggestionIndex = bounded;
+      options.forEach((el, idx) => {
+        const active = idx === bounded;
+        el.setAttribute("aria-selected", active ? "true" : "false");
+        if (active) {
+          guessInput.setAttribute("aria-activedescendant", el.id);
+          el.scrollIntoView({ block: "nearest" });
+        }
+      });
     }
 
     function filteredPlayerNames(rawQuery) {
@@ -1304,17 +1406,20 @@
       const matches = filteredPlayerNames(rawQuery);
       playerSuggestions.innerHTML = "";
       const maxRender = 80;
-      matches.slice(0, maxRender).forEach((name) => {
+      matches.slice(0, maxRender).forEach((name, idx) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "player-suggestion";
         btn.textContent = name;
+        btn.id = `player-option-${idx}`;
         btn.dataset.player = name;
         btn.setAttribute("role", "option");
+        btn.setAttribute("aria-selected", "false");
         playerSuggestions.appendChild(btn);
       });
       if (shouldOpen && matches.length) {
         showPlayerSuggestions();
+        setActiveSuggestion(0);
       } else {
         hidePlayerSuggestions();
       }
@@ -1812,11 +1917,21 @@
         const teamHint = hintStatus(profile.team, puzzle.team);
         const posHint = positionHintStatus(profile.position, puzzle.position);
         item.className = "guess-item";
-        item.innerHTML = `
-          <div class="guess-col name ${isCorrect ? "correct" : ""}">${guess}</div>
-          <div class="guess-col team ${teamHint}">${profile.team || "?"}</div>
-          <div class="guess-col pos ${posHint}">${profile.position || "?"}</div>
-        `;
+        const nameCol = document.createElement("div");
+        nameCol.className = `guess-col name ${isCorrect ? "correct" : ""}`.trim();
+        nameCol.textContent = String(guess || "");
+
+        const teamCol = document.createElement("div");
+        teamCol.className = `guess-col team ${teamHint}`.trim();
+        teamCol.textContent = String(profile.team || "?");
+
+        const posCol = document.createElement("div");
+        posCol.className = `guess-col pos ${posHint}`.trim();
+        posCol.textContent = String(profile.position || "?");
+
+        item.appendChild(nameCol);
+        item.appendChild(teamCol);
+        item.appendChild(posCol);
         guessList.appendChild(item);
       });
 
@@ -2158,8 +2273,36 @@
         renderPlayerSuggestions(guessInput.value.trim(), true);
       });
       guessInput.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown") {
+          if (playerSuggestions.classList.contains("hidden")) return;
+          e.preventDefault();
+          setActiveSuggestion(activeSuggestionIndex + 1);
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          if (playerSuggestions.classList.contains("hidden")) return;
+          e.preventDefault();
+          setActiveSuggestion(activeSuggestionIndex - 1);
+          return;
+        }
+        if (e.key === "Escape") {
+          hidePlayerSuggestions();
+          guessInput.blur();
+          return;
+        }
         if (e.key !== "Enter") return;
         e.preventDefault();
+        if (!playerSuggestions.classList.contains("hidden") && activeSuggestionIndex >= 0) {
+          const options = [...playerSuggestions.querySelectorAll(".player-suggestion")];
+          const activeOption = options[activeSuggestionIndex];
+          const selectedName = activeOption?.dataset.player || activeOption?.textContent || "";
+          if (selectedName) {
+            guessInput.value = selectedName;
+            hidePlayerSuggestions();
+            submitGuessFromInput(selectedName, true);
+            return;
+          }
+        }
         submitGuessFromInput();
       });
       guessInput.addEventListener("blur", () => {

@@ -2,8 +2,26 @@ function send(res, status, payload) {
   res.status(status).json(payload);
 }
 
+function setCommonHeaders(res) {
+  res.setHeader("Cache-Control", "no-store, max-age=0");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("X-Frame-Options", "DENY");
+}
+
 function normalizeUserId(value) {
   return String(value || "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 80);
+}
+
+function isValidDailyKey(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || "").trim());
+}
+
+function getClientIp(req) {
+  const xff = String(req.headers["x-forwarded-for"] || "").trim();
+  if (xff) return xff.split(",")[0].trim();
+  return String(req.headers["x-real-ip"] || "unknown").trim();
 }
 
 function computeStats(record) {
@@ -63,8 +81,44 @@ async function kvSet(kvUrl, token, key, value) {
   if (!res.ok) throw new Error("KV set failed");
 }
 
+async function kvIncr(kvUrl, token, key) {
+  const res = await fetch(`${kvUrl}/incr/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("KV incr failed");
+  const payload = await res.json();
+  return Number(payload?.result || 0);
+}
+
+async function kvExpire(kvUrl, token, key, ttlSeconds) {
+  const ttl = Math.max(1, Number(ttlSeconds || 1));
+  const res = await fetch(`${kvUrl}/expire/${encodeURIComponent(key)}/${ttl}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("KV expire failed");
+}
+
+async function enforceRateLimit(req, kvUrl, token, limit) {
+  const bucket = Math.floor(Date.now() / 60000);
+  const ip = getClientIp(req);
+  const method = String(req.method || "GET").toUpperCase();
+  const key = `weekwindle:ratelimit:user-stats:${method}:${ip}:${bucket}`;
+  const count = await kvIncr(kvUrl, token, key);
+  if (count === 1) {
+    await kvExpire(kvUrl, token, key, 70);
+  }
+  return count <= limit;
+}
+
 module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  setCommonHeaders(res);
+  const origin = String(req.headers.origin || "");
+  const host = String(req.headers.host || "");
+  const expectedOrigin = host ? `https://${host}` : "";
+  if (origin && origin === expectedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
@@ -74,28 +128,38 @@ module.exports = async function handler(req, res) {
   if (!kvUrl || !token) {
     return send(res, 500, {
       ok: false,
-      error: "Stats backend is not configured. Add Vercel KV env vars.",
+      error: "Service unavailable.",
     });
   }
 
   try {
     if (req.method === "GET") {
+      const allowed = await enforceRateLimit(req, kvUrl, token, 120);
+      if (!allowed) return send(res, 429, { ok: false, error: "Too many requests." });
       const userId = normalizeUserId(req.query?.userId);
-      if (!userId) return send(res, 400, { ok: false, error: "Missing userId" });
+      if (!userId) return send(res, 400, { ok: false, error: "Invalid userId." });
       const key = `weekwindle:user:${userId}:stats`;
       const record = await kvGet(kvUrl, token, key);
       return send(res, 200, { ok: true, stats: computeStats(record) });
     }
 
     if (req.method === "POST") {
+      const allowed = await enforceRateLimit(req, kvUrl, token, 40);
+      if (!allowed) return send(res, 429, { ok: false, error: "Too many requests." });
+      const lengthHeader = Number(req.headers["content-length"] || 0);
+      if (Number.isFinite(lengthHeader) && lengthHeader > 2048) {
+        return send(res, 413, { ok: false, error: "Payload too large." });
+      }
       const body = req.body && typeof req.body === "object" ? req.body : {};
       const userId = normalizeUserId(body.userId);
       const dailyKey = String(body.dailyKey || "").trim();
-      const isPractice = Boolean(body.isPractice);
-      const didWin = Boolean(body.didWin);
+      const isPractice = body.isPractice;
+      const didWin = body.didWin;
 
-      if (!userId) return send(res, 400, { ok: false, error: "Missing userId" });
-      if (!dailyKey) return send(res, 400, { ok: false, error: "Missing dailyKey" });
+      if (!userId) return send(res, 400, { ok: false, error: "Invalid userId." });
+      if (!isValidDailyKey(dailyKey)) return send(res, 400, { ok: false, error: "Invalid dailyKey." });
+      if (typeof isPractice !== "boolean") return send(res, 400, { ok: false, error: "Invalid isPractice." });
+      if (typeof didWin !== "boolean") return send(res, 400, { ok: false, error: "Invalid didWin." });
 
       const key = `weekwindle:user:${userId}:stats`;
       const record = await kvGet(kvUrl, token, key);
@@ -115,7 +179,7 @@ module.exports = async function handler(req, res) {
     }
 
     return send(res, 405, { ok: false, error: "Method not allowed" });
-  } catch (err) {
-    return send(res, 500, { ok: false, error: err?.message || "Unknown error" });
+  } catch {
+    return send(res, 500, { ok: false, error: "Internal server error." });
   }
 };

@@ -1547,11 +1547,13 @@
     }
 
     function dateKeyForDailyPuzzle() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      return fmt.format(new Date());
     }
 
     function hashString(str) {
@@ -1566,16 +1568,63 @@
     const DAILY_ROTATION_VERSION = 7;
     const STATE_VERSION = 3;
     const STATE_RESET_TOKEN = "2026-03-10-g";
-    const FORCE_FRESH_STATE_ON_LOAD = true;
+    const FORCE_FRESH_STATE_ON_LOAD = false;
     const RESULT_MODAL_DELAY_MS = 40;
+    const PUZZLE_NUMBER_START_KEY = "2026-03-11";
+    const PINNED_DAILY_PUZZLES = {
+      "2026-03-11": { player: "Albert Wilson", season: 2018, week: 6 },
+      "2026-03-12": { player: "Jack Doyle", season: 2017, week: 8 },
+      "2026-03-13": { player: "Nate Washington", season: 2015, week: 7 },
+    };
+
+    function findPinnedPuzzleIndex(pinned) {
+      if (!pinned || !pinned.player) return -1;
+      const targetName = normalizeName(pinned.player);
+      const targetSeason = String(pinned.season ?? "");
+      const targetWeek = String(pinned.week ?? "");
+      return DATASET.findIndex((p) => {
+        const nameMatch = normalizeName(p.player || "") === targetName;
+        const seasonMatch = targetSeason ? String(p.season ?? "") === targetSeason : true;
+        const weekMatch = targetWeek ? String(p.week ?? "") === targetWeek : true;
+        return nameMatch && seasonMatch && weekMatch;
+      });
+    }
+
+    function parseDateKey(dateKey) {
+      const [y, m, d] = String(dateKey || "").split("-").map(Number);
+      if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+      return Date.UTC(y, m - 1, d);
+    }
+
+    function puzzleNumberForDate(dateKey) {
+      const startMs = parseDateKey(PUZZLE_NUMBER_START_KEY);
+      const targetMs = parseDateKey(dateKey);
+      if (startMs == null || targetMs == null) return 1;
+      const dayDiff = Math.floor((targetMs - startMs) / 86400000);
+      return Math.max(1, dayDiff + 1);
+    }
 
     function pickDailyPuzzle() {
       const dailyKey = dateKeyForDailyPuzzle();
+      const pinned = PINNED_DAILY_PUZZLES[dailyKey];
+      if (pinned) {
+        const pinnedIndex = findPinnedPuzzleIndex(pinned);
+        if (pinnedIndex >= 0) {
+          return { puzzle: DATASET[pinnedIndex], dailyKey, index: pinnedIndex };
+        }
+      }
       const index = hashString(`${dailyKey}::v${DAILY_ROTATION_VERSION}`) % DATASET.length;
       return { puzzle: DATASET[index], dailyKey, index };
     }
 
     function pickPuzzleForDate(dateKey) {
+      const pinned = PINNED_DAILY_PUZZLES[String(dateKey || "")];
+      if (pinned) {
+        const pinnedIndex = findPinnedPuzzleIndex(pinned);
+        if (pinnedIndex >= 0) {
+          return { puzzle: DATASET[pinnedIndex], dailyKey: dateKey, index: pinnedIndex };
+        }
+      }
       const index = hashString(`${dateKey}::v${DAILY_ROTATION_VERSION}`) % DATASET.length;
       return { puzzle: DATASET[index], dailyKey: dateKey, index };
     }
@@ -1589,7 +1638,7 @@
         puzzle: DATASET[index],
         dailyKey: base.dailyKey,
         puzzleKey: isPractice ? `${versionedBaseKey}::practice-${practiceOffset}` : versionedBaseKey,
-        puzzleNumber: index + 1,
+        puzzleNumber: puzzleNumberForDate(base.dailyKey),
         isPractice
       };
     }
@@ -2060,13 +2109,9 @@
         state = freshState();
         saveState(active.puzzleKey, state);
       }
-      if (state.solved || state.revealed) {
-        state = freshState();
-        saveState(active.puzzleKey, state);
-      }
 
       const rerender = () => {
-        gameNumberTagEl.textContent = "Game #1";
+        gameNumberTagEl.textContent = `Game #${active.puzzleNumber || 1}`;
         renderPuzzle(active.puzzle);
         renderState(active.puzzle, state);
         if (!state.solved && !state.revealed) {
@@ -2086,7 +2131,7 @@
           puzzle: base.puzzle,
           dailyKey: base.dailyKey,
           puzzleKey: `${base.dailyKey}::v${DAILY_ROTATION_VERSION}::prev-day`,
-          puzzleNumber: base.index + 1,
+          puzzleNumber: puzzleNumberForDate(base.dailyKey),
           isPractice: true,
           isEphemeral: true,
         };
@@ -2395,6 +2440,14 @@
       flashbackModal.addEventListener("click", (e) => {
         if (e.target === flashbackModal) hideFlashbackModal();
       });
+
+      const initialDailyKey = active.dailyKey;
+      setInterval(() => {
+        const nowKey = dateKeyForDailyPuzzle();
+        if (nowKey !== initialDailyKey) {
+          window.location.reload();
+        }
+      }, 30000);
     }
 
     init();

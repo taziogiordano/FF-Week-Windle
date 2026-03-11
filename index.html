@@ -530,11 +530,21 @@
     }
 
     .modal-prev-question {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: 1rem;
       font-weight: 800;
       color: #3a4f7f;
-      text-align: center;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .modal-prev-question-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .modal-prev-controls {
@@ -869,9 +879,11 @@
       <button class="modal-close-icon" type="button" id="flashbackCloseBtn" aria-label="Close">×</button>
       <div class="modal-prev">
         <p class="modal-prev-title">Play a previous day</p>
-        <p class="modal-prev-question">Which day would you like to play?</p>
-        <div class="modal-prev-controls">
+        <div class="modal-prev-question-row">
+          <p class="modal-prev-question">Which day would you like to play?</p>
           <input class="modal-prev-date" id="modalPrevDayInput" type="date" />
+        </div>
+        <div class="modal-prev-controls">
           <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>
         </div>
         <p class="modal-prev-note">NOTE: This will NOT count towards your stats or be saved.</p>

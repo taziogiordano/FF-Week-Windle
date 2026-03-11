@@ -480,7 +480,7 @@
     }
 
     .modal-card {
-      width: min(100%, 480px);
+      width: min(100%, 560px);
       min-height: 340px;
       background: #ffffff;
       border: 1px solid var(--border);
@@ -533,8 +533,45 @@
       letter-spacing: 0.02em;
     }
 
+    .modal-stats-subtitle {
+      margin: 0 0 8px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #3a4f7f;
+    }
+
     .modal-stats-body {
-      min-height: 28px;
+      min-height: 56px;
+    }
+
+    .modal-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .modal-stat-item {
+      background: #ffffff;
+      border: 1px solid #dbe3f3;
+      border-radius: 7px;
+      padding: 6px 4px;
+    }
+
+    .modal-stat-label {
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: #4b5f8f;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .modal-stat-value {
+      margin-top: 4px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #1b2d57;
     }
 
     .modal-player {
@@ -682,13 +719,32 @@
 
   </div>
 
-  <div class="modal-backdrop hidden" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultModalTitle">
+  <div class="modal-backdrop hidden" id="resultModal" role="dialog" aria-modal="true" aria-label="Result">
     <div class="modal-card">
-      <h3 class="modal-title" id="resultModalTitle">Play another game</h3>
       <p class="modal-text" id="resultModalText"></p>
       <div class="modal-stats-box">
         <p class="modal-stats-title">Your stats</p>
-        <div class="modal-stats-body" id="resultModalStatsBody"></div>
+        <p class="modal-stats-subtitle">Week Windle - Daily</p>
+        <div class="modal-stats-body">
+          <div class="modal-stats-grid">
+            <div class="modal-stat-item">
+              <div class="modal-stat-label">Games</div>
+              <div class="modal-stat-value" id="statGames">--</div>
+            </div>
+            <div class="modal-stat-item">
+              <div class="modal-stat-label">Win%</div>
+              <div class="modal-stat-value" id="statWinPct">--</div>
+            </div>
+            <div class="modal-stat-item">
+              <div class="modal-stat-label">Win Streak</div>
+              <div class="modal-stat-value" id="statWinStreak">--</div>
+            </div>
+            <div class="modal-stat-item">
+              <div class="modal-stat-label">Highest Streak</div>
+              <div class="modal-stat-value" id="statLongestStreak">--</div>
+            </div>
+          </div>
+        </div>
       </div>
       <p class="modal-player" id="resultModalPlayer">Player: ?</p>
       <div class="modal-actions">
@@ -960,9 +1016,11 @@
     const guessList = document.getElementById("guessList");
     const openStatusModalBtn = document.getElementById("openStatusModalBtn");
     const resultModal = document.getElementById("resultModal");
-    const resultModalTitle = document.getElementById("resultModalTitle");
     const resultModalText = document.getElementById("resultModalText");
-    const resultModalStatsBody = document.getElementById("resultModalStatsBody");
+    const statGames = document.getElementById("statGames");
+    const statWinPct = document.getElementById("statWinPct");
+    const statWinStreak = document.getElementById("statWinStreak");
+    const statLongestStreak = document.getElementById("statLongestStreak");
     const resultModalPlayer = document.getElementById("resultModalPlayer");
     const modalShareBtn = document.getElementById("modalShareBtn");
     const modalCloseBtn = document.getElementById("modalCloseBtn");
@@ -1395,18 +1453,23 @@
     }
 
     function formatModalStats(stats) {
-      if (!stats) return "Games played: --\nWin%: --\nWin streak: --\nLongest streak: --";
-      return [
-        `Games played: ${Number(stats.gamesPlayed || 0)}`,
-        `Win%: ${Number(stats.winPct || 0).toFixed(1)}%`,
-        `Win streak: ${Number(stats.winStreak || 0)}`,
-        `Longest streak: ${Number(stats.longestStreak || 0)}`,
-      ].join("\n");
+      if (!stats) {
+        return { games: "--", winPct: "--", winStreak: "--", longestStreak: "--" };
+      }
+      return {
+        games: String(Number(stats.gamesPlayed || 0)),
+        winPct: `${Number(stats.winPct || 0).toFixed(1)}%`,
+        winStreak: String(Number(stats.winStreak || 0)),
+        longestStreak: String(Number(stats.longestStreak || 0)),
+      };
     }
 
     function renderModalStats(stats) {
-      resultModalStatsBody.style.whiteSpace = "pre-line";
-      resultModalStatsBody.textContent = formatModalStats(stats);
+      const formatted = formatModalStats(stats);
+      statGames.textContent = formatted.games;
+      statWinPct.textContent = formatted.winPct;
+      statWinStreak.textContent = formatted.winStreak;
+      statLongestStreak.textContent = formatted.longestStreak;
     }
 
     function cacheUserStats(stats) {
@@ -1523,7 +1586,6 @@
     }
 
     function showResultModal(playerName, info, state, didSolve = true) {
-      resultModalTitle.textContent = "Play another game";
       resultModalText.textContent = "";
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = `Player: ${playerName}`;
@@ -1536,7 +1598,6 @@
     }
 
     function showUnsolvedModal(state) {
-      resultModalTitle.textContent = "Play another game";
       resultModalText.textContent = "";
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = "Player: ?";
@@ -1718,8 +1779,15 @@
           grid
         ].filter(Boolean).join("\n");
 
+        const isMobileDevice = () => {
+          const ua = navigator.userAgent || "";
+          const touch = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+          const mobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+          return touch && mobileUA;
+        };
+
         try {
-          if (navigator.share) {
+          if (isMobileDevice() && navigator.share) {
             await navigator.share({
               title: "Week Windle",
               text

@@ -2029,29 +2029,28 @@
       return one.player ? [one] : [];
     }
 
+    function mergeProfilesIntoDirectory(payload) {
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
+      Object.keys(payload).forEach(normName => {
+        const records = asProfileRecords(payload[normName]);
+        if (!records.length) return;
+        playerDirectory.set(normalizeName(normName), records);
+      });
+      return true;
+    }
+
     async function loadPlayerProfiles() {
       try {
         const res = await fetch(`./data/player_profiles.json?v=${encodeURIComponent(DATA_REFRESH_VERSION)}`, { cache: "no-store" });
         if (!res.ok) throw new Error("profile json fetch failed");
         const payload = await res.json();
-        if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("invalid profile json payload");
-        Object.keys(payload).forEach(normName => {
-          const records = asProfileRecords(payload[normName]);
-          if (!records.length) return;
-          playerDirectory.set(normalizeName(normName), records);
-        });
+        if (!mergeProfilesIntoDirectory(payload)) throw new Error("invalid profile json payload");
         return true;
       } catch {
         if (!(window.__FSL_PLAYER_PROFILES__ && typeof window.__FSL_PLAYER_PROFILES__ === "object")) {
           return false;
         }
-        const payload = window.__FSL_PLAYER_PROFILES__;
-        Object.keys(payload).forEach(normName => {
-          const records = asProfileRecords(payload[normName]);
-          if (!records.length) return;
-          playerDirectory.set(normalizeName(normName), records);
-        });
-        return true;
+        return mergeProfilesIntoDirectory(window.__FSL_PLAYER_PROFILES__);
       }
     }
 
@@ -2459,6 +2458,8 @@
       }
       updateDatalistNames();
       rebuildPlayerDirectory();
+      // Prevent early "—/—" guesses by hydrating full profiles before user input starts.
+      mergeProfilesIntoDirectory(window.__FSL_PLAYER_PROFILES__);
       const cachedStats = loadCachedUserStats();
       if (cachedStats) cacheUserStats(cachedStats);
 

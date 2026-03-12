@@ -2961,8 +2961,6 @@
         }
       };
       modalPrevDayInput.addEventListener("change", enforceFlashbackDate);
-      modalPrevDayInput.addEventListener("input", enforceFlashbackDate);
-      modalPrevDayInput.addEventListener("blur", enforceFlashbackDate);
       revealCareerHintBtn.addEventListener("click", () => {
         if (state.solved || state.revealed) return;
         hintState.career = true;

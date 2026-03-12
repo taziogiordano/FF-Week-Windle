@@ -2235,7 +2235,7 @@
 
       const toRemove = [];
       const keys = storageKeys("fantasy-stat-line-daily::");
-      keys.forEach((key) => {
+      for (const key of keys) {
         if (!key.startsWith("fantasy-stat-line-daily::")) continue;
         if (key === "fantasy-stat-line-daily::puzzles-cache") continue;
         if (key === "fantasy-stat-line-daily::meta") continue;
@@ -2243,7 +2243,7 @@
         if (key.startsWith("fantasy-stat-line-daily::anon-user-id::")) continue;
         if (key.startsWith("fantasy-stat-line-daily::cached-user-stats::")) continue;
         toRemove.push(key);
-      });
+      }
       toRemove.forEach((key) => storageRemove(key));
       storageSet(markerKey, STATE_RESET_TOKEN);
     }

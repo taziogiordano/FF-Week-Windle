@@ -21,6 +21,11 @@
 
     * { box-sizing: border-box; }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
       font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
@@ -209,7 +214,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-weight: 800;
-      overflow-wrap: normal;
+      overflow-wrap: anywhere;
       word-break: normal;
       line-height: 1.15;
     }
@@ -932,6 +937,9 @@
         width: 100%;
         max-width: 320px;
       }
+      .clue-table-wrap {
+        overflow-x: hidden;
+      }
       .clue-table th {
         font-size: 0.66rem;
         letter-spacing: 0.02em;
@@ -966,20 +974,44 @@
       }
     }
 
-    @media (max-width: 390px) {
+    @media (max-width: 430px) {
+      .topbar {
+        padding-left: 88px;
+        padding-right: 88px;
+      }
+      .lead {
+        font-size: 1.06rem;
+      }
       .clue-table th {
-        font-size: 0.62rem;
+        font-size: 0.61rem;
         padding: 6px 2px;
       }
       .clue-table td {
-        font-size: 0.78rem;
+        font-size: 0.77rem;
         padding: 6px 2px;
       }
       .clue-game {
-        font-size: 0.71rem;
+        font-size: 0.70rem;
       }
       .clue-ppr {
-        font-size: 0.84rem !important;
+        font-size: 0.82rem !important;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .clue-table th {
+        font-size: 0.58rem;
+        padding: 5px 2px;
+      }
+      .clue-table td {
+        font-size: 0.74rem;
+        padding: 5px 2px;
+      }
+      .clue-game {
+        font-size: 0.68rem;
+      }
+      .clue-ppr {
+        font-size: 0.80rem !important;
       }
       .topbar {
         padding-left: 90px;
@@ -998,6 +1030,35 @@
       }
       .lead {
         font-size: 1.02rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .topbar {
+        padding-left: 82px;
+        padding-right: 82px;
+      }
+      .topbar-btn {
+        width: 36px;
+        height: 36px;
+      }
+      .topbar-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+      .clue-table th {
+        font-size: 0.54rem;
+        padding: 5px 1px;
+      }
+      .clue-table td {
+        font-size: 0.70rem;
+        padding: 5px 1px;
+      }
+      .clue-game {
+        font-size: 0.64rem;
+      }
+      .clue-ppr {
+        font-size: 0.76rem !important;
       }
     }
 

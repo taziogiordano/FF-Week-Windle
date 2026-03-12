@@ -1824,7 +1824,7 @@
     const STATS_USER_ID_VERSION = "v2";
     const PUZZLE_NUMBER_START_KEY = "2026-03-11";
     const FLASHBACK_MIN_KEY = PUZZLE_NUMBER_START_KEY;
-    const FLASHBACK_MAX_KEY = PUZZLE_NUMBER_START_KEY;
+    const FLASHBACK_MAX_KEY = dateKeyForDailyPuzzle();
     const PINNED_DAILY_PUZZLES = {
       "2026-03-11": { player: "Albert Wilson", season: 2018, week: 6 },
       "2026-03-12": { player: "Amari Cooper", season: 2016, week: 8 },
@@ -2555,6 +2555,21 @@
       const loadPreviousDayPuzzle = () => {
         const picked = clampFlashbackDateKey(modalPrevDayInput.value);
         modalPrevDayInput.value = picked;
+        if (picked === dailyBase.dailyKey) {
+          practiceOffset = 0;
+          active = puzzleInfo(dailyBase, practiceOffset);
+          state = loadState(active.puzzleKey);
+          hintState = loadHintState(active.puzzleKey);
+          rerender();
+          hideFlashbackModal();
+          updateFeedback("", "");
+          guessInput.value = "";
+          renderPlayerSuggestions("", false);
+          if (state.solved || state.revealed) {
+            showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, Boolean(state.solved));
+          }
+          return;
+        }
         const base = pickPuzzleForDate(picked);
         active = {
           index: base.index,

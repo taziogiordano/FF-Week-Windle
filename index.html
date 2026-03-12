@@ -2565,6 +2565,8 @@
           updateFeedback("", "");
           guessInput.value = "";
           renderPlayerSuggestions("", false);
+          hidePlayerSuggestions();
+          guessInput.blur();
           if (state.solved || state.revealed) {
             showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, Boolean(state.solved));
           }
@@ -2587,7 +2589,8 @@
         updateFeedback("", "");
         guessInput.value = "";
         renderPlayerSuggestions("", false);
-        guessInput.focus();
+        hidePlayerSuggestions();
+        guessInput.blur();
       };
 
       const loadAnotherPuzzle = () => {

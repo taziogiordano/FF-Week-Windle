@@ -2273,7 +2273,7 @@
     }
 
     async function recordGameResult(didWin, info) {
-      if (info?.isPractice) return null;
+      if (info?.isPractice || info?.isEphemeral) return null;
       const body = {
         userId: getAnonUserId(),
         dailyKey: info?.dailyKey,
@@ -2534,8 +2534,16 @@
         revealCollegeHintBtn.disabled = gameOver || !hintState.career || hintState.college;
       };
 
+      const gameTagText = (info) => {
+        const base = `Game #${info?.puzzleNumber || 1}`;
+        if (info?.isEphemeral && info?.dailyKey) {
+          return `${base} • ${formatDisplayDate(info.dailyKey)}`;
+        }
+        return base;
+      };
+
       const rerender = () => {
-        gameNumberTagEl.textContent = `Game #${active.puzzleNumber || 1}`;
+        gameNumberTagEl.textContent = gameTagText(active);
         renderPuzzle(active.puzzle);
         renderState(active.puzzle, state);
         renderHintModal();

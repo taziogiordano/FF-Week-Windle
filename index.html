@@ -1956,7 +1956,7 @@
         const filtered = window.__FSL_PUZZLES__.filter(isValidPuzzle);
         if (filtered.length) {
           DATASET = filtered;
-          localStorage.setItem("fantasy-stat-line-daily::puzzles-cache", JSON.stringify(filtered));
+          storageSet("fantasy-stat-line-daily::puzzles-cache", JSON.stringify(filtered));
           return true;
         }
       }
@@ -1976,14 +1976,14 @@
           const filtered = payload.filter(isValidPuzzle);
           if (!filtered.length) continue;
           DATASET = filtered;
-          localStorage.setItem("fantasy-stat-line-daily::puzzles-cache", JSON.stringify(filtered));
+          storageSet("fantasy-stat-line-daily::puzzles-cache", JSON.stringify(filtered));
           return true;
         }
       } catch {
         // Try cache below.
       }
       try {
-        const raw = localStorage.getItem("fantasy-stat-line-daily::puzzles-cache");
+        const raw = storageGet("fantasy-stat-line-daily::puzzles-cache");
         if (!raw) return false;
         const payload = JSON.parse(raw);
         if (!Array.isArray(payload)) return false;
@@ -2104,9 +2104,72 @@
     }
 
     const MAX_GUESSES = 5;
+    const memoryStorage = new Map();
+    const storageEnabled = (() => {
+      try {
+        const testKey = "__ww_storage_test__";
+        localStorage.setItem(testKey, "1");
+        localStorage.removeItem(testKey);
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+
+    function storageGet(key) {
+      if (storageEnabled) {
+        try {
+          return localStorage.getItem(key);
+        } catch {
+          // fall through
+        }
+      }
+      return memoryStorage.has(key) ? memoryStorage.get(key) : null;
+    }
+
+    function storageSet(key, value) {
+      const str = String(value);
+      if (storageEnabled) {
+        try {
+          localStorage.setItem(key, str);
+          return;
+        } catch {
+          // fall through
+        }
+      }
+      memoryStorage.set(key, str);
+    }
+
+    function storageRemove(key) {
+      if (storageEnabled) {
+        try {
+          localStorage.removeItem(key);
+        } catch {
+          // ignore
+        }
+      }
+      memoryStorage.delete(key);
+    }
+
+    function storageKeys(prefix = "") {
+      const out = [];
+      if (storageEnabled) {
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i) || "";
+            if (!prefix || key.startsWith(prefix)) out.push(key);
+          }
+        } catch {
+          // ignore and use memory fallback if needed
+        }
+      }
+      if (out.length) return out;
+      const mem = [...memoryStorage.keys()];
+      return prefix ? mem.filter((k) => k.startsWith(prefix)) : mem;
+    }
 
     function loadMeta() {
-      const raw = localStorage.getItem(streakStorageKey());
+      const raw = storageGet(streakStorageKey());
       if (!raw) return { streak: 0, lastSolvedDate: null };
       try {
         return JSON.parse(raw);
@@ -2116,11 +2179,11 @@
     }
 
     function saveMeta(meta) {
-      localStorage.setItem(streakStorageKey(), JSON.stringify(meta));
+      storageSet(streakStorageKey(), JSON.stringify(meta));
     }
 
     function loadState(puzzleKey) {
-      const raw = localStorage.getItem(stateStorageKey(puzzleKey));
+      const raw = storageGet(stateStorageKey(puzzleKey));
       if (!raw) return { guesses: [], solved: false, solvedAtGuess: null, revealed: false, revealedAnswer: null };
       try {
         const parsed = JSON.parse(raw);
@@ -2137,11 +2200,11 @@
     }
 
     function saveState(puzzleKey, state) {
-      localStorage.setItem(stateStorageKey(puzzleKey), JSON.stringify(state));
+      storageSet(stateStorageKey(puzzleKey), JSON.stringify(state));
     }
 
     function loadHintState(puzzleKey) {
-      const raw = localStorage.getItem(hintStorageKey(puzzleKey));
+      const raw = storageGet(hintStorageKey(puzzleKey));
       if (!raw) return { career: false, college: false };
       try {
         const parsed = JSON.parse(raw);
@@ -2155,7 +2218,7 @@
     }
 
     function saveHintState(puzzleKey, value) {
-      localStorage.setItem(hintStorageKey(puzzleKey), JSON.stringify({
+      storageSet(hintStorageKey(puzzleKey), JSON.stringify({
         career: Boolean(value?.career),
         college: Boolean(value?.college),
       }));
@@ -2167,12 +2230,12 @@
 
     function applyStateResetIfNeeded() {
       const markerKey = "fantasy-stat-line-daily::state-reset-token";
-      const existing = localStorage.getItem(markerKey);
+      const existing = storageGet(markerKey);
       if (existing === STATE_RESET_TOKEN) return;
 
       const toRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i) || "";
+      const keys = storageKeys("fantasy-stat-line-daily::");
+      keys.forEach((key) => {
         if (!key.startsWith("fantasy-stat-line-daily::")) continue;
         if (key === "fantasy-stat-line-daily::puzzles-cache") continue;
         if (key === "fantasy-stat-line-daily::meta") continue;
@@ -2180,23 +2243,24 @@
         if (key.startsWith("fantasy-stat-line-daily::anon-user-id::")) continue;
         if (key.startsWith("fantasy-stat-line-daily::cached-user-stats::")) continue;
         toRemove.push(key);
-      }
-      toRemove.forEach((key) => localStorage.removeItem(key));
-      localStorage.setItem(markerKey, STATE_RESET_TOKEN);
+      });
+      toRemove.forEach((key) => storageRemove(key));
+      storageSet(markerKey, STATE_RESET_TOKEN);
     }
 
     function getAnonUserId() {
       const key = `fantasy-stat-line-daily::anon-user-id::${STATS_USER_ID_VERSION}`;
-      const existing = localStorage.getItem(key);
+      const existing = storageGet(key);
       if (existing) return existing;
       // Migration safety: reuse any prior anon id key so stats identity never rotates on deploys.
       const legacyPrefix = "fantasy-stat-line-daily::anon-user-id::";
-      for (let i = 0; i < localStorage.length; i++) {
-        const candidateKey = localStorage.key(i) || "";
+      const legacyKeys = storageKeys(legacyPrefix);
+      for (let i = 0; i < legacyKeys.length; i++) {
+        const candidateKey = legacyKeys[i] || "";
         if (!candidateKey.startsWith(legacyPrefix)) continue;
-        const legacyValue = localStorage.getItem(candidateKey);
+        const legacyValue = storageGet(candidateKey);
         if (!legacyValue) continue;
-        localStorage.setItem(key, legacyValue);
+        storageSet(key, legacyValue);
         return legacyValue;
       }
       const generated = (
@@ -2204,7 +2268,7 @@
           ? crypto.randomUUID()
           : `u-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
       );
-      localStorage.setItem(key, generated);
+      storageSet(key, generated);
       return generated;
     }
 
@@ -2234,7 +2298,7 @@
       userStatsLoaded = true;
       try {
         const key = `fantasy-stat-line-daily::cached-user-stats::${getAnonUserId()}`;
-        localStorage.setItem(key, JSON.stringify(stats));
+        storageSet(key, JSON.stringify(stats));
       } catch {
         // ignore local cache write errors
       }
@@ -2243,7 +2307,7 @@
     function loadCachedUserStats() {
       try {
         const key = `fantasy-stat-line-daily::cached-user-stats::${getAnonUserId()}`;
-        const raw = localStorage.getItem(key);
+        const raw = storageGet(key);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== "object") return null;

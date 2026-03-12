@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Week Windle football icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f3f8f"/>
+      <stop offset="100%" stop-color="#c5112f"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)"/>
+  <ellipse cx="32" cy="32" rx="20" ry="13" fill="#7b3f00" stroke="#fff" stroke-width="2" transform="rotate(-18 32 32)"/>
+  <path d="M22 30c6 3 14 3 20 0" fill="none" stroke="#fff" stroke-width="2" transform="rotate(-18 32 32)"/>
+  <path d="M24 27l3 3m3-4l3 3m3-4l3 3m3-4l3 3" stroke="#fff" stroke-width="2" stroke-linecap="round" transform="rotate(-18 32 32)"/>
+</svg>

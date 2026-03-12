@@ -248,6 +248,9 @@
     .clue-table tbody tr:last-child td {
       border-bottom: 0;
     }
+    .clue-row.pending {
+      visibility: hidden;
+    }
 
     .clue-player {
       font-size: 0.96rem;
@@ -1177,7 +1180,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr id="clueRow" class="clue-row pending" aria-busy="true">
               <td id="clueGame" class="clue-game">—</td>
               <td id="clueRushYds">—</td>
               <td id="clueRushTd">—</td>
@@ -1567,6 +1570,7 @@
     let userStatsLoaded = false;
 
     const clueGameEl = document.getElementById("clueGame");
+    const clueRowEl = document.getElementById("clueRow");
     const gameNumberTagEl = document.getElementById("gameNumberTag");
     const clueRushYdsEl = document.getElementById("clueRushYds");
     const clueRushTdEl = document.getElementById("clueRushTd");
@@ -2395,6 +2399,10 @@
       clueRecYdsEl.textContent = String(getStat("Rec Yards"));
       clueRecTdEl.textContent = String(getStat("Rec TD"));
       cluePprEl.textContent = puzzle.ppr.toFixed(1);
+      if (clueRowEl) {
+        clueRowEl.classList.remove("pending");
+        clueRowEl.setAttribute("aria-busy", "false");
+      }
     }
 
     function renderState(puzzle, state) {

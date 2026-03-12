@@ -8,6 +8,9 @@ function setCommonHeaders(res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "no-referrer");
   res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Origin-Agent-Cluster", "?1");
 }
 
 function normalizeUserId(value) {
@@ -22,6 +25,34 @@ function getClientIp(req) {
   const xff = String(req.headers["x-forwarded-for"] || "").trim();
   if (xff) return xff.split(",")[0].trim();
   return String(req.headers["x-real-ip"] || "unknown").trim();
+}
+
+function normalizeOrigin(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const u = new URL(raw);
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return "";
+  }
+}
+
+function expectedOriginsFromHost(host) {
+  const cleaned = String(host || "").trim().toLowerCase();
+  if (!cleaned) return [];
+  return [`https://${cleaned}`];
+}
+
+function isSameSiteRequest(req) {
+  const host = String(req.headers.host || "").trim();
+  const allowed = expectedOriginsFromHost(host);
+  if (!allowed.length) return false;
+  const origin = normalizeOrigin(req.headers.origin);
+  if (origin) return allowed.includes(origin);
+  const referer = normalizeOrigin(req.headers.referer);
+  if (referer) return allowed.includes(referer);
+  return false;
 }
 
 function computeStats(record) {
@@ -112,7 +143,7 @@ async function enforceRateLimit(req, kvUrl, token, limit) {
 
 module.exports = async function handler(req, res) {
   setCommonHeaders(res);
-  const origin = String(req.headers.origin || "");
+  const origin = normalizeOrigin(req.headers.origin);
   const host = String(req.headers.host || "");
   const expectedOrigin = host ? `https://${host}` : "";
   if (origin && origin === expectedOrigin) {
@@ -144,6 +175,9 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "POST") {
+      if (!isSameSiteRequest(req)) {
+        return send(res, 403, { ok: false, error: "Forbidden." });
+      }
       const allowed = await enforceRateLimit(req, kvUrl, token, 40);
       if (!allowed) return send(res, 429, { ok: false, error: "Too many requests." });
       const lengthHeader = Number(req.headers["content-length"] || 0);
@@ -151,6 +185,9 @@ module.exports = async function handler(req, res) {
         return send(res, 413, { ok: false, error: "Payload too large." });
       }
       const body = req.body && typeof req.body === "object" ? req.body : {};
+      if (JSON.stringify(body).length > 4096) {
+        return send(res, 413, { ok: false, error: "Payload too large." });
+      }
       const userId = normalizeUserId(body.userId);
       const dailyKey = String(body.dailyKey || "").trim();
       const isPractice = body.isPractice;

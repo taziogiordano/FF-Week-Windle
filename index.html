@@ -2386,6 +2386,27 @@
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function trackGAEvent(name, params = {}) {
+      try {
+        if (typeof window.gtag === "function") {
+          window.gtag("event", String(name || ""), params || {});
+        }
+      } catch {
+        // analytics failures should never affect gameplay
+      }
+    }
+
+    function trackGameCompleted(outcome, info, guessCount) {
+      trackGAEvent("game_completed", {
+        outcome: String(outcome || "unknown"),
+        guess_count: Number(guessCount || 0),
+        game_number: Number(info?.puzzleNumber || 0),
+        daily_key: String(info?.dailyKey || ""),
+        is_flashback: Boolean(info?.isEphemeral),
+        is_practice: Boolean(info?.isPractice),
+      });
+    }
+
     function renderPuzzle(puzzle) {
       const statLookup = new Map(
         (puzzle.stats || []).map(stat => [String(stat.label || "").toLowerCase(), stat.value])
@@ -2772,11 +2793,13 @@
         }
 
         if (solvedNow) {
+          trackGameCompleted("win", active, state.solvedAtGuess || state.guesses.length);
           const stats = await recordGameResult(true, active).catch(() => null);
           if (stats) cacheUserStats(stats);
           await sleep(RESULT_MODAL_DELAY_MS);
           showResultModal(displayPlayerNameForPuzzle(active.puzzle), active, state, true);
         } else if (revealedNow) {
+          trackGameCompleted("lose", active, MAX_GUESSES);
           const stats = await recordGameResult(false, active).catch(() => null);
           if (stats) cacheUserStats(stats);
           await sleep(RESULT_MODAL_DELAY_MS);

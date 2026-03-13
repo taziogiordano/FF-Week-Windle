@@ -2407,6 +2407,18 @@
       });
     }
 
+    function trackShareEvent(name, channel, info, solved, guessCount) {
+      trackGAEvent(name, {
+        channel: String(channel || "unknown"),
+        outcome: solved ? "win" : "lose",
+        guess_count: Number(guessCount || 0),
+        game_number: Number(info?.puzzleNumber || 0),
+        daily_key: String(info?.dailyKey || ""),
+        is_flashback: Boolean(info?.isEphemeral),
+        is_practice: Boolean(info?.isPractice),
+      });
+    }
+
     function renderPuzzle(puzzle) {
       const statLookup = new Map(
         (puzzle.stats || []).map(stat => [String(stat.label || "").toLowerCase(), stat.value])
@@ -2832,6 +2844,7 @@
         }
         const solved = state.solved;
         const guessLabel = solved ? state.solvedAtGuess : MAX_GUESSES;
+        trackShareEvent("share_clicked", "button", active, solved, guessLabel);
         const gameNumber = active.puzzleNumber || "—";
         const grid = buildShareGrid();
         const gameUrl = `${window.location.origin}${window.location.pathname}`;
@@ -2869,6 +2882,7 @@
               title: "Week Windle",
               text
             });
+            trackShareEvent("share_completed", "web_share_api", active, solved, guessLabel);
           } else if (navigator.clipboard) {
             if (typeof ClipboardItem !== "undefined" && typeof navigator.clipboard.write === "function") {
               const item = new ClipboardItem({
@@ -2879,6 +2893,7 @@
             } else {
               await navigator.clipboard.writeText(text);
             }
+            trackShareEvent("share_completed", "clipboard", active, solved, guessLabel);
             showTopToast("Saved to clipboard 📋");
           } else {
             showTopToast("Clipboard not supported");

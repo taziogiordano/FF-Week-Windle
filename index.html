@@ -2662,7 +2662,8 @@
           isEphemeral: true,
         };
         state = freshState();
-        hintState = loadHintState(active.puzzleKey);
+        // Flashback hint reveals are intentionally non-persistent.
+        hintState = { career: false, college: false };
         rerender();
         hideFlashbackModal();
         updateFeedback("", "");
@@ -2979,7 +2980,9 @@
       revealCareerHintBtn.addEventListener("click", () => {
         if (state.solved || state.revealed) return;
         hintState.career = true;
-        saveHintState(active.puzzleKey, hintState);
+        if (!active.isEphemeral) {
+          saveHintState(active.puzzleKey, hintState);
+        }
         careerHintResult.classList.remove("hidden");
         careerHintResult.textContent = careerHintTextForActive();
         collegeHintSection.classList.remove("hidden");
@@ -2989,7 +2992,9 @@
         if (state.solved || state.revealed) return;
         hintState.career = true;
         hintState.college = true;
-        saveHintState(active.puzzleKey, hintState);
+        if (!active.isEphemeral) {
+          saveHintState(active.puzzleKey, hintState);
+        }
         collegeHintResult.classList.remove("hidden");
         collegeHintResult.textContent = collegeHintTextForActive();
         renderHintModal();

@@ -2621,7 +2621,12 @@
         });
         const startYear = Number.isFinite(Number(rec.careerStart)) ? Number(rec.careerStart) : seasons[0];
         const endYear = Number.isFinite(Number(rec.careerEnd)) ? Number(rec.careerEnd) : seasons[seasons.length - 1];
-        const years = startYear === endYear ? String(startYear) : `${startYear}-${endYear}`;
+        const now = new Date();
+        const inferredSeason = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+        const activeNow = endYear >= inferredSeason;
+        const years = activeNow
+          ? `${startYear}-present`
+          : (startYear === endYear ? String(startYear) : `${startYear}-${endYear}`);
         const teamsText = teams.length ? teams.join(" → ") : "Team history unavailable";
         return `${years} • ${teamsText}`;
       };

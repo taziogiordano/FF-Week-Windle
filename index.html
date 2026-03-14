@@ -2409,6 +2409,17 @@
       });
     }
 
+    function trackHintEvent(action, info, hintType = "") {
+      trackGAEvent("hint_interaction", {
+        action: String(action || "unknown"),
+        hint_type: String(hintType || "none"),
+        game_number: Number(info?.puzzleNumber || 0),
+        daily_key: String(info?.dailyKey || ""),
+        is_flashback: Boolean(info?.isEphemeral),
+        is_practice: Boolean(info?.isPractice),
+      });
+    }
+
     function trackShareEvent(name, channel, info, solved, guessCount) {
       trackGAEvent(name, {
         channel: String(channel || "unknown"),
@@ -3007,6 +3018,7 @@
 
       modalShareBtn.addEventListener("click", shareCurrentResult);
       openHintModalBtn.addEventListener("click", () => {
+        trackHintEvent("open", active, "");
         showHintModal();
       });
       openFlashbackModalBtn.addEventListener("click", showFlashbackModal);
@@ -3021,6 +3033,7 @@
       revealCareerHintBtn.addEventListener("click", () => {
         if (state.solved || state.revealed) return;
         hintState.career = true;
+        trackHintEvent("reveal", active, "career");
         if (!active.isEphemeral) {
           saveHintState(active.puzzleKey, hintState);
         }
@@ -3033,6 +3046,7 @@
         if (state.solved || state.revealed) return;
         hintState.career = true;
         hintState.college = true;
+        trackHintEvent("reveal", active, "college");
         if (!active.isEphemeral) {
           saveHintState(active.puzzleKey, hintState);
         }

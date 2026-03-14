@@ -314,12 +314,34 @@
 
     input[type="text"] {
       min-height: 56px;
-      padding: 14px 44px 14px 12px;
+      padding: 14px 48px 14px 12px;
       background-color: #ffffff;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5l4 4 4-4' fill='none' stroke='%236b7695' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      background-size: 14px 14px;
+    }
+
+    .guess-dropdown-toggle {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border: 0;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border-radius: 6px;
+      color: #5c6c90;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .guess-dropdown-toggle svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.15s ease;
+    }
+    .guess-dropdown-toggle[aria-expanded="true"] svg {
+      transform: rotate(180deg);
     }
 
     input[type="text"]:focus {
@@ -1214,6 +1236,11 @@
           aria-controls="playerSuggestions"
           aria-autocomplete="list"
         />
+        <button class="guess-dropdown-toggle" type="button" id="guessDropdownToggle" aria-label="Toggle player list" aria-expanded="false">
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <path d="M5 7.5L10 12.5L15 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
         <div class="player-suggestions hidden" id="playerSuggestions" role="listbox" aria-label="Player suggestions"></div>
       </form>
 
@@ -1583,6 +1610,7 @@
     const cluePprEl = document.getElementById("cluePpr");
     const guessForm = document.getElementById("guessForm");
     const guessInput = document.getElementById("guessInput");
+    const guessDropdownToggle = document.getElementById("guessDropdownToggle");
     const playerSuggestions = document.getElementById("playerSuggestions");
     const guessCountEl = document.getElementById("guessCount");
     const guessHeader = document.getElementById("guessHeader");
@@ -1623,6 +1651,7 @@
     function hidePlayerSuggestions() {
       playerSuggestions.classList.add("hidden");
       guessInput.setAttribute("aria-expanded", "false");
+      if (guessDropdownToggle) guessDropdownToggle.setAttribute("aria-expanded", "false");
       guessInput.removeAttribute("aria-activedescendant");
       activeSuggestionIndex = -1;
     }
@@ -1639,6 +1668,7 @@
       if (!playerNames.length) return;
       playerSuggestions.classList.remove("hidden");
       guessInput.setAttribute("aria-expanded", "true");
+      if (guessDropdownToggle) guessDropdownToggle.setAttribute("aria-expanded", "true");
     }
 
     function setActiveSuggestion(index) {
@@ -2997,6 +3027,30 @@
           if (!isSelectingSuggestion) hidePlayerSuggestions();
           isSelectingSuggestion = false;
         }, 180);
+      });
+      if (guessDropdownToggle) {
+        guessDropdownToggle.addEventListener("click", () => {
+          if (guessInput.disabled) {
+            hidePlayerSuggestions();
+            return;
+          }
+          if (playerSuggestions.classList.contains("hidden")) {
+            renderPlayerSuggestions(guessInput.value.trim(), true);
+            guessInput.focus();
+          } else {
+            hidePlayerSuggestions();
+            guessInput.blur();
+          }
+        });
+      }
+      document.addEventListener("pointerdown", (e) => {
+        const target = e.target instanceof Element ? e.target : null;
+        if (!target) return;
+        if (guessForm.contains(target)) return;
+        hidePlayerSuggestions();
+        if (document.activeElement === guessInput) {
+          guessInput.blur();
+        }
       });
       playerSuggestions.addEventListener("pointerdown", () => {
         isSelectingSuggestion = true;

@@ -775,8 +775,10 @@
     }
 
     .flashback-day {
+      -webkit-appearance: none;
+      appearance: none;
       width: 100%;
-      min-height: 54px;
+      height: 54px;
       border: 1px solid #d4dced;
       border-radius: 10px;
       background: #ffffff;
@@ -784,7 +786,7 @@
       display: grid;
       align-items: center;
       justify-items: center;
-      padding: 8px 6px 8px;
+      padding: 4px;
       box-shadow: 0 1px 0 rgba(16, 33, 68, 0.06);
     }
 
@@ -802,7 +804,8 @@
       display: grid;
       grid-template-rows: repeat(5, 1fr);
       gap: 2px;
-      padding: 2px;
+      padding: 0;
+      margin: 0;
     }
 
     .flashback-day-row {
@@ -1194,9 +1197,11 @@
       .flashback-grid {
         gap: 6px 4px;
       }
-      .flashback-cell,
-      .flashback-day {
+      .flashback-cell {
         min-height: 52px;
+      }
+      .flashback-day {
+        height: 52px;
       }
       .flashback-day-num {
         font-size: 0.84rem;

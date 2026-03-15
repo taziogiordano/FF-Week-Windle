@@ -3054,7 +3054,11 @@
             btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="${FLASHBACK_COMPLETE_ICON_URL}" alt="" /></span><span class="flashback-day-rows">${Array.from({ length: MAX_GUESSES }, (_, i) => `<span class="flashback-day-row${i < guessCount ? " filled" : ""}"></span>`).join("")}</span>`;
             btn.addEventListener("click", () => {
               setFlashbackSelectedDate(dateKey);
-              renderFlashbackCalendar();
+              const prevSelected = flashbackCalendarGrid.querySelector('.flashback-day[aria-selected="true"]');
+              if (prevSelected && prevSelected !== btn) {
+                prevSelected.setAttribute("aria-selected", "false");
+              }
+              btn.setAttribute("aria-selected", "true");
             });
           }
 

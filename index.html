@@ -3068,7 +3068,18 @@
             btn.classList.add(`status-${status}`);
             btn.setAttribute("aria-selected", dateKey === selectedKey ? "true" : "false");
             btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="${FLASHBACK_COMPLETE_ICON_URL}" alt="" /></span><span class="flashback-day-rows">${Array.from({ length: MAX_GUESSES }, (_, i) => `<span class="flashback-day-row${i < guessCount ? " filled" : ""}"></span>`).join("")}</span>`;
+            btn.addEventListener("pointerdown", (event) => {
+              if (event.button !== 0) return;
+              event.preventDefault();
+              applyDateSelection(dateKey, btn);
+            });
             btn.addEventListener("click", () => {
+              applyDateSelection(dateKey, btn);
+            });
+            cell.addEventListener("pointerdown", (event) => {
+              if (event.button !== 0) return;
+              if (event.target instanceof Element && event.target.closest(".flashback-day") === btn) return;
+              event.preventDefault();
               applyDateSelection(dateKey, btn);
             });
             cell.addEventListener("click", (event) => {

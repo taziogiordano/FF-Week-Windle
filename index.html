@@ -692,6 +692,208 @@
       text-align: center;
     }
 
+    .flashback-card {
+      max-width: 660px;
+    }
+
+    .flashback-month-nav {
+      display: grid;
+      grid-template-columns: 42px 1fr 42px;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 10px;
+    }
+
+    .flashback-nav-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid #c9d4ea;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #1f325f;
+      font-size: 1.9rem;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .flashback-nav-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .flashback-month-pickers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .flashback-picker {
+      min-height: 42px;
+      border: 1px solid #9db0d4;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #1e2f57;
+      font-size: 1.08rem;
+      font-weight: 900;
+      text-align: center;
+      padding: 6px 10px;
+    }
+
+    .flashback-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      margin: 6px 0 8px;
+      border-top: 1px solid #d7dfef;
+      border-bottom: 1px solid #d7dfef;
+      padding: 8px 0;
+      color: #334b82;
+      font-size: 0.93rem;
+      font-weight: 800;
+    }
+
+    .flashback-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px 6px;
+      margin-bottom: 12px;
+    }
+
+    .flashback-cell {
+      min-height: 80px;
+      display: grid;
+      grid-template-rows: auto auto;
+      align-items: center;
+      justify-items: center;
+      gap: 6px;
+    }
+
+    .flashback-cell.empty {
+      pointer-events: none;
+    }
+
+    .flashback-day {
+      width: 100%;
+      min-height: 54px;
+      border: 1px solid #d4dced;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #18284f;
+      display: grid;
+      align-items: center;
+      justify-items: center;
+      padding: 8px 6px 8px;
+      box-shadow: 0 1px 0 rgba(16, 33, 68, 0.06);
+    }
+
+    .flashback-day:disabled {
+      cursor: not-allowed;
+    }
+
+    .flashback-day[aria-selected="true"] {
+      border-color: #1f3b73;
+      box-shadow: 0 0 0 3px rgba(31, 59, 115, 0.16);
+    }
+
+    .flashback-day-rows {
+      width: 100%;
+      display: grid;
+      grid-template-rows: repeat(5, 1fr);
+      gap: 2px;
+      padding: 2px;
+    }
+
+    .flashback-day-row {
+      height: 5px;
+      border-radius: 3px;
+      border: 1px solid #d0d8ea;
+      background: #ffffff;
+    }
+
+    .flashback-day-num {
+      margin-top: 0;
+      font-size: 0.96rem;
+      font-weight: 900;
+      line-height: 1;
+      color: #0f1b38;
+    }
+
+    .flashback-day.status-completed .flashback-day-row.filled {
+      border-color: #3d8c44;
+      background: #59a65f;
+    }
+
+    .flashback-day.status-completed {
+      background: #e7f4e9;
+      border-color: #8fbf95;
+      box-shadow: 0 1px 0 rgba(38, 84, 43, 0.16);
+    }
+
+    .flashback-day.status-completed .flashback-day-rows {
+      display: none;
+    }
+
+    .flashback-day-complete-icon {
+      width: 44px;
+      height: 29px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 1px 2px rgba(9, 21, 48, 0.2));
+    }
+
+    .flashback-day-complete-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+    }
+
+    .flashback-day.status-completed .flashback-day-complete-icon {
+      display: inline-flex;
+    }
+
+    .flashback-day.status-inprogress .flashback-day-row.filled {
+      border-color: #b5972a;
+      background: #d7b73d;
+    }
+
+    .flashback-day.status-unplayed .flashback-day-row.filled {
+      border-color: #6f83ad;
+      background: #9db2dc;
+    }
+
+    .flashback-day.status-locked {
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          #f5f7fc 0 8px,
+          #ebeff8 8px 16px
+        );
+      border-color: #c6d0e6;
+      box-shadow: inset 0 0 0 1px rgba(149, 164, 195, 0.35);
+      opacity: 0.82;
+    }
+
+    .flashback-day.status-locked .flashback-day-rows {
+      display: none;
+    }
+
+    .flashback-cell.locked .flashback-day-num {
+      color: #8b96b0;
+    }
+
+    .flashback-legend {
+      margin: 2px 0 10px;
+      text-align: center;
+      color: #60729a;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
     .hint-intro {
       margin: 8px 0 10px;
       font-size: 1.02rem;
@@ -967,18 +1169,38 @@
         z-index: 5;
       }
       .modal-prev-title { font-size: 1.22rem; }
-      .modal-prev-question-row {
-        flex-direction: column;
-        align-items: center;
+      .flashback-month-nav {
+        grid-template-columns: 38px 1fr 38px;
         gap: 6px;
       }
-      .modal-prev-question {
-        text-align: center;
-        white-space: normal;
+      .flashback-nav-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1.7rem;
       }
-      .modal-prev-question-row .modal-prev-date {
-        width: 180px;
-        min-width: 180px;
+      .flashback-picker {
+        min-height: 38px;
+        font-size: 0.98rem;
+      }
+      .flashback-weekdays {
+        font-size: 0.82rem;
+      }
+      .flashback-grid {
+        gap: 6px 4px;
+      }
+      .flashback-cell,
+      .flashback-day {
+        min-height: 52px;
+      }
+      .flashback-day-num {
+        font-size: 0.84rem;
+      }
+      .flashback-day-complete-icon {
+        width: 40px;
+        height: 26px;
+      }
+      .flashback-legend {
+        font-size: 0.78rem;
       }
       .modal-prev-btn {
         width: 100%;
@@ -1292,20 +1514,27 @@
   </div>
 
   <div class="modal-backdrop hidden" id="flashbackModal" role="dialog" aria-modal="true" aria-label="Flashback">
-    <div class="modal-card" style="min-height: 250px;">
+    <div class="modal-card flashback-card" style="min-height: 250px;">
       <button class="modal-close-icon" type="button" id="flashbackCloseBtn" aria-label="Close">×</button>
       <div class="modal-prev">
         <p class="modal-prev-title">Play a Previous Day</p>
-        <div class="modal-prev-question-row">
-          <p class="modal-prev-question">Which day would you like to play?</p>
-          <span class="modal-prev-date-wrap">
-            <input class="modal-prev-date" id="modalPrevDayInput" type="date" min="2026-03-11" max="2026-03-11" />
-          </span>
+        <div class="flashback-month-nav" aria-label="Flashback month navigation">
+          <button class="flashback-nav-btn" type="button" id="flashbackPrevMonthBtn" aria-label="Previous month">‹</button>
+          <div class="flashback-month-pickers">
+            <select class="flashback-picker" id="flashbackMonthSelect" aria-label="Select month"></select>
+            <select class="flashback-picker" id="flashbackYearSelect" aria-label="Select year"></select>
+          </div>
+          <button class="flashback-nav-btn" type="button" id="flashbackNextMonthBtn" aria-label="Next month">›</button>
         </div>
+        <div class="flashback-weekdays" aria-hidden="true">
+          <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+        </div>
+        <div class="flashback-grid" id="flashbackCalendarGrid" role="grid" aria-label="Flashback day picker"></div>
+        <input class="modal-prev-date hidden" id="modalPrevDayInput" type="date" min="2026-03-11" max="2026-03-11" />
         <div class="modal-prev-controls">
           <button class="modal-prev-btn" type="button" id="modalPrevDayBtn">Play Day</button>
         </div>
-        <p class="modal-prev-note">Note: This will not count towards your stats or be saved.</p>
+        <p class="modal-prev-note">Note: this will not count towards your stats</p>
       </div>
     </div>
   </div>
@@ -1630,6 +1859,11 @@
     const resultModalPlayer = document.getElementById("resultModalPlayer");
     const modalPrevDayInput = document.getElementById("modalPrevDayInput");
     const modalPrevDayBtn = document.getElementById("modalPrevDayBtn");
+    const flashbackMonthSelect = document.getElementById("flashbackMonthSelect");
+    const flashbackYearSelect = document.getElementById("flashbackYearSelect");
+    const flashbackCalendarGrid = document.getElementById("flashbackCalendarGrid");
+    const flashbackPrevMonthBtn = document.getElementById("flashbackPrevMonthBtn");
+    const flashbackNextMonthBtn = document.getElementById("flashbackNextMonthBtn");
     const modalShareBtn = document.getElementById("modalShareBtn");
     const modalOutcome = document.getElementById("modalOutcome");
     const resultModalCloseBtn = document.getElementById("resultModalCloseBtn");
@@ -1872,7 +2106,7 @@
       "2026-03-13": { player: "Danny Woodhead", season: 2015, week: 7 },
       "2026-03-14": { player: "Derrick Henry", season: 2018, week: 14 },
       "2026-03-15": { player: "Jimmy Graham", season: 2014, week: 2 },
-      "2026-03-16": { player: "Jordan Howard", season: 2019, week: 4 },
+      "2026-03-16": { player: "Will Fuller", season: 2020, week: 12 },
     };
     const PLAYER_DISPLAY_NAME_OVERRIDES = {
       "steve smith::BAL": "Steve Smith Sr.",
@@ -1908,6 +2142,16 @@
       const [y, m, d] = String(dateKey || "").split("-").map(Number);
       if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
       return Date.UTC(y, m - 1, d);
+    }
+
+    function parseDateKeyParts(dateKey) {
+      const [y, m, d] = String(dateKey || "").split("-").map(Number);
+      if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+      return { year: y, month: m, day: d };
+    }
+
+    function dateKeyFromParts(year, month, day) {
+      return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     }
 
     function puzzleNumberForDate(dateKey) {
@@ -2131,6 +2375,10 @@
       return `fantasy-stat-line-daily::hint::v${HINT_STATE_VERSION}::${puzzleKey}`;
     }
 
+    function flashbackProgressStorageKey(dateKey) {
+      return `fantasy-stat-line-daily::flashback-progress::v1::${String(dateKey || "")}`;
+    }
+
     function streakStorageKey() {
       return "fantasy-stat-line-daily::meta";
     }
@@ -2268,6 +2516,33 @@
       }));
     }
 
+    function loadFlashbackProgress(dateKey) {
+      const raw = storageGet(flashbackProgressStorageKey(dateKey));
+      if (!raw) return freshState();
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          guesses: Array.isArray(parsed?.guesses) ? parsed.guesses : [],
+          solved: Boolean(parsed?.solved),
+          solvedAtGuess: parsed?.solvedAtGuess ?? null,
+          revealed: Boolean(parsed?.revealed),
+          revealedAnswer: parsed?.revealedAnswer ?? null,
+        };
+      } catch {
+        return freshState();
+      }
+    }
+
+    function saveFlashbackProgress(dateKey, state) {
+      storageSet(flashbackProgressStorageKey(dateKey), JSON.stringify({
+        guesses: Array.isArray(state?.guesses) ? state.guesses : [],
+        solved: Boolean(state?.solved),
+        solvedAtGuess: state?.solvedAtGuess ?? null,
+        revealed: Boolean(state?.revealed),
+        revealedAnswer: state?.revealedAnswer ?? null,
+      }));
+    }
+
     function freshState() {
       return { guesses: [], solved: false, solvedAtGuess: null, revealed: false, revealedAnswer: null };
     }
@@ -2284,6 +2559,7 @@
         if (key === "fantasy-stat-line-daily::puzzles-cache") continue;
         if (key === "fantasy-stat-line-daily::meta") continue;
         if (key === markerKey) continue;
+        if (key.startsWith("fantasy-stat-line-daily::flashback-progress::")) continue;
         if (key.startsWith("fantasy-stat-line-daily::anon-user-id::")) continue;
         if (key.startsWith("fantasy-stat-line-daily::cached-user-stats::")) continue;
         toRemove.push(key);
@@ -2629,6 +2905,141 @@
       modalPrevDayInput.setAttribute("min", FLASHBACK_MIN_KEY);
       modalPrevDayInput.setAttribute("max", FLASHBACK_MAX_KEY);
       modalPrevDayInput.value = FLASHBACK_MAX_KEY;
+      const maxParts = parseDateKeyParts(FLASHBACK_MAX_KEY) || { year: 2026, month: 3, day: 11 };
+      let flashbackViewYear = maxParts.year;
+      let flashbackViewMonth = maxParts.month;
+
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+      const getFlashbackProgressForDate = (dateKey) => {
+        if (dateKey === dailyBase.dailyKey) {
+          const puzzleKey = `${dateKey}::v${DAILY_ROTATION_VERSION}`;
+          return loadState(puzzleKey);
+        }
+        return loadFlashbackProgress(dateKey);
+      };
+
+      const getFlashbackStatusForDate = (dateKey) => {
+        const saved = getFlashbackProgressForDate(dateKey);
+        if (saved.solved || saved.revealed) return "completed";
+        if (Array.isArray(saved.guesses) && saved.guesses.length > 0) return "inprogress";
+        return "unplayed";
+      };
+
+      const setFlashbackSelectedDate = (dateKey) => {
+        const clamped = clampFlashbackDateKey(dateKey);
+        modalPrevDayInput.value = clamped;
+      };
+
+      const syncFlashbackMonthToSelected = () => {
+        const parts = parseDateKeyParts(modalPrevDayInput.value) || maxParts;
+        flashbackViewYear = parts.year;
+        flashbackViewMonth = parts.month;
+      };
+
+      const syncFlashbackSelectors = () => {
+        if (!flashbackMonthSelect || !flashbackYearSelect) return;
+        flashbackMonthSelect.value = String(flashbackViewMonth);
+        flashbackYearSelect.value = String(flashbackViewYear);
+      };
+
+      const ensureFlashbackMonthYearOptions = () => {
+        if (!flashbackMonthSelect || !flashbackYearSelect) return;
+        if (!flashbackMonthSelect.options.length) {
+          monthNames.forEach((name, idx) => {
+            const opt = document.createElement("option");
+            opt.value = String(idx + 1);
+            opt.textContent = name;
+            flashbackMonthSelect.appendChild(opt);
+          });
+        }
+        if (!flashbackYearSelect.options.length) {
+          const minParts = parseDateKeyParts(FLASHBACK_MIN_KEY);
+          const maxPartsNow = parseDateKeyParts(FLASHBACK_MAX_KEY);
+          if (!minParts || !maxPartsNow) return;
+          for (let y = minParts.year; y <= maxPartsNow.year; y++) {
+            const opt = document.createElement("option");
+            opt.value = String(y);
+            opt.textContent = String(y);
+            flashbackYearSelect.appendChild(opt);
+          }
+        }
+        syncFlashbackSelectors();
+      };
+
+      const renderFlashbackCalendar = () => {
+        if (!flashbackCalendarGrid) return;
+        const minParts = parseDateKeyParts(FLASHBACK_MIN_KEY);
+        const maxPartsNow = parseDateKeyParts(FLASHBACK_MAX_KEY);
+        if (!minParts || !maxPartsNow) return;
+
+        ensureFlashbackMonthYearOptions();
+
+        const first = new Date(flashbackViewYear, flashbackViewMonth - 1, 1);
+        const daysInMonth = new Date(flashbackViewYear, flashbackViewMonth, 0).getDate();
+        const startWeekday = first.getDay(); // 0 = Sunday
+        syncFlashbackSelectors();
+
+        const beforeMin = (flashbackViewYear < minParts.year) || (flashbackViewYear === minParts.year && flashbackViewMonth <= minParts.month);
+        const afterMax = (flashbackViewYear > maxPartsNow.year) || (flashbackViewYear === maxPartsNow.year && flashbackViewMonth >= maxPartsNow.month);
+        if (flashbackPrevMonthBtn) flashbackPrevMonthBtn.disabled = beforeMin;
+        if (flashbackNextMonthBtn) flashbackNextMonthBtn.disabled = afterMax;
+
+        flashbackCalendarGrid.innerHTML = "";
+
+        for (let i = 0; i < startWeekday; i++) {
+          const empty = document.createElement("div");
+          empty.className = "flashback-cell empty";
+          flashbackCalendarGrid.appendChild(empty);
+        }
+
+        const minKey = FLASHBACK_MIN_KEY;
+        const maxKey = FLASHBACK_MAX_KEY;
+        const selectedKey = modalPrevDayInput.value;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateKey = dateKeyFromParts(flashbackViewYear, flashbackViewMonth, day);
+          const cell = document.createElement("div");
+          cell.className = "flashback-cell";
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "flashback-day";
+          btn.setAttribute("role", "gridcell");
+
+          if (dateKey < minKey || dateKey > maxKey) {
+            btn.disabled = true;
+            const isLocked = dateKey < minKey;
+            btn.classList.add(isLocked ? "status-locked" : "status-unplayed");
+            if (isLocked) {
+              btn.setAttribute("aria-label", `${dateKey} unavailable before Game 1`);
+              btn.title = "Locked: before Game #1";
+              cell.classList.add("locked");
+            } else {
+              btn.setAttribute("aria-label", `${dateKey} unavailable`);
+              btn.title = "Unavailable";
+            }
+            btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="/flashback-football.jpg" alt="" /></span><span class="flashback-day-rows"><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span></span>`;
+          } else {
+            const progress = getFlashbackProgressForDate(dateKey);
+            const status = getFlashbackStatusForDate(dateKey);
+            const guessCount = Math.max(0, Math.min(MAX_GUESSES, Number(progress?.guesses?.length || 0)));
+            btn.classList.add(`status-${status}`);
+            btn.setAttribute("aria-selected", dateKey === selectedKey ? "true" : "false");
+            btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="/flashback-football.jpg" alt="" /></span><span class="flashback-day-rows">${Array.from({ length: MAX_GUESSES }, (_, i) => `<span class="flashback-day-row${i < guessCount ? " filled" : ""}"></span>`).join("")}</span>`;
+            btn.addEventListener("click", () => {
+              setFlashbackSelectedDate(dateKey);
+              renderFlashbackCalendar();
+            });
+          }
+
+          const dayNum = document.createElement("div");
+          dayNum.className = "flashback-day-num";
+          dayNum.textContent = String(day);
+          cell.appendChild(btn);
+          cell.appendChild(dayNum);
+          flashbackCalendarGrid.appendChild(cell);
+        }
+      };
       if (FORCE_FRESH_STATE_ON_LOAD) {
         state = freshState();
         saveState(active.puzzleKey, state);
@@ -2743,7 +3154,7 @@
           isPractice: true,
           isEphemeral: true,
         };
-        state = freshState();
+        state = loadFlashbackProgress(base.dailyKey);
         // Flashback hint reveals are intentionally non-persistent.
         hintState = { career: false, college: false };
         rerender();
@@ -2837,7 +3248,9 @@
           updateFeedback(`Out of guesses. The answer was ${displayPlayerNameForPuzzle(active.puzzle)}.`, "error");
         }
 
-        if (!active.isEphemeral) {
+        if (active.isEphemeral) {
+          saveFlashbackProgress(active.dailyKey, state);
+        } else {
           saveState(active.puzzleKey, state);
         }
         renderState(active.puzzle, state);
@@ -3080,15 +3493,63 @@
         trackHintEvent("open", active, "");
         showHintModal();
       });
-      openFlashbackModalBtn.addEventListener("click", showFlashbackModal);
+      openFlashbackModalBtn.addEventListener("click", () => {
+        syncFlashbackMonthToSelected();
+        renderFlashbackCalendar();
+        showFlashbackModal();
+      });
       modalPrevDayBtn.addEventListener("click", loadPreviousDayPuzzle);
       const enforceFlashbackDate = () => {
         const clamped = clampFlashbackDateKey(modalPrevDayInput.value);
         if (modalPrevDayInput.value !== clamped) {
           modalPrevDayInput.value = clamped;
         }
+        syncFlashbackMonthToSelected();
+        renderFlashbackCalendar();
       };
       modalPrevDayInput.addEventListener("change", enforceFlashbackDate);
+      if (flashbackMonthSelect) {
+        flashbackMonthSelect.addEventListener("change", () => {
+          const val = Number(flashbackMonthSelect.value || flashbackViewMonth);
+          if (!Number.isFinite(val) || val < 1 || val > 12) return;
+          flashbackViewMonth = val;
+          renderFlashbackCalendar();
+        });
+      }
+      if (flashbackYearSelect) {
+        flashbackYearSelect.addEventListener("change", () => {
+          const val = Number(flashbackYearSelect.value || flashbackViewYear);
+          if (!Number.isFinite(val)) return;
+          flashbackViewYear = val;
+          renderFlashbackCalendar();
+        });
+      }
+      if (flashbackPrevMonthBtn) {
+        flashbackPrevMonthBtn.addEventListener("click", () => {
+          let year = flashbackViewYear;
+          let month = flashbackViewMonth - 1;
+          if (month < 1) {
+            month = 12;
+            year -= 1;
+          }
+          flashbackViewYear = year;
+          flashbackViewMonth = month;
+          renderFlashbackCalendar();
+        });
+      }
+      if (flashbackNextMonthBtn) {
+        flashbackNextMonthBtn.addEventListener("click", () => {
+          let year = flashbackViewYear;
+          let month = flashbackViewMonth + 1;
+          if (month > 12) {
+            month = 1;
+            year += 1;
+          }
+          flashbackViewYear = year;
+          flashbackViewMonth = month;
+          renderFlashbackCalendar();
+        });
+      }
       revealCareerHintBtn.addEventListener("click", () => {
         if (state.solved || state.revealed) return;
         hintState.career = true;

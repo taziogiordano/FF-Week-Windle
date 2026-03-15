@@ -838,10 +838,14 @@
     .flashback-day-complete-icon {
       width: 44px;
       height: 29px;
-      display: none;
+      display: inline-flex;
+      visibility: hidden;
+      opacity: 0;
       align-items: center;
       justify-content: center;
       filter: drop-shadow(0 1px 2px rgba(9, 21, 48, 0.2));
+      transform: translateY(2px) scale(0.96);
+      transition: opacity 140ms ease 60ms, transform 180ms ease 60ms;
     }
 
     .flashback-day-complete-icon img {
@@ -853,7 +857,9 @@
     }
 
     .flashback-day.status-completed .flashback-day-complete-icon {
-      display: inline-flex;
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
 
     .flashback-day.status-inprogress .flashback-day-row.filled {
@@ -2100,6 +2106,7 @@
     const PUZZLE_NUMBER_START_KEY = "2026-03-11";
     const FLASHBACK_MIN_KEY = PUZZLE_NUMBER_START_KEY;
     const FLASHBACK_MAX_KEY = dateKeyForDailyPuzzle();
+    const FLASHBACK_COMPLETE_ICON_URL = "/flashback-football.jpg";
     const PINNED_DAILY_PUZZLES = {
       "2026-03-11": { player: "Albert Wilson", season: 2018, week: 6 },
       "2026-03-12": { player: "Amari Cooper", season: 2016, week: 8 },
@@ -2125,6 +2132,11 @@
       "Southern California": "University of Southern California",
       "University of Southern California": "University of Southern California",
     };
+
+    // Warm the cache so completed-day football icons render without a first-open lag.
+    const flashbackCompleteIconPreload = new Image();
+    flashbackCompleteIconPreload.src = FLASHBACK_COMPLETE_ICON_URL;
+
     function findPinnedPuzzleIndex(pinned) {
       if (!pinned || !pinned.player) return -1;
       const targetName = normalizeName(pinned.player);
@@ -3018,14 +3030,14 @@
               btn.setAttribute("aria-label", `${dateKey} unavailable`);
               btn.title = "Unavailable";
             }
-            btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="/flashback-football.jpg" alt="" /></span><span class="flashback-day-rows"><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span></span>`;
+            btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="${FLASHBACK_COMPLETE_ICON_URL}" alt="" /></span><span class="flashback-day-rows"><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span></span>`;
           } else {
             const progress = getFlashbackProgressForDate(dateKey);
             const status = getFlashbackStatusForDate(dateKey);
             const guessCount = Math.max(0, Math.min(MAX_GUESSES, Number(progress?.guesses?.length || 0)));
             btn.classList.add(`status-${status}`);
             btn.setAttribute("aria-selected", dateKey === selectedKey ? "true" : "false");
-            btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="/flashback-football.jpg" alt="" /></span><span class="flashback-day-rows">${Array.from({ length: MAX_GUESSES }, (_, i) => `<span class="flashback-day-row${i < guessCount ? " filled" : ""}"></span>`).join("")}</span>`;
+            btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="${FLASHBACK_COMPLETE_ICON_URL}" alt="" /></span><span class="flashback-day-rows">${Array.from({ length: MAX_GUESSES }, (_, i) => `<span class="flashback-day-row${i < guessCount ? " filled" : ""}"></span>`).join("")}</span>`;
             btn.addEventListener("click", () => {
               setFlashbackSelectedDate(dateKey);
               renderFlashbackCalendar();

@@ -770,6 +770,10 @@
       gap: 6px;
     }
 
+    .flashback-cell.selectable {
+      cursor: pointer;
+    }
+
     .flashback-cell.empty {
       pointer-events: none;
     }
@@ -790,6 +794,8 @@
       padding: 0;
       overflow: hidden;
       box-shadow: 0 1px 0 rgba(16, 33, 68, 0.06);
+      cursor: pointer;
+      touch-action: manipulation;
     }
 
     .flashback-day:disabled {
@@ -824,6 +830,7 @@
       font-weight: 900;
       line-height: 1;
       color: #0f1b38;
+      pointer-events: none;
     }
 
     .flashback-day.status-completed .flashback-day-row.filled {
@@ -3022,6 +3029,14 @@
         const minKey = FLASHBACK_MIN_KEY;
         const maxKey = FLASHBACK_MAX_KEY;
         const selectedKey = modalPrevDayInput.value;
+        const applyDateSelection = (dateKey, btn) => {
+          setFlashbackSelectedDate(dateKey);
+          const prevSelected = flashbackCalendarGrid.querySelector('.flashback-day[aria-selected="true"]');
+          if (prevSelected && prevSelected !== btn) {
+            prevSelected.setAttribute("aria-selected", "false");
+          }
+          btn.setAttribute("aria-selected", "true");
+        };
 
         for (let day = 1; day <= daysInMonth; day++) {
           const dateKey = dateKeyFromParts(flashbackViewYear, flashbackViewMonth, day);
@@ -3046,6 +3061,7 @@
             }
             btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="${FLASHBACK_COMPLETE_ICON_URL}" alt="" /></span><span class="flashback-day-rows"><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span><span class="flashback-day-row"></span></span>`;
           } else {
+            cell.classList.add("selectable");
             const progress = getFlashbackProgressForDate(dateKey);
             const status = getFlashbackStatusForDate(dateKey);
             const guessCount = Math.max(0, Math.min(MAX_GUESSES, Number(progress?.guesses?.length || 0)));
@@ -3053,12 +3069,11 @@
             btn.setAttribute("aria-selected", dateKey === selectedKey ? "true" : "false");
             btn.innerHTML = `<span class="flashback-day-complete-icon" aria-hidden="true"><img src="${FLASHBACK_COMPLETE_ICON_URL}" alt="" /></span><span class="flashback-day-rows">${Array.from({ length: MAX_GUESSES }, (_, i) => `<span class="flashback-day-row${i < guessCount ? " filled" : ""}"></span>`).join("")}</span>`;
             btn.addEventListener("click", () => {
-              setFlashbackSelectedDate(dateKey);
-              const prevSelected = flashbackCalendarGrid.querySelector('.flashback-day[aria-selected="true"]');
-              if (prevSelected && prevSelected !== btn) {
-                prevSelected.setAttribute("aria-selected", "false");
-              }
-              btn.setAttribute("aria-selected", "true");
+              applyDateSelection(dateKey, btn);
+            });
+            cell.addEventListener("click", (event) => {
+              if (event.target instanceof Element && event.target.closest(".flashback-day") === btn) return;
+              applyDateSelection(dateKey, btn);
             });
           }
 

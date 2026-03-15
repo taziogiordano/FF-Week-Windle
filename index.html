@@ -792,10 +792,13 @@
       align-items: stretch;
       justify-items: stretch;
       padding: 0;
-      overflow: hidden;
       box-shadow: 0 1px 0 rgba(16, 33, 68, 0.06);
       cursor: pointer;
       touch-action: manipulation;
+    }
+
+    .flashback-day:hover {
+      filter: none;
     }
 
     .flashback-day:disabled {
@@ -814,6 +817,8 @@
       grid-template-rows: repeat(5, minmax(0, 1fr));
       gap: 2px;
       margin: 0;
+      overflow: hidden;
+      border-radius: 7px;
     }
 
     .flashback-day-row {

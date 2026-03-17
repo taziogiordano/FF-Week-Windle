@@ -2585,6 +2585,61 @@
       return { guesses: [], solved: false, solvedAtGuess: null, revealed: false, revealedAnswer: null };
     }
 
+    function hasProgress(state) {
+      if (!state || typeof state !== "object") return false;
+      if (state.solved || state.revealed) return true;
+      return Array.isArray(state.guesses) && state.guesses.length > 0;
+    }
+
+    function parseSavedState(raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          guesses: Array.isArray(parsed?.guesses) ? parsed.guesses : [],
+          solved: Boolean(parsed?.solved),
+          solvedAtGuess: parsed?.solvedAtGuess ?? null,
+          revealed: Boolean(parsed?.revealed),
+          revealedAnswer: parsed?.revealedAnswer ?? null,
+        };
+      } catch {
+        return freshState();
+      }
+    }
+
+    function loadDailyProgressForDate(dateKey) {
+      const direct = loadState(`${dateKey}::v${DAILY_ROTATION_VERSION}`);
+      if (hasProgress(direct)) return direct;
+
+      const prefix = `fantasy-stat-line-daily::v${STATE_VERSION}::${String(dateKey || "")}::v`;
+      const regex = new RegExp(`^fantasy-stat-line-daily::v${STATE_VERSION}::${String(dateKey || "").replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}::v(\\d+)$`);
+      const keys = storageKeys(prefix);
+      let best = freshState();
+      let bestVersion = -1;
+      keys.forEach((key) => {
+        const m = key.match(regex);
+        if (!m) return;
+        const version = Number(m[1]);
+        if (!Number.isFinite(version) || version < bestVersion) return;
+        const raw = storageGet(key);
+        if (!raw) return;
+        const candidate = parseSavedState(raw);
+        if (!hasProgress(candidate)) return;
+        bestVersion = version;
+        best = candidate;
+      });
+      return best;
+    }
+
+    function mergedProgressState(dailyState, flashbackState) {
+      const daily = dailyState || freshState();
+      const flashback = flashbackState || freshState();
+      if (daily.solved || daily.revealed) return daily;
+      if (flashback.solved || flashback.revealed) return flashback;
+      const dailyGuesses = Array.isArray(daily.guesses) ? daily.guesses.length : 0;
+      const flashbackGuesses = Array.isArray(flashback.guesses) ? flashback.guesses.length : 0;
+      return flashbackGuesses > dailyGuesses ? flashback : daily;
+    }
+
     function applyStateResetIfNeeded() {
       const markerKey = "fantasy-stat-line-daily::state-reset-token";
       const existing = storageGet(markerKey);
@@ -2950,11 +3005,9 @@
       const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
       const getFlashbackProgressForDate = (dateKey) => {
-        if (dateKey === dailyBase.dailyKey) {
-          const puzzleKey = `${dateKey}::v${DAILY_ROTATION_VERSION}`;
-          return loadState(puzzleKey);
-        }
-        return loadFlashbackProgress(dateKey);
+        const fromDaily = loadDailyProgressForDate(dateKey);
+        const fromFlashback = loadFlashbackProgress(dateKey);
+        return mergedProgressState(fromDaily, fromFlashback);
       };
 
       const getFlashbackStatusForDate = (dateKey) => {

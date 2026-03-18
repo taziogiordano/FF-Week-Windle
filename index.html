@@ -2102,13 +2102,19 @@
     }
 
     function dateKeyForDailyPuzzle() {
-      const fmt = new Intl.DateTimeFormat("en-CA", {
+      const fmt = new Intl.DateTimeFormat("en-US", {
         timeZone: "America/New_York",
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
       });
-      return fmt.format(new Date());
+      const parts = fmt.formatToParts(new Date());
+      const year = parts.find((p) => p.type === "year")?.value;
+      const month = parts.find((p) => p.type === "month")?.value;
+      const day = parts.find((p) => p.type === "day")?.value;
+      if (year && month && day) return `${year}-${month}-${day}`;
+      const fallback = new Date();
+      return `${fallback.getUTCFullYear()}-${String(fallback.getUTCMonth() + 1).padStart(2, "0")}-${String(fallback.getUTCDate()).padStart(2, "0")}`;
     }
 
     function hashString(str) {

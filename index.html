@@ -1329,6 +1329,20 @@
       }
     }
 
+    /* Apply compact dropdown sizing on touch devices (covers iPhone Max widths too). */
+    @media (hover: none) and (pointer: coarse) {
+      .player-suggestions {
+        max-height: min(190px, 28vh);
+        border-radius: 6px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.10);
+      }
+      .player-suggestion {
+        min-height: 36px;
+        padding: 7px 9px;
+        font-size: 0.88rem;
+      }
+    }
+
     @media (max-width: 390px) {
       .clue-table th {
         font-size: 0.58rem;

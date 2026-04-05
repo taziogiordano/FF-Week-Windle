@@ -1986,6 +1986,7 @@
 
     function showPlayerSuggestions() {
       if (!playerNames.length) return;
+      applySuggestionPanelSizing();
       playerSuggestions.classList.remove("hidden");
       guessInput.setAttribute("aria-expanded", "true");
       if (guessDropdownToggle) guessDropdownToggle.setAttribute("aria-expanded", "true");
@@ -2862,18 +2863,17 @@
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    function applyMobileSuggestionSizing() {
-      if (!playerSuggestions) return;
-      const ua = navigator.userAgent || "";
-      const isTouchPhone =
-        window.matchMedia("(hover: none) and (pointer: coarse)").matches &&
-        /iPhone|iPod|Android/i.test(ua) &&
-        window.innerWidth <= 900;
-      if (isTouchPhone) {
-        playerSuggestions.style.maxHeight = "160px";
-      } else {
-        playerSuggestions.style.maxHeight = "min(320px, 45vh)";
-      }
+    function applySuggestionPanelSizing() {
+      if (!playerSuggestions || !guessInput) return;
+      const rect = guessInput.getBoundingClientRect();
+      const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
+      const available = Math.max(120, Math.floor(viewportH - rect.bottom - 12));
+      const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
+
+      const target = isTouchPhone
+        ? Math.min(180, available)
+        : Math.min(360, Math.max(220, available));
+      playerSuggestions.style.maxHeight = `${target}px`;
     }
 
     function fitLeadSingleLine() {
@@ -3603,7 +3603,7 @@
       }).catch(() => {});
       loadSearchPlayers().catch(() => {});
       fitLeadSingleLine();
-      applyMobileSuggestionSizing();
+      applySuggestionPanelSizing();
       preloadUserStats()
         .then((stats) => {
           if (stats && !resultModal.classList.contains("hidden")) renderModalStats(stats);
@@ -3836,8 +3836,8 @@
 
       window.addEventListener("resize", fitLeadSingleLine, { passive: true });
       window.addEventListener("orientationchange", fitLeadSingleLine, { passive: true });
-      window.addEventListener("resize", applyMobileSuggestionSizing, { passive: true });
-      window.addEventListener("orientationchange", applyMobileSuggestionSizing, { passive: true });
+      window.addEventListener("resize", applySuggestionPanelSizing, { passive: true });
+      window.addEventListener("orientationchange", applySuggestionPanelSizing, { passive: true });
     }
 
     init();

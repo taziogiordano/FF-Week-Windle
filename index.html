@@ -380,6 +380,11 @@
       z-index: 15;
     }
 
+    .player-suggestions.opens-up {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
     .player-suggestion {
       width: 100%;
       text-align: left;
@@ -2867,12 +2872,16 @@
       if (!playerSuggestions || !guessInput) return;
       const rect = guessInput.getBoundingClientRect();
       const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
-      const available = Math.max(120, Math.floor(viewportH - rect.bottom - 12));
+      const spaceBelow = Math.max(0, Math.floor(viewportH - rect.bottom - 12));
+      const spaceAbove = Math.max(0, Math.floor(rect.top - 12));
+      const shouldOpenUp = spaceBelow < 220 && spaceAbove > spaceBelow;
+      playerSuggestions.classList.toggle("opens-up", shouldOpenUp);
+      const available = Math.max(120, shouldOpenUp ? spaceAbove : spaceBelow);
       const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
 
       const target = isTouchPhone
         ? Math.min(180, available)
-        : Math.min(360, Math.max(220, available));
+        : Math.min(420, Math.max(240, available));
       playerSuggestions.style.maxHeight = `${target}px`;
     }
 

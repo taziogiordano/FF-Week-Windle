@@ -367,22 +367,23 @@
     input[type="text"]::placeholder { color: #9aa6c3; }
 
     .player-suggestions {
-      position: absolute;
-      top: calc(100% + 4px);
+      position: fixed;
+      top: 0;
       left: 0;
-      right: 0;
+      right: auto;
+      width: 280px;
       max-height: min(320px, 45vh);
       overflow-y: auto;
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-      z-index: 15;
+      z-index: 120;
     }
 
     .player-suggestions.opens-up {
-      top: auto;
-      bottom: calc(100% + 4px);
+      top: 0;
+      bottom: auto;
     }
 
     .player-suggestion {
@@ -2872,6 +2873,7 @@
       if (!playerSuggestions || !guessInput) return;
       const rect = guessInput.getBoundingClientRect();
       const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
+      const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
       const spaceBelow = Math.max(0, Math.floor(viewportH - rect.bottom - 12));
       const spaceAbove = Math.max(0, Math.floor(rect.top - 12));
       const shouldOpenUp = spaceBelow < 220 && spaceAbove > spaceBelow;
@@ -2883,6 +2885,14 @@
         ? Math.min(180, available)
         : Math.min(420, Math.max(240, available));
       playerSuggestions.style.maxHeight = `${target}px`;
+
+      const left = Math.max(8, Math.min(rect.left, viewportW - rect.width - 8));
+      playerSuggestions.style.left = `${left}px`;
+      playerSuggestions.style.width = `${Math.max(220, Math.floor(rect.width))}px`;
+      const top = shouldOpenUp
+        ? Math.max(8, Math.floor(rect.top - target - 4))
+        : Math.min(viewportH - target - 8, Math.floor(rect.bottom + 4));
+      playerSuggestions.style.top = `${top}px`;
     }
 
     function fitLeadSingleLine() {
@@ -3847,6 +3857,7 @@
       window.addEventListener("orientationchange", fitLeadSingleLine, { passive: true });
       window.addEventListener("resize", applySuggestionPanelSizing, { passive: true });
       window.addEventListener("orientationchange", applySuggestionPanelSizing, { passive: true });
+      window.addEventListener("scroll", applySuggestionPanelSizing, { passive: true, capture: true });
     }
 
     init();

@@ -1287,15 +1287,26 @@
 
     @media (max-width: 430px) {
       .wrap {
-        width: min(calc(100% - 12px), var(--maxw));
+        width: 100%;
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+      .hero,
+      .hero-grid {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
       }
       .topbar {
         padding-left: 88px;
         padding-right: 88px;
       }
       .lead {
-        font-size: 0.58rem;
+        width: 100%;
+        max-width: 100%;
+        font-size: clamp(0.5rem, 2.2vw, 0.64rem);
         letter-spacing: -0.02em;
+        overflow: hidden;
       }
       .clue-table th {
         font-size: 0.61rem;
@@ -1344,7 +1355,7 @@
         height: 17px;
       }
       .lead {
-        font-size: 0.54rem;
+        font-size: clamp(0.48rem, 2.1vw, 0.58rem);
         letter-spacing: -0.022em;
       }
     }

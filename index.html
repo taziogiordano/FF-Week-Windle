@@ -1300,10 +1300,8 @@
         padding-right: 88px;
       }
       .lead {
-        font-size: clamp(0.42rem, 2.1vw, 0.58rem);
-        letter-spacing: -0.02em;
-        white-space: nowrap;
-        overflow-wrap: normal;
+        font-size: 0.88rem;
+        letter-spacing: -0.01em;
       }
       .clue-table th {
         font-size: 0.61rem;
@@ -1352,10 +1350,8 @@
         height: 17px;
       }
       .lead {
-        font-size: clamp(0.4rem, 2.05vw, 0.54rem);
-        letter-spacing: -0.022em;
-        white-space: nowrap;
-        overflow-wrap: normal;
+        font-size: 0.84rem;
+        letter-spacing: -0.012em;
       }
     }
 
@@ -1894,6 +1890,7 @@
     const clueRecYdsEl = document.getElementById("clueRecYds");
     const clueRecTdEl = document.getElementById("clueRecTd");
     const cluePprEl = document.getElementById("cluePpr");
+    const leadEl = document.querySelector("p.lead");
     const guessForm = document.getElementById("guessForm");
     const guessInput = document.getElementById("guessInput");
     const guessDropdownToggle = document.getElementById("guessDropdownToggle");
@@ -2833,6 +2830,29 @@
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function fitLeadSingleLine() {
+      if (!leadEl) return;
+      const mobile = window.matchMedia("(max-width: 430px)").matches;
+      if (!mobile) {
+        leadEl.style.removeProperty("font-size");
+        leadEl.style.removeProperty("white-space");
+        leadEl.style.removeProperty("letter-spacing");
+        leadEl.style.removeProperty("overflow");
+        return;
+      }
+      leadEl.style.whiteSpace = "nowrap";
+      leadEl.style.overflow = "visible";
+      leadEl.style.letterSpacing = "-0.01em";
+
+      let size = 12;
+      const minSize = 6;
+      leadEl.style.fontSize = `${size}px`;
+      while (size > minSize && leadEl.scrollWidth > leadEl.clientWidth) {
+        size -= 0.5;
+        leadEl.style.fontSize = `${size}px`;
+      }
+    }
+
     function trackGAEvent(name, params = {}) {
       try {
         if (typeof window.gtag === "function") {
@@ -3536,6 +3556,7 @@
         renderHintModal();
       }).catch(() => {});
       loadSearchPlayers().catch(() => {});
+      fitLeadSingleLine();
       preloadUserStats()
         .then((stats) => {
           if (stats && !resultModal.classList.contains("hidden")) renderModalStats(stats);
@@ -3765,6 +3786,9 @@
           window.location.reload();
         }
       }, 30000);
+
+      window.addEventListener("resize", fitLeadSingleLine, { passive: true });
+      window.addEventListener("orientationchange", fitLeadSingleLine, { passive: true });
     }
 
     init();

@@ -46,7 +46,7 @@
     html {
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
-      overflow-x: clip;
+      overflow-x: hidden;
     }
 
     body {
@@ -58,7 +58,7 @@
         radial-gradient(circle at 85% 12%, rgba(16, 66, 153, 0.04), transparent 46%),
         linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       color: var(--text);
-      overflow-x: clip;
+      overflow-x: hidden;
     }
 
     body.modal-open {
@@ -196,10 +196,11 @@
       color: #c5112f;
       font-weight: 800;
       font-size: clamp(1.22rem, 2.9vw, 1.5rem);
-      white-space: nowrap;
+      white-space: normal;
       letter-spacing: -0.005em;
       line-height: 1.15;
       max-width: 100%;
+      overflow-wrap: anywhere;
     }
 
     .statline {

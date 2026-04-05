@@ -367,21 +367,35 @@
     input[type="text"]::placeholder { color: #9aa6c3; }
 
     .player-suggestions {
-      position: fixed;
-      top: 0;
+      position: absolute;
+      top: calc(100% + 4px);
       left: 0;
-      right: auto;
-      width: 280px;
+      right: 0;
+      width: auto;
       max-height: min(320px, 45vh);
       overflow-y: auto;
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-      z-index: 120;
+      z-index: 15;
     }
 
     .player-suggestions.opens-up {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
+    .player-suggestions.floating {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: auto;
+      width: 280px;
+      z-index: 120;
+    }
+
+    .player-suggestions.floating.opens-up {
       top: 0;
       bottom: auto;
     }
@@ -2874,16 +2888,27 @@
       const rect = guessInput.getBoundingClientRect();
       const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
       const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
+      const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
+
+      if (isTouchPhone) {
+        // Mobile: keep dropdown attached to input so it doesn't float into clue/guess areas.
+        playerSuggestions.classList.remove("floating");
+        playerSuggestions.classList.remove("opens-up");
+        playerSuggestions.style.removeProperty("left");
+        playerSuggestions.style.removeProperty("top");
+        playerSuggestions.style.removeProperty("width");
+        playerSuggestions.style.maxHeight = "min(190px, 28vh)";
+        return;
+      }
+
+      // Desktop: floating panel avoids Safari clipping/cutoff.
+      playerSuggestions.classList.add("floating");
       const spaceBelow = Math.max(0, Math.floor(viewportH - rect.bottom - 12));
       const spaceAbove = Math.max(0, Math.floor(rect.top - 12));
       const shouldOpenUp = spaceBelow < 220 && spaceAbove > spaceBelow;
       playerSuggestions.classList.toggle("opens-up", shouldOpenUp);
       const available = Math.max(120, shouldOpenUp ? spaceAbove : spaceBelow);
-      const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
-
-      const target = isTouchPhone
-        ? Math.min(180, available)
-        : Math.min(420, Math.max(240, available));
+      const target = Math.min(420, Math.max(240, available));
       playerSuggestions.style.maxHeight = `${target}px`;
 
       const left = Math.max(8, Math.min(rect.left, viewportW - rect.width - 8));

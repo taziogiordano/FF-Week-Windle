@@ -283,7 +283,7 @@
     }
 
     .section-title {
-      margin: 0 0 24px;
+      margin: 12px 0 24px;
       font-size: 1.22rem;
       text-align: center;
     }
@@ -300,13 +300,18 @@
       gap: 8px;
       margin-bottom: 12px;
       position: relative;
+      padding: 10px;
+      border: 2px solid #c5112f;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fff7f9 0%, #ffffff 100%);
+      box-shadow: 0 8px 20px rgba(197, 17, 47, 0.14);
     }
 
     input[type="text"] {
       width: 100%;
       padding: 12px;
       border-radius: 8px;
-      border: 1px solid var(--border);
+      border: 2px solid #d5def0;
       background: #ffffff;
       color: #1f2e56;
       outline: none;
@@ -346,8 +351,8 @@
     }
 
     input[type="text"]:focus {
-      border-color: #4b67a0;
-      box-shadow: 0 0 0 3px rgba(12, 45, 107, 0.14);
+      border-color: #c5112f;
+      box-shadow: 0 0 0 4px rgba(197, 17, 47, 0.14);
     }
 
     input[type="text"]::placeholder { color: #9aa6c3; }
@@ -1474,8 +1479,6 @@
     </section>
 
     <section class="card play-area">
-      <h2 class="section-title" id="guessCount">0 of 5 guesses</h2>
-
       <form class="guess-form" id="guessForm" autocomplete="off">
         <input
           id="guessInput"
@@ -1497,6 +1500,8 @@
         </button>
         <div class="player-suggestions hidden" id="playerSuggestions" role="listbox" aria-label="Player suggestions"></div>
       </form>
+
+      <h2 class="section-title" id="guessCount">0 of 5 guesses</h2>
 
       <div class="feedback" id="feedback" aria-live="polite"></div>
 

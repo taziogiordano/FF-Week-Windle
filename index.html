@@ -2862,6 +2862,19 @@
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function applyMobileSuggestionSizing() {
+      if (!playerSuggestions) return;
+      const ua = navigator.userAgent || "";
+      const isTouchPhone =
+        window.matchMedia("(hover: none) and (pointer: coarse)").matches &&
+        /iPhone|iPod|Android/i.test(ua);
+      if (isTouchPhone) {
+        playerSuggestions.style.maxHeight = "160px";
+      } else {
+        playerSuggestions.style.removeProperty("max-height");
+      }
+    }
+
     function fitLeadSingleLine() {
       if (!leadEl) return;
       const mobile = window.matchMedia("(max-width: 430px)").matches;
@@ -3589,6 +3602,7 @@
       }).catch(() => {});
       loadSearchPlayers().catch(() => {});
       fitLeadSingleLine();
+      applyMobileSuggestionSizing();
       preloadUserStats()
         .then((stats) => {
           if (stats && !resultModal.classList.contains("hidden")) renderModalStats(stats);
@@ -3821,6 +3835,8 @@
 
       window.addEventListener("resize", fitLeadSingleLine, { passive: true });
       window.addEventListener("orientationchange", fitLeadSingleLine, { passive: true });
+      window.addEventListener("resize", applyMobileSuggestionSizing, { passive: true });
+      window.addEventListener("orientationchange", applyMobileSuggestionSizing, { passive: true });
     }
 
     init();

@@ -1286,13 +1286,16 @@
     }
 
     @media (max-width: 430px) {
+      .wrap {
+        width: min(calc(100% - 12px), var(--maxw));
+      }
       .topbar {
         padding-left: 88px;
         padding-right: 88px;
       }
       .lead {
-        font-size: 0.68rem;
-        letter-spacing: -0.015em;
+        font-size: 0.58rem;
+        letter-spacing: -0.02em;
       }
       .clue-table th {
         font-size: 0.61rem;
@@ -1341,8 +1344,8 @@
         height: 17px;
       }
       .lead {
-        font-size: 0.62rem;
-        letter-spacing: -0.02em;
+        font-size: 0.54rem;
+        letter-spacing: -0.022em;
       }
     }
 

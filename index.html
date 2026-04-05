@@ -2867,11 +2867,12 @@
       const ua = navigator.userAgent || "";
       const isTouchPhone =
         window.matchMedia("(hover: none) and (pointer: coarse)").matches &&
-        /iPhone|iPod|Android/i.test(ua);
+        /iPhone|iPod|Android/i.test(ua) &&
+        window.innerWidth <= 900;
       if (isTouchPhone) {
         playerSuggestions.style.maxHeight = "160px";
       } else {
-        playerSuggestions.style.removeProperty("max-height");
+        playerSuggestions.style.maxHeight = "min(320px, 45vh)";
       }
     }
 

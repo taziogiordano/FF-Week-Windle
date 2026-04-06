@@ -21,6 +21,28 @@ function isValidDailyKey(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || "").trim());
 }
 
+function dateKeyForEasternToday() {
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts = fmt.formatToParts(new Date());
+  const year = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+  if (year && month && day) return `${year}-${month}-${day}`;
+  return "";
+}
+
+function parseDateKeyToUtcMs(dateKey) {
+  if (!isValidDailyKey(dateKey)) return null;
+  const [y, m, d] = String(dateKey).split("-").map(Number);
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+  return Date.UTC(y, m - 1, d);
+}
+
 function getClientIp(req) {
   const xff = String(req.headers["x-forwarded-for"] || "").trim();
   if (xff) return xff.split(",")[0].trim();
@@ -68,6 +90,20 @@ function computeStats(record) {
   for (let i = keys.length - 1; i >= 0; i--) {
     if (completed[keys[i]]?.win) currentStreak += 1;
     else break;
+  }
+
+  // Reset current streak if the user missed at least one calendar day.
+  if (keys.length) {
+    const latestPlayedKey = keys[keys.length - 1];
+    const todayKey = dateKeyForEasternToday();
+    const latestMs = parseDateKeyToUtcMs(latestPlayedKey);
+    const todayMs = parseDateKeyToUtcMs(todayKey);
+    if (latestMs != null && todayMs != null) {
+      const daysSinceLastPlayed = Math.floor((todayMs - latestMs) / 86400000);
+      if (daysSinceLastPlayed > 1) {
+        currentStreak = 0;
+      }
+    }
   }
 
   let longestStreak = 0;

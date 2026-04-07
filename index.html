@@ -2887,7 +2887,8 @@
     function applySuggestionPanelSizing() {
       if (!playerSuggestions || !guessInput) return;
       const rect = guessInput.getBoundingClientRect();
-      const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
+      const vv = window.visualViewport;
+      const viewportH = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
       const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
       const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
 
@@ -2902,7 +2903,7 @@
         playerSuggestions.style.removeProperty("top");
         playerSuggestions.style.removeProperty("width");
         const available = Math.max(110, openUp ? spaceAbove : spaceBelow);
-        const target = Math.min(190, available);
+        const target = Math.min(260, available);
         playerSuggestions.style.maxHeight = `${target}px`;
         return;
       }
@@ -3889,6 +3890,10 @@
       window.addEventListener("resize", applySuggestionPanelSizing, { passive: true });
       window.addEventListener("orientationchange", applySuggestionPanelSizing, { passive: true });
       window.addEventListener("scroll", applySuggestionPanelSizing, { passive: true, capture: true });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", applySuggestionPanelSizing, { passive: true });
+        window.visualViewport.addEventListener("scroll", applySuggestionPanelSizing, { passive: true });
+      }
     }
 
     init();

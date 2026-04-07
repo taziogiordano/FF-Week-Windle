@@ -400,6 +400,18 @@
       bottom: auto;
     }
 
+    .player-suggestions.mobile-sheet {
+      position: fixed;
+      left: 8px;
+      right: 8px;
+      width: auto;
+      top: auto;
+      bottom: calc(env(safe-area-inset-bottom) + 8px);
+      z-index: 140;
+      border-radius: 10px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+    }
+
     .player-suggestion {
       width: 100%;
       text-align: left;
@@ -2890,25 +2902,28 @@
       const vv = window.visualViewport;
       const viewportH = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
       const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
+      const vvTop = vv ? vv.offsetTop : 0;
+      const vvLeft = vv ? vv.offsetLeft : 0;
       const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
 
       if (isTouchPhone) {
-        // Mobile: keep dropdown attached to input so it doesn't float into clue/guess areas.
+        // Mobile Safari-safe mode: floating bottom sheet above keyboard/viewport controls.
+        playerSuggestions.classList.remove("opens-up");
         playerSuggestions.classList.remove("floating");
-        const spaceBelow = Math.max(0, Math.floor(viewportH - rect.bottom - 10));
-        const spaceAbove = Math.max(0, Math.floor(rect.top - 10));
-        const openUp = spaceBelow < 150 && spaceAbove > spaceBelow;
-        playerSuggestions.classList.toggle("opens-up", openUp);
-        playerSuggestions.style.removeProperty("left");
-        playerSuggestions.style.removeProperty("top");
-        playerSuggestions.style.removeProperty("width");
-        const available = Math.max(110, openUp ? spaceAbove : spaceBelow);
-        const target = Math.min(260, available);
+        playerSuggestions.classList.add("mobile-sheet");
+        const target = Math.max(140, Math.min(320, Math.floor(viewportH * 0.46)));
+        const width = Math.max(220, Math.floor(viewportW - 16));
+        const left = Math.floor(vvLeft + 8);
+        const top = Math.floor(vvTop + viewportH - target - 8);
+        playerSuggestions.style.left = `${left}px`;
+        playerSuggestions.style.top = `${Math.max(vvTop + 8, top)}px`;
+        playerSuggestions.style.width = `${width}px`;
         playerSuggestions.style.maxHeight = `${target}px`;
         return;
       }
 
       // Desktop: floating panel avoids Safari clipping/cutoff.
+      playerSuggestions.classList.remove("mobile-sheet");
       playerSuggestions.classList.add("floating");
       const spaceBelow = Math.max(0, Math.floor(viewportH - rect.bottom - 12));
       const spaceAbove = Math.max(0, Math.floor(rect.top - 12));

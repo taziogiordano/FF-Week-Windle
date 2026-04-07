@@ -2894,11 +2894,16 @@
       if (isTouchPhone) {
         // Mobile: keep dropdown attached to input so it doesn't float into clue/guess areas.
         playerSuggestions.classList.remove("floating");
-        playerSuggestions.classList.remove("opens-up");
+        const spaceBelow = Math.max(0, Math.floor(viewportH - rect.bottom - 10));
+        const spaceAbove = Math.max(0, Math.floor(rect.top - 10));
+        const openUp = spaceBelow < 150 && spaceAbove > spaceBelow;
+        playerSuggestions.classList.toggle("opens-up", openUp);
         playerSuggestions.style.removeProperty("left");
         playerSuggestions.style.removeProperty("top");
         playerSuggestions.style.removeProperty("width");
-        playerSuggestions.style.maxHeight = "min(190px, 28vh)";
+        const available = Math.max(110, openUp ? spaceAbove : spaceBelow);
+        const target = Math.min(190, available);
+        playerSuggestions.style.maxHeight = `${target}px`;
         return;
       }
 

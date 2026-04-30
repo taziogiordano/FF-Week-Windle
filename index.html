@@ -2323,7 +2323,6 @@
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     let topToastTimer = null;
     let suppressNextGuessFocusOpen = false;
-    let suggestionViewportSnapshot = null;
     const THEME_STORAGE_KEY = "week-windle-theme";
     const THEME_COLORS = {
       light: "#c5112f",
@@ -2370,7 +2369,6 @@
       playerSuggestions.style.removeProperty("top");
       playerSuggestions.style.removeProperty("width");
       playerSuggestions.style.removeProperty("max-height");
-      suggestionViewportSnapshot = null;
     }
 
     function hidePlayerSuggestions() {
@@ -2392,17 +2390,10 @@
 
     function showPlayerSuggestions() {
       if (!playerNames.length) return;
-      const vv = window.visualViewport;
       playerSuggestions.classList.remove("hidden");
       applySuggestionPanelSizing();
       guessInput.setAttribute("aria-expanded", "true");
       if (guessDropdownToggle) guessDropdownToggle.setAttribute("aria-expanded", "true");
-      suggestionViewportSnapshot = {
-        openedAt: Date.now(),
-        vvHeight: vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0),
-        vvTop: vv ? vv.offsetTop : 0,
-        scrollY: window.scrollY || window.pageYOffset || 0,
-      };
     }
 
     function setActiveSuggestion(index) {
@@ -3303,35 +3294,22 @@
     function applySuggestionPanelSizing() {
       if (!playerSuggestions || !guessInput) return;
       if (playerSuggestions.classList.contains("hidden")) return;
+      const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
+
+      if (isTouchPhone) {
+        // Mobile: keep the list anchored to the form/input instead of viewport-floating.
+        playerSuggestions.classList.remove("mobile-sheet", "floating", "opens-up");
+        playerSuggestions.style.removeProperty("left");
+        playerSuggestions.style.removeProperty("top");
+        playerSuggestions.style.removeProperty("width");
+        playerSuggestions.style.maxHeight = `${window.innerWidth <= 390 ? 188 : 216}px`;
+        return;
+      }
+
       const rect = guessInput.getBoundingClientRect();
       const vv = window.visualViewport;
       const viewportH = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
       const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
-      const vvTop = vv ? vv.offsetTop : 0;
-      const vvLeft = vv ? vv.offsetLeft : 0;
-      const viewportTop = vvTop;
-      const viewportBottom = vvTop + viewportH;
-      const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
-
-      if (isTouchPhone) {
-        // Mobile: fixed-height downward list for predictable behavior.
-        playerSuggestions.classList.remove("mobile-sheet");
-        playerSuggestions.classList.add("floating");
-        const absoluteTop = rect.top + vvTop;
-        const absoluteBottom = rect.bottom + vvTop;
-        const width = Math.max(220, Math.floor(rect.width));
-        const left = Math.max(8, Math.min(Math.floor(rect.left + vvLeft), Math.floor(vvLeft + viewportW - width - 8)));
-        const spaceBelow = Math.max(0, Math.floor(viewportBottom - absoluteBottom - 6));
-        playerSuggestions.classList.remove("opens-up");
-        const preferred = viewportW <= 390 ? 188 : 216;
-        const target = Math.max(120, Math.min(preferred, spaceBelow));
-        const top = Math.min(Math.floor(viewportBottom - target - 6), Math.floor(absoluteBottom + 3));
-        playerSuggestions.style.left = `${left}px`;
-        playerSuggestions.style.top = `${top}px`;
-        playerSuggestions.style.width = `${width}px`;
-        playerSuggestions.style.maxHeight = `${target}px`;
-        return;
-      }
 
       // Desktop: floating panel avoids Safari clipping/cutoff.
       playerSuggestions.classList.remove("mobile-sheet");
@@ -3382,21 +3360,6 @@
       if (isTouchPhone) {
         if (!isSelectingSuggestion && document.activeElement !== guessInput) {
           hidePlayerSuggestions();
-          return;
-        }
-        const vv = window.visualViewport;
-        const currentHeight = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
-        const currentTop = vv ? vv.offsetTop : 0;
-        const currentScrollY = window.scrollY || window.pageYOffset || 0;
-        const openedAt = suggestionViewportSnapshot?.openedAt || 0;
-        const settled = Date.now() - openedAt > 260;
-        const heightDelta = Math.abs(currentHeight - Number(suggestionViewportSnapshot?.vvHeight || currentHeight));
-        const topDelta = Math.abs(currentTop - Number(suggestionViewportSnapshot?.vvTop || currentTop));
-        const scrollDelta = Math.abs(currentScrollY - Number(suggestionViewportSnapshot?.scrollY || currentScrollY));
-        if (settled && !isSelectingSuggestion && (heightDelta > 36 || topDelta > 20 || scrollDelta > 8)) {
-          hidePlayerSuggestions();
-          guessInput.blur();
-          return;
         }
         return;
       }

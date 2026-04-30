@@ -3296,7 +3296,7 @@
       const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
 
       if (isTouchPhone) {
-        // Mobile: fixed panel anchored to the input edge (Safari-safe) with dynamic space fit.
+        // Mobile: always open downward from the input edge for predictable behavior.
         playerSuggestions.classList.remove("mobile-sheet");
         playerSuggestions.classList.add("floating");
         const absoluteTop = rect.top + vvTop;
@@ -3304,14 +3304,10 @@
         const width = Math.max(220, Math.floor(rect.width));
         const left = Math.max(8, Math.min(Math.floor(rect.left + vvLeft), Math.floor(vvLeft + viewportW - width - 8)));
         const spaceBelow = Math.max(0, Math.floor(viewportBottom - absoluteBottom - 6));
-        const spaceAbove = Math.max(0, Math.floor(absoluteTop - viewportTop - 6));
-        const openUp = spaceBelow < 170 && spaceAbove > spaceBelow;
-        playerSuggestions.classList.toggle("opens-up", openUp);
-        const available = Math.max(136, openUp ? spaceAbove : spaceBelow);
+        playerSuggestions.classList.remove("opens-up");
+        const available = Math.max(120, spaceBelow);
         const target = Math.min(320, available);
-        const top = openUp
-          ? Math.max(Math.floor(viewportTop + 6), Math.floor(absoluteTop - target - 3))
-          : Math.min(Math.floor(viewportBottom - target - 6), Math.floor(absoluteBottom + 3));
+        const top = Math.min(Math.floor(viewportBottom - target - 6), Math.floor(absoluteBottom + 3));
         playerSuggestions.style.left = `${left}px`;
         playerSuggestions.style.top = `${top}px`;
         playerSuggestions.style.width = `${width}px`;

@@ -2390,6 +2390,8 @@
 
     function showPlayerSuggestions() {
       if (!playerNames.length) return;
+      activeSuggestionIndex = -1;
+      guessInput.removeAttribute("aria-activedescendant");
       playerSuggestions.classList.remove("hidden");
       applySuggestionPanelSizing();
       guessInput.setAttribute("aria-expanded", "true");
@@ -4114,9 +4116,7 @@
       guessInput.addEventListener("click", () => {
         if (guessInput.disabled) return;
         suppressNextGuessFocusOpen = false;
-        if (playerSuggestions.classList.contains("hidden")) {
-          renderPlayerSuggestions(guessInput.value.trim(), true);
-        }
+        renderPlayerSuggestions(guessInput.value.trim(), true);
       });
       guessInput.addEventListener("keydown", (e) => {
         if (e.key === "ArrowDown") {
@@ -4192,24 +4192,42 @@
       playerSuggestions.addEventListener("pointerdown", () => {
         isSelectingSuggestion = true;
       });
+      playerSuggestions.addEventListener("touchstart", () => {
+        isSelectingSuggestion = true;
+      }, { passive: true });
       playerSuggestions.addEventListener("mousedown", () => {
         isSelectingSuggestion = true;
       });
-      playerSuggestions.addEventListener("click", (e) => {
-        const rawTarget = e.target;
+      const commitSuggestionSelection = (rawTarget) => {
         const targetEl = rawTarget instanceof Element
           ? rawTarget
           : rawTarget && rawTarget.parentElement
             ? rawTarget.parentElement
             : null;
         const target = targetEl ? targetEl.closest(".player-suggestion") : null;
-        if (!target) return;
+        if (!target) return false;
         const selectedName = target.dataset.player || target.textContent || "";
-        if (!selectedName) return;
+        if (!selectedName) return false;
         guessInput.value = selectedName;
         hidePlayerSuggestions();
         submitGuessFromInput(selectedName, true);
         isSelectingSuggestion = false;
+        return true;
+      };
+      playerSuggestions.addEventListener("pointerup", (e) => {
+        if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+          if (commitSuggestionSelection(e.target)) {
+            e.preventDefault();
+          }
+        }
+      });
+      playerSuggestions.addEventListener("touchend", (e) => {
+        if (commitSuggestionSelection(e.target)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      playerSuggestions.addEventListener("click", (e) => {
+        commitSuggestionSelection(e.target);
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);

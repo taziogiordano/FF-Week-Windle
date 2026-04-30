@@ -638,11 +638,15 @@
     }
 
     .feedback {
-      min-height: 20px;
-      margin: 10px 0 4px;
+      min-height: 0;
+      margin: 4px 0 2px;
       font-weight: 700;
       font-size: 1.1rem;
       text-align: center;
+    }
+
+    .feedback:empty {
+      margin: 0;
     }
 
     .feedback.error { color: var(--danger); }
@@ -651,7 +655,7 @@
     .guess-header {
       display: grid;
       grid-template-columns: 1.8fr 0.6fr 0.6fr;
-      margin-top: 10px;
+      margin-top: 4px;
       margin-bottom: 2px;
     }
 

@@ -2364,12 +2364,22 @@
       renderPlayerSuggestions("", false);
     }
 
+    function resetSuggestionPanelStyles() {
+      if (!playerSuggestions) return;
+      playerSuggestions.classList.remove("floating", "mobile-sheet", "opens-up");
+      playerSuggestions.style.removeProperty("left");
+      playerSuggestions.style.removeProperty("top");
+      playerSuggestions.style.removeProperty("width");
+      playerSuggestions.style.removeProperty("max-height");
+    }
+
     function hidePlayerSuggestions() {
       playerSuggestions.classList.add("hidden");
       guessInput.setAttribute("aria-expanded", "false");
       if (guessDropdownToggle) guessDropdownToggle.setAttribute("aria-expanded", "false");
       guessInput.removeAttribute("aria-activedescendant");
       activeSuggestionIndex = -1;
+      resetSuggestionPanelStyles();
     }
 
     function setGuessInputLocked(locked) {
@@ -3285,6 +3295,7 @@
 
     function applySuggestionPanelSizing() {
       if (!playerSuggestions || !guessInput) return;
+      if (playerSuggestions.classList.contains("hidden")) return;
       const rect = guessInput.getBoundingClientRect();
       const vv = window.visualViewport;
       const viewportH = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
@@ -3356,6 +3367,15 @@
         size -= 0.5;
         leadEl.style.fontSize = `${size}px`;
       }
+    }
+
+    function syncSuggestionPanelPosition() {
+      if (!playerSuggestions || playerSuggestions.classList.contains("hidden")) return;
+      if (window.matchMedia("(hover: none) and (pointer: coarse)").matches && !isSelectingSuggestion && document.activeElement !== guessInput) {
+        hidePlayerSuggestions();
+        return;
+      }
+      applySuggestionPanelSizing();
     }
 
     function trackGAEvent(name, params = {}) {
@@ -4133,7 +4153,7 @@
         setTimeout(() => {
           if (!isSelectingSuggestion) hidePlayerSuggestions();
           isSelectingSuggestion = false;
-        }, 180);
+        }, 90);
       });
       if (guessDropdownToggle) {
         guessDropdownToggle.addEventListener("click", () => {
@@ -4302,12 +4322,12 @@
 
       window.addEventListener("resize", fitLeadSingleLine, { passive: true });
       window.addEventListener("orientationchange", fitLeadSingleLine, { passive: true });
-      window.addEventListener("resize", applySuggestionPanelSizing, { passive: true });
-      window.addEventListener("orientationchange", applySuggestionPanelSizing, { passive: true });
-      window.addEventListener("scroll", applySuggestionPanelSizing, { passive: true, capture: true });
+      window.addEventListener("resize", syncSuggestionPanelPosition, { passive: true });
+      window.addEventListener("orientationchange", syncSuggestionPanelPosition, { passive: true });
+      window.addEventListener("scroll", syncSuggestionPanelPosition, { passive: true, capture: true });
       if (window.visualViewport) {
-        window.visualViewport.addEventListener("resize", applySuggestionPanelSizing, { passive: true });
-        window.visualViewport.addEventListener("scroll", applySuggestionPanelSizing, { passive: true });
+        window.visualViewport.addEventListener("resize", syncSuggestionPanelPosition, { passive: true });
+        window.visualViewport.addEventListener("scroll", syncSuggestionPanelPosition, { passive: true });
       }
     }
 

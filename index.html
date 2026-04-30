@@ -642,6 +642,7 @@
       margin: 10px 0 4px;
       font-weight: 700;
       font-size: 1.1rem;
+      text-align: center;
     }
 
     .feedback.error { color: var(--danger); }
@@ -2330,10 +2331,6 @@
     };
 
     function preferredTheme() {
-      try {
-        const stored = String(localStorage.getItem(THEME_STORAGE_KEY) || "").trim();
-        if (stored === "light" || stored === "dark") return stored;
-      } catch {}
       return "light";
     }
 
@@ -4360,6 +4357,15 @@
       });
       hintModal.addEventListener("click", (e) => {
         if (e.target === hintModal) hideHintModal();
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          applyTheme("light");
+        }
+      });
+      window.addEventListener("pageshow", () => {
+        applyTheme("light");
       });
 
       const initialDailyKey = active.dailyKey;

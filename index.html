@@ -2321,6 +2321,7 @@
     const themeDarkBtn = document.getElementById("themeDarkBtn");
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     let topToastTimer = null;
+    let suppressNextGuessFocusOpen = false;
     const THEME_STORAGE_KEY = "week-windle-theme";
     const THEME_COLORS = {
       light: "#c5112f",
@@ -4114,6 +4115,10 @@
           hidePlayerSuggestions();
           return;
         }
+        if (suppressNextGuessFocusOpen) {
+          suppressNextGuessFocusOpen = false;
+          return;
+        }
         renderPlayerSuggestions(guessInput.value.trim(), true);
       });
       guessInput.addEventListener("keydown", (e) => {
@@ -4156,15 +4161,20 @@
         }, 90);
       });
       if (guessDropdownToggle) {
+        guessDropdownToggle.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+        });
         guessDropdownToggle.addEventListener("click", () => {
           if (guessInput.disabled) {
             hidePlayerSuggestions();
             return;
           }
           if (playerSuggestions.classList.contains("hidden")) {
+            suppressNextGuessFocusOpen = false;
             renderPlayerSuggestions(guessInput.value.trim(), true);
             guessInput.focus();
           } else {
+            suppressNextGuessFocusOpen = true;
             hidePlayerSuggestions();
             guessInput.blur();
           }

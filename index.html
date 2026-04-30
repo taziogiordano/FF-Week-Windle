@@ -416,7 +416,7 @@
     }
 
     .section-title {
-      margin: 12px 0 24px;
+      margin: 10px 0 8px;
       font-size: 1.22rem;
       text-align: center;
     }
@@ -3945,7 +3945,7 @@
           state.revealed = true;
           state.revealedAnswer = active.puzzle.player;
           revealedNow = true;
-          updateFeedback(`Out of guesses. The answer was ${displayPlayerNameForPuzzle(active.puzzle)}.`, "error");
+          updateFeedback("", "");
         }
 
         if (active.isEphemeral) {

@@ -2322,6 +2322,7 @@
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     let topToastTimer = null;
     let suppressNextGuessFocusOpen = false;
+    let suggestionViewportSnapshot = null;
     const THEME_STORAGE_KEY = "week-windle-theme";
     const THEME_COLORS = {
       light: "#c5112f",
@@ -2372,6 +2373,7 @@
       playerSuggestions.style.removeProperty("top");
       playerSuggestions.style.removeProperty("width");
       playerSuggestions.style.removeProperty("max-height");
+      suggestionViewportSnapshot = null;
     }
 
     function hidePlayerSuggestions() {
@@ -2393,10 +2395,17 @@
 
     function showPlayerSuggestions() {
       if (!playerNames.length) return;
+      const vv = window.visualViewport;
       playerSuggestions.classList.remove("hidden");
       applySuggestionPanelSizing();
       guessInput.setAttribute("aria-expanded", "true");
       if (guessDropdownToggle) guessDropdownToggle.setAttribute("aria-expanded", "true");
+      suggestionViewportSnapshot = {
+        openedAt: Date.now(),
+        vvHeight: vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0),
+        vvTop: vv ? vv.offsetTop : 0,
+        scrollY: window.scrollY || window.pageYOffset || 0,
+      };
     }
 
     function setActiveSuggestion(index) {
@@ -3372,9 +3381,26 @@
 
     function syncSuggestionPanelPosition() {
       if (!playerSuggestions || playerSuggestions.classList.contains("hidden")) return;
-      if (window.matchMedia("(hover: none) and (pointer: coarse)").matches && !isSelectingSuggestion && document.activeElement !== guessInput) {
-        hidePlayerSuggestions();
-        return;
+      const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
+      if (isTouchPhone) {
+        if (!isSelectingSuggestion && document.activeElement !== guessInput) {
+          hidePlayerSuggestions();
+          return;
+        }
+        const vv = window.visualViewport;
+        const currentHeight = vv ? vv.height : (window.innerHeight || document.documentElement.clientHeight || 0);
+        const currentTop = vv ? vv.offsetTop : 0;
+        const currentScrollY = window.scrollY || window.pageYOffset || 0;
+        const openedAt = suggestionViewportSnapshot?.openedAt || 0;
+        const settled = Date.now() - openedAt > 260;
+        const heightDelta = Math.abs(currentHeight - Number(suggestionViewportSnapshot?.vvHeight || currentHeight));
+        const topDelta = Math.abs(currentTop - Number(suggestionViewportSnapshot?.vvTop || currentTop));
+        const scrollDelta = Math.abs(currentScrollY - Number(suggestionViewportSnapshot?.scrollY || currentScrollY));
+        if (settled && !isSelectingSuggestion && (heightDelta > 36 || topDelta > 20 || scrollDelta > 8)) {
+          hidePlayerSuggestions();
+          guessInput.blur();
+          return;
+        }
       }
       applySuggestionPanelSizing();
     }

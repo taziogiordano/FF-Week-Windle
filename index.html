@@ -2323,6 +2323,7 @@
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     let topToastTimer = null;
     let suppressNextGuessFocusOpen = false;
+    let suggestionTouchStart = null;
     const THEME_STORAGE_KEY = "week-windle-theme";
     const THEME_COLORS = {
       light: "#c5112f",
@@ -4189,11 +4190,16 @@
       };
       document.addEventListener("pointerdown", handleOutsideSuggestionInteraction, { capture: true });
       document.addEventListener("touchstart", handleOutsideSuggestionInteraction, { passive: true, capture: true });
-      playerSuggestions.addEventListener("pointerdown", () => {
+      playerSuggestions.addEventListener("pointerdown", (e) => {
         isSelectingSuggestion = true;
+        if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+          suggestionTouchStart = { x: e.clientX, y: e.clientY };
+        }
       });
-      playerSuggestions.addEventListener("touchstart", () => {
+      playerSuggestions.addEventListener("touchstart", (e) => {
         isSelectingSuggestion = true;
+        const touch = e.changedTouches && e.changedTouches[0];
+        suggestionTouchStart = touch ? { x: touch.clientX, y: touch.clientY } : null;
       }, { passive: true });
       playerSuggestions.addEventListener("mousedown", () => {
         isSelectingSuggestion = true;
@@ -4215,19 +4221,30 @@
         return true;
       };
       playerSuggestions.addEventListener("pointerup", (e) => {
-        if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
-          if (commitSuggestionSelection(e.target)) {
-            e.preventDefault();
-          }
+        if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
+        const start = suggestionTouchStart;
+        suggestionTouchStart = null;
+        const moved = start && (Math.abs(e.clientX - start.x) > 10 || Math.abs(e.clientY - start.y) > 10);
+        if (!moved && commitSuggestionSelection(e.target)) {
+          e.preventDefault();
         }
       });
       playerSuggestions.addEventListener("touchend", (e) => {
-        if (commitSuggestionSelection(e.target)) {
+        const touch = e.changedTouches && e.changedTouches[0];
+        const start = suggestionTouchStart;
+        suggestionTouchStart = null;
+        const moved = start && touch && (Math.abs(touch.clientX - start.x) > 10 || Math.abs(touch.clientY - start.y) > 10);
+        if (!moved && commitSuggestionSelection(e.target)) {
           e.preventDefault();
         }
       }, { passive: false });
+      playerSuggestions.addEventListener("touchmove", () => {
+        isSelectingSuggestion = false;
+      }, { passive: true });
       playerSuggestions.addEventListener("click", (e) => {
-        commitSuggestionSelection(e.target);
+        if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+          commitSuggestionSelection(e.target);
+        }
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);

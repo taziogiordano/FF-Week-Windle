@@ -2332,7 +2332,7 @@
         const stored = String(localStorage.getItem(THEME_STORAGE_KEY) || "").trim();
         if (stored === "light" || stored === "dark") return stored;
       } catch {}
-      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      return "light";
     }
 
     function renderThemeToggle(theme) {

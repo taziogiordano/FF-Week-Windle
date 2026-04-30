@@ -3317,7 +3317,7 @@
       const isTouchPhone = window.matchMedia("(hover: none) and (pointer: coarse)").matches && window.innerWidth <= 900;
 
       if (isTouchPhone) {
-        // Mobile: always open downward from the input edge for predictable behavior.
+        // Mobile: fixed-height downward list for predictable behavior.
         playerSuggestions.classList.remove("mobile-sheet");
         playerSuggestions.classList.add("floating");
         const absoluteTop = rect.top + vvTop;
@@ -3326,8 +3326,8 @@
         const left = Math.max(8, Math.min(Math.floor(rect.left + vvLeft), Math.floor(vvLeft + viewportW - width - 8)));
         const spaceBelow = Math.max(0, Math.floor(viewportBottom - absoluteBottom - 6));
         playerSuggestions.classList.remove("opens-up");
-        const available = Math.max(120, spaceBelow);
-        const target = Math.min(320, available);
+        const preferred = viewportW <= 390 ? 188 : 216;
+        const target = Math.max(120, Math.min(preferred, spaceBelow));
         const top = Math.min(Math.floor(viewportBottom - target - 6), Math.floor(absoluteBottom + 3));
         playerSuggestions.style.left = `${left}px`;
         playerSuggestions.style.top = `${top}px`;
@@ -3401,6 +3401,7 @@
           guessInput.blur();
           return;
         }
+        return;
       }
       applySuggestionPanelSizing();
     }

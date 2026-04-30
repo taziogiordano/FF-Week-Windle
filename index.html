@@ -4148,6 +4148,16 @@
         }
         renderPlayerSuggestions(guessInput.value.trim(), true);
       });
+      guessInput.addEventListener("pointerdown", () => {
+        suppressNextGuessFocusOpen = false;
+      });
+      guessInput.addEventListener("click", () => {
+        if (guessInput.disabled) return;
+        suppressNextGuessFocusOpen = false;
+        if (playerSuggestions.classList.contains("hidden")) {
+          renderPlayerSuggestions(guessInput.value.trim(), true);
+        }
+      });
       guessInput.addEventListener("keydown", (e) => {
         if (e.key === "ArrowDown") {
           if (playerSuggestions.classList.contains("hidden")) return;

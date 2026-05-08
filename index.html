@@ -1441,7 +1441,7 @@
     }
 
     .modal-player {
-      margin: 0 0 14px;
+      margin: 0 0 8px;
       text-align: center;
       font-size: 1.2rem;
       font-weight: 800;
@@ -1466,21 +1466,43 @@
     .stats-share-btn {
       margin-top: 10px;
       width: 100%;
-      background: var(--accent);
+      background: linear-gradient(180deg, #d51d3b 0%, #b30f29 100%);
       color: #ffffff;
-      border: 1px solid #9d0e26;
-      border-radius: 8px;
+      border: 1px solid #8f0c22;
+      border-radius: 10px;
       padding: 13px 12px;
       font-size: 1.08rem;
       font-weight: 900;
       letter-spacing: 0.01em;
-      box-shadow: 0 5px 12px rgba(197, 17, 47, 0.25);
+      box-shadow: 0 8px 18px rgba(197, 17, 47, 0.28);
+      transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+    }
+
+    .stats-share-btn:hover:not(:disabled),
+    .stats-share-btn:focus-visible:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(197, 17, 47, 0.34);
+      filter: brightness(1.03);
     }
 
     .stats-share-btn:disabled {
       opacity: 0.45;
       cursor: not-allowed;
       box-shadow: none;
+    }
+
+    .modal-boxscore-link {
+      display: inline-block;
+      margin-top: 1px;
+      color: #4a608f;
+      font-size: 0.93rem;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    body[data-theme="dark"] .modal-boxscore-link {
+      color: #aebedf;
     }
 
     .top-toast {
@@ -1959,6 +1981,7 @@
         </div>
       </div>
       <p class="modal-player" id="resultModalPlayer">Player: ?</p>
+      <a class="modal-boxscore-link hidden" id="modalBoxscoreLink" href="#" target="_blank" rel="noopener noreferrer">See full boxscore on Pro Football Reference</a>
     </div>
   </div>
 
@@ -2028,9 +2051,9 @@
     })();
   </script>
 
-  <script src="./data/puzzles_data.js?v=2026-03-11-2"></script>
-  <script src="./data/player_profiles_data.js?v=2026-03-11-2"></script>
-  <script src="./data/player_search_data.js?v=2026-03-11-2"></script>
+  <script src="./data/puzzles_data.js?v=2026-05-07-boxscore-1"></script>
+  <script src="./data/player_profiles_data.js?v=2026-05-07-boxscore-1"></script>
+  <script src="./data/player_search_data.js?v=2026-05-07-boxscore-1"></script>
   <script>
     const FALLBACK_DATASET = [
       {
@@ -2312,6 +2335,7 @@
     const flashbackPrevMonthBtn = document.getElementById("flashbackPrevMonthBtn");
     const flashbackNextMonthBtn = document.getElementById("flashbackNextMonthBtn");
     const modalShareBtn = document.getElementById("modalShareBtn");
+    const modalBoxscoreLink = document.getElementById("modalBoxscoreLink");
     const modalOutcome = document.getElementById("modalOutcome");
     const resultModalCloseBtn = document.getElementById("resultModalCloseBtn");
     const flashbackCloseBtn = document.getElementById("flashbackCloseBtn");
@@ -3220,6 +3244,32 @@
       statLongestStreak.textContent = formatted.longestStreak;
     }
 
+    function proFootballReferenceLinkForPuzzle(puzzle) {
+      if (!puzzle || typeof puzzle !== "object") return "";
+      const direct = String(puzzle.boxscore_url || "").trim();
+      return direct;
+    }
+
+    function renderModalBoxscoreLink(puzzle, gameOver, playerName = "") {
+      if (!modalBoxscoreLink) return;
+      const normalizedPlayerName = String(playerName || "").trim();
+      const canShow = Boolean(gameOver) && normalizedPlayerName && normalizedPlayerName !== "?";
+      if (!canShow) {
+        modalBoxscoreLink.classList.add("hidden");
+        modalBoxscoreLink.removeAttribute("href");
+        return;
+      }
+      const href = proFootballReferenceLinkForPuzzle(puzzle);
+      if (!href) {
+        modalBoxscoreLink.classList.add("hidden");
+        modalBoxscoreLink.removeAttribute("href");
+        return;
+      }
+      modalBoxscoreLink.href = href;
+      modalBoxscoreLink.textContent = "See full boxscore on Pro Football Reference";
+      modalBoxscoreLink.classList.remove("hidden");
+    }
+
     function cacheUserStats(stats) {
       if (!stats || typeof stats !== "object") return;
       userStatsCache = stats;
@@ -3421,6 +3471,21 @@
       });
     }
 
+    function trackBoxscoreClick(info) {
+      const puzzle = info?.puzzle || {};
+      trackGAEvent("boxscore_link_clicked", {
+        player: String(displayPlayerNameForPuzzle(puzzle) || puzzle.player || ""),
+        matchup: String(puzzle.matchup || ""),
+        season: Number(puzzle.season || 0),
+        week: Number(puzzle.week || 0),
+        game_number: Number(info?.puzzleNumber || 0),
+        daily_key: String(info?.dailyKey || ""),
+        is_flashback: Boolean(info?.isEphemeral),
+        is_practice: Boolean(info?.isPractice),
+        destination: String(puzzle.boxscore_url || ""),
+      });
+    }
+
     function renderPuzzle(puzzle) {
       const statLookup = new Map(
         (puzzle.stats || []).map(stat => [String(stat.label || "").toLowerCase(), stat.value])
@@ -3487,11 +3552,13 @@
     }
 
     function showResultModal(playerName, info, state, didSolve = true) {
+      const resolvedPlayerName = String(playerName || displayPlayerNameForPuzzle(info?.puzzle || active?.puzzle || {}) || "").trim();
       resultModalText.textContent = "";
       modalOutcome.textContent = didSolve ? "You Win!" : "Out of Guesses";
       modalOutcome.classList.remove("hidden");
       renderModalStats(userStatsCache);
-      resultModalPlayer.textContent = `Player: ${playerName}`;
+      resultModalPlayer.textContent = `Player: ${resolvedPlayerName || "?"}`;
+      renderModalBoxscoreLink(info?.puzzle || active?.puzzle || null, true, resolvedPlayerName);
       setShareEnabled(true);
       resultModal.classList.remove("hidden");
       syncModalBodyState();
@@ -3508,6 +3575,7 @@
       modalOutcome.classList.add("hidden");
       renderModalStats(userStatsCache);
       resultModalPlayer.textContent = "Player: ?";
+      renderModalBoxscoreLink(null, false, "");
       setShareEnabled(false);
       resultModal.classList.remove("hidden");
       syncModalBodyState();
@@ -3519,6 +3587,7 @@
     }
 
     function hideResultModal() {
+      renderModalBoxscoreLink(null, false, "");
       resultModal.classList.add("hidden");
       syncModalBodyState();
     }
@@ -4256,6 +4325,12 @@
       });
 
       modalShareBtn.addEventListener("click", shareCurrentResult);
+      if (modalBoxscoreLink) {
+        modalBoxscoreLink.addEventListener("click", () => {
+          if (!active?.puzzle?.boxscore_url) return;
+          trackBoxscoreClick(active);
+        });
+      }
       openHintModalBtn.addEventListener("click", () => {
         trackHintEvent("open", active, "");
         showHintModal();

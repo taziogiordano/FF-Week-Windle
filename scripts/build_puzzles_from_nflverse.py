@@ -17,6 +17,7 @@ import csv
 import gzip
 import json
 import os
+import re
 import ssl
 import sys
 from collections import Counter, defaultdict
@@ -40,6 +41,11 @@ PLAYER_META_URLS = [
     "https://nflverse-data.s3.amazonaws.com/players.csv",
     "https://nflverse-data.s3.amazonaws.com/players.csv.gz",
 ]
+SCHEDULE_URLS = [
+    "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
+    "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
+    "https://nflreadr.nflverse.com/data/games.csv",
+]
 
 NAME_KEYS = ["player_display_name", "player_name", "name", "player"]
 PLAYER_ID_KEYS = ["player_id", "gsis_id", "nfl_id", "pfr_id", "espn_id"]
@@ -51,6 +57,7 @@ POS_KEYS = ["position_group", "position"]
 SEASON_TYPE_KEYS = ["season_type", "game_type", "type"]
 TEAM_KEYS = ["recent_team", "team", "posteam"]
 OPP_KEYS = ["opponent_team", "opponent", "defteam"]
+GAME_ID_KEYS = ["game_id", "old_game_id"]
 COLLEGE_KEYS = ["college_name", "college", "school", "school_name", "collegeName"]
 META_NAME_KEYS = ["display_name", "player_name", "full_name", "player_display_name", "name"]
 META_ID_KEYS = ["gsis_id", "player_id", "nfl_id", "pfr_id", "espn_id"]
@@ -102,6 +109,71 @@ def derive_display_date(row: dict[str, str]) -> str:
     return "Unknown Date"
 
 
+PFR_TEAM_CODES = {
+    "ARI": "crd",
+    "ATL": "atl",
+    "BAL": "rav",
+    "BUF": "buf",
+    "CAR": "car",
+    "CHI": "chi",
+    "CIN": "cin",
+    "CLE": "cle",
+    "DAL": "dal",
+    "DEN": "den",
+    "DET": "det",
+    "GB": "gnb",
+    "GNB": "gnb",
+    "HOU": "htx",
+    "IND": "clt",
+    "JAX": "jax",
+    "JAC": "jax",
+    "KC": "kan",
+    "KAN": "kan",
+    "LV": "rai",
+    "OAK": "rai",
+    "LAC": "sdg",
+    "SD": "sdg",
+    "LA": "ram",
+    "LAR": "ram",
+    "STL": "ram",
+    "MIA": "mia",
+    "MIN": "min",
+    "NE": "nwe",
+    "NWE": "nwe",
+    "NO": "nor",
+    "NOR": "nor",
+    "NYG": "nyg",
+    "NYJ": "nyj",
+    "PHI": "phi",
+    "PIT": "pit",
+    "SEA": "sea",
+    "SF": "sfo",
+    "SFO": "sfo",
+    "TB": "tam",
+    "TAM": "tam",
+    "TEN": "oti",
+    "WAS": "was",
+    "WSH": "was",
+}
+
+
+def parse_away_home_from_game_id(game_id: str) -> tuple[str, str]:
+    if not game_id:
+        return "", ""
+    match = re.match(r"^\d{4}_\d{2}_([A-Z]{2,3})_([A-Z]{2,3})$", game_id.strip().upper())
+    if not match:
+        return "", ""
+    return match.group(1), match.group(2)
+
+
+def build_pfr_boxscore_url(game_date: str, home_team: str) -> str:
+    normalized = normalize_date(game_date)
+    home_code = PFR_TEAM_CODES.get((home_team or "").strip().upper(), "")
+    if not normalized or not home_code:
+        return ""
+    return f"https://www.pro-football-reference.com/boxscores/{normalized.replace('-', '')}0{home_code}.htm"
+
+
 def open_csv_reader(url: str, insecure: bool = False) -> csv.DictReader:
     req = Request(url, headers={"User-Agent": "FantasyStatLineDaily/1.0"})
     ctx = ssl._create_unverified_context() if insecure else ssl.create_default_context()
@@ -117,6 +189,48 @@ def open_csv_reader(url: str, insecure: bool = False) -> csv.DictReader:
 
     lines = text.splitlines()
     return csv.DictReader(lines)
+
+
+def load_schedule_index(insecure: bool = False) -> dict[tuple[str, str, str, str], dict[str, str]]:
+    rows = None
+    last_errors: list[str] = []
+    for url in SCHEDULE_URLS:
+        try:
+            reader = open_csv_reader(url, insecure=insecure)
+            rows = list(reader)
+            if rows:
+                break
+        except Exception as exc:  # noqa: BLE001
+            last_errors.append(f"{url}: {exc}")
+            continue
+    if rows is None:
+        raise RuntimeError(
+            "Could not load nflverse schedules data. "
+            + ("Sample errors -> " + ", ".join(last_errors[:3]) if last_errors else "")
+        )
+
+    out: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for row in rows:
+        season = first_non_empty(row, SEASON_KEYS)
+        week = first_non_empty(row, WEEK_KEYS)
+        season_type = first_non_empty(row, SEASON_TYPE_KEYS, "REG").upper()
+        home_team = first_non_empty(row, ["home_team", "home", "home_abbr"], "").upper()
+        away_team = first_non_empty(row, ["away_team", "away", "away_abbr"], "").upper()
+        gameday = normalize_date(first_non_empty(row, DATE_KEYS))
+        game_id = first_non_empty(row, GAME_ID_KEYS, "")
+        if not season or not week or not home_team or not away_team:
+            continue
+        if season_type and season_type not in {"REG", "REGULAR"}:
+            continue
+        payload = {
+            "game_date": gameday,
+            "game_id": game_id,
+            "home_team": home_team,
+            "away_team": away_team,
+        }
+        out[(season, week, home_team, away_team)] = payload
+        out[(season, week, away_team, home_team)] = payload
+    return out
 
 
 def parse_optional_int(value: str | int | float | None) -> int | None:
@@ -226,7 +340,12 @@ def load_player_metadata(insecure: bool = False) -> dict[str, dict[str, dict[str
     return {"by_id": metadata_by_id, "by_name": metadata_by_name}
 
 
-def build_puzzles(rows: list[dict[str, str]], min_ppr: float, positions: set[str]) -> list[dict[str, object]]:
+def build_puzzles(
+    rows: list[dict[str, str]],
+    min_ppr: float,
+    positions: set[str],
+    schedule_index: dict[tuple[str, str, str, str], dict[str, str]] | None = None,
+) -> list[dict[str, object]]:
     puzzles: list[dict[str, object]] = []
     seen: set[tuple[str, str, float]] = set()
 
@@ -248,12 +367,32 @@ def build_puzzles(rows: list[dict[str, str]], min_ppr: float, positions: set[str
             continue
 
         date = derive_display_date(row)
+        game_date = normalize_date(first_non_empty(row, DATE_KEYS))
         season = first_non_empty(row, SEASON_KEYS, "")
         week = first_non_empty(row, WEEK_KEYS, "")
+        game_id = first_non_empty(row, GAME_ID_KEYS, "")
 
         team = first_non_empty(row, TEAM_KEYS, "UNK").upper()
         opp = first_non_empty(row, OPP_KEYS, "UNK").upper()
         matchup = f"{team} vs {opp}"
+        away_team, home_team = parse_away_home_from_game_id(game_id)
+        schedule_payload = None
+        if schedule_index and season and week and team != "UNK" and opp != "UNK":
+            schedule_payload = schedule_index.get((season, week, team, opp))
+        if schedule_payload:
+            if not game_date:
+                game_date = normalize_date(schedule_payload.get("game_date", ""))
+            if not game_id:
+                game_id = schedule_payload.get("game_id", "")
+            if not home_team:
+                home_team = schedule_payload.get("home_team", "")
+            if not away_team:
+                away_team = schedule_payload.get("away_team", "")
+        if (not home_team or not away_team) and game_id:
+            away_from_id, home_from_id = parse_away_home_from_game_id(game_id)
+            away_team = away_team or away_from_id
+            home_team = home_team or home_from_id
+        boxscore_url = build_pfr_boxscore_url(game_date, home_team)
 
         receptions = to_int(row.get("receptions", "0"))
         rec_yds = to_int(row.get("receiving_yards", "0"))
@@ -284,6 +423,11 @@ def build_puzzles(rows: list[dict[str, str]], min_ppr: float, positions: set[str
                 "position": pos or "UNK",
                 "season": int(season) if season.isdigit() else season,
                 "week": int(week) if week.isdigit() else week,
+                "game_date": game_date,
+                "game_id": game_id,
+                "home_team": home_team,
+                "away_team": away_team,
+                "boxscore_url": boxscore_url,
                 "ppr": round(ppr, 2),
                 "stats": stats,
             }
@@ -618,8 +762,14 @@ def main() -> int:
         else load_rows(args.profile_season_start, args.season_end, insecure=args.insecure)
     )
     metadata = load_player_metadata(insecure=args.insecure)
+    schedule_index = load_schedule_index(insecure=args.insecure)
 
-    puzzles = build_puzzles(puzzle_rows, min_ppr=args.min_ppr, positions=positions)
+    puzzles = build_puzzles(
+        puzzle_rows,
+        min_ppr=args.min_ppr,
+        positions=positions,
+        schedule_index=schedule_index,
+    )
 
     if not puzzles:
         print("No puzzles generated. Try lowering --min-ppr or expanding --positions.", file=sys.stderr)

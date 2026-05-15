@@ -3443,43 +3443,9 @@
       }
     }
 
-    function trackGameCompleted(outcome, info, guessCount) {
-      trackGAEvent("game_completed", {
-        outcome: String(outcome || "unknown"),
-        guess_count: Number(guessCount || 0),
-        game_number: Number(info?.puzzleNumber || 0),
-        daily_key: String(info?.dailyKey || ""),
-        is_flashback: Boolean(info?.isEphemeral),
-        is_practice: Boolean(info?.isPractice),
-      });
-    }
-
-    function trackHintEvent(action, info, hintType = "") {
-      trackGAEvent("hint_interaction", {
-        action: String(action || "unknown"),
-        hint_type: String(hintType || "none"),
-        game_number: Number(info?.puzzleNumber || 0),
-        daily_key: String(info?.dailyKey || ""),
-        is_flashback: Boolean(info?.isEphemeral),
-        is_practice: Boolean(info?.isPractice),
-      });
-    }
-
-    function trackShareEvent(name, channel, info, solved, guessCount) {
-      trackGAEvent(name, {
-        channel: String(channel || "unknown"),
-        outcome: solved ? "win" : "lose",
-        guess_count: Number(guessCount || 0),
-        game_number: Number(info?.puzzleNumber || 0),
-        daily_key: String(info?.dailyKey || ""),
-        is_flashback: Boolean(info?.isEphemeral),
-        is_practice: Boolean(info?.isPractice),
-      });
-    }
-
-    function trackBoxscoreClick(info) {
+    function analyticsPuzzleParams(info) {
       const puzzle = info?.puzzle || {};
-      trackGAEvent("boxscore_link_clicked", {
+      return {
         player: String(displayPlayerNameForPuzzle(puzzle) || puzzle.player || ""),
         matchup: String(puzzle.matchup || ""),
         season: Number(puzzle.season || 0),
@@ -3488,7 +3454,42 @@
         daily_key: String(info?.dailyKey || ""),
         is_flashback: Boolean(info?.isEphemeral),
         is_practice: Boolean(info?.isPractice),
-        destination: String(puzzle.boxscore_url || ""),
+      };
+    }
+
+    function trackPuzzleViewed(info) {
+      trackGAEvent("puzzle_viewed", analyticsPuzzleParams(info));
+    }
+
+    function trackGameCompleted(outcome, info, guessCount) {
+      trackGAEvent("game_completed", {
+        ...analyticsPuzzleParams(info),
+        outcome: String(outcome || "unknown"),
+        guess_count: Number(guessCount || 0),
+      });
+    }
+
+    function trackHintEvent(action, info, hintType = "") {
+      trackGAEvent("hint_interaction", {
+        ...analyticsPuzzleParams(info),
+        action: String(action || "unknown"),
+        hint_type: String(hintType || "none"),
+      });
+    }
+
+    function trackShareEvent(name, channel, info, solved, guessCount) {
+      trackGAEvent(name, {
+        ...analyticsPuzzleParams(info),
+        channel: String(channel || "unknown"),
+        outcome: solved ? "win" : "lose",
+        guess_count: Number(guessCount || 0),
+      });
+    }
+
+    function trackBoxscoreClick(info) {
+      trackGAEvent("boxscore_link_clicked", {
+        ...analyticsPuzzleParams(info),
+        destination: String(info?.puzzle?.boxscore_url || ""),
       });
     }
 
@@ -3660,6 +3661,7 @@
       let active = puzzleInfo(dailyBase, practiceOffset);
       let state = loadState(active.puzzleKey);
       let hintState = loadHintState(active.puzzleKey);
+      let lastTrackedPuzzleViewKey = "";
       modalPrevDayInput.setAttribute("min", FLASHBACK_MIN_KEY);
       modalPrevDayInput.setAttribute("max", FLASHBACK_MAX_KEY);
       modalPrevDayInput.value = FLASHBACK_MAX_KEY;
@@ -3893,11 +3895,19 @@
         return base;
       };
 
+      const maybeTrackPuzzleViewed = () => {
+        const key = `${String(active?.dailyKey || "")}::${String(active?.puzzleKey || "")}`;
+        if (!key || key === lastTrackedPuzzleViewKey) return;
+        lastTrackedPuzzleViewKey = key;
+        trackPuzzleViewed(active);
+      };
+
       const rerender = () => {
         gameNumberTagEl.textContent = gameTagText(active);
         renderPuzzle(active.puzzle);
         renderState(active.puzzle, state);
         renderHintModal();
+        maybeTrackPuzzleViewed();
         if (!state.solved && !state.revealed) {
           setGuessInputLocked(false);
         }

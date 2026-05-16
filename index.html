@@ -2374,7 +2374,14 @@
       }
     }
 
-    function applyTheme(theme) {
+    function trackThemeChange(theme) {
+      trackGAEvent("theme_changed", {
+        theme: String(theme || "light"),
+        dark_mode_enabled: theme === "dark",
+      });
+    }
+
+    function applyTheme(theme, trackChange = false) {
       const next = theme === "dark" ? "dark" : "light";
       document.body.setAttribute("data-theme", next);
       if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_COLORS[next]);
@@ -2382,6 +2389,7 @@
       try {
         localStorage.setItem(THEME_STORAGE_KEY, next);
       } catch {}
+      if (trackChange) trackThemeChange(next);
     }
 
     applyTheme(preferredTheme());
@@ -4174,10 +4182,10 @@
         .catch(() => {});
 
       if (themeLightBtn) {
-        themeLightBtn.addEventListener("click", () => applyTheme("light"));
+        themeLightBtn.addEventListener("click", () => applyTheme("light", true));
       }
       if (themeDarkBtn) {
-        themeDarkBtn.addEventListener("click", () => applyTheme("dark"));
+        themeDarkBtn.addEventListener("click", () => applyTheme("dark", true));
       }
 
       guessForm.addEventListener("submit", (e) => {

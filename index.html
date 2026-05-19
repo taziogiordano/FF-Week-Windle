@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c5112f" />
   <link rel="manifest" href="/site.webmanifest" />
-  <meta name="theme-color" content="#c5112f" />
+  <meta name="theme-color" content="#101b34" />
   <title>Week Windle</title>
   <meta name="description" content="Week Windle is a NFL Wordle Daily Game to Test your Memory of Past Fantasy Boom Games" />
   <link rel="canonical" href="https://weekwindle.com/" />
@@ -28,20 +28,6 @@
   <meta name="twitter:description" content="Week Windle is a NFL Wordle Daily Game to Test your Memory of Past Fantasy Boom Games" />
   <style>
     :root {
-      --bg: #ffffff;
-      --panel: #ffffff;
-      --text: #1a2240;
-      --muted: #6b7695;
-      --border: #d6deee;
-      --line: #e7ecf6;
-      --accent: #c5112f;
-      --accent-soft: #eef3fc;
-      --danger: #c5112f;
-      --radius: 12px;
-      --maxw: 980px;
-    }
-
-    body[data-theme="dark"] {
       --bg: #0d1529;
       --panel: #14203c;
       --text: #eef3ff;
@@ -51,6 +37,8 @@
       --accent: #e63d59;
       --accent-soft: #1b2d52;
       --danger: #ff7183;
+      --radius: 12px;
+      --maxw: 980px;
     }
 
     * { box-sizing: border-box; }
@@ -59,7 +47,7 @@
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
       overflow-x: hidden;
-      background: #fcfdff;
+      background: #0b1326;
     }
 
     body {
@@ -79,17 +67,6 @@
       position: fixed;
       inset: 0;
       z-index: -1;
-      background:
-        radial-gradient(circle at 12% 8%, rgba(197, 17, 47, 0.03), transparent 42%),
-        radial-gradient(circle at 85% 12%, rgba(16, 66, 153, 0.04), transparent 46%),
-        linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
-    }
-
-    body[data-theme="dark"] {
-      color-scheme: dark;
-    }
-
-    body[data-theme="dark"]::before {
       background:
         radial-gradient(circle at 12% 8%, rgba(230, 61, 89, 0.12), transparent 38%),
         radial-gradient(circle at 85% 12%, rgba(70, 116, 199, 0.14), transparent 42%),
@@ -170,9 +147,7 @@
       color: #c5112f;
     }
 
-    body[data-theme="dark"] .brand {
-      color: #ff556f;
-    }
+    .brand { color: #ff556f; }
 
     .game-tag {
       margin-top: 2px;
@@ -180,56 +155,6 @@
       font-size: 0.8rem;
       font-weight: 800;
       letter-spacing: 0.03em;
-    }
-
-    .theme-switch {
-      margin-top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.86);
-      box-shadow: 0 8px 18px rgba(18, 33, 68, 0.08);
-    }
-
-    .theme-switch-btn {
-      width: auto;
-      min-width: 74px;
-      min-height: 32px;
-      padding: 6px 12px;
-      border: 0;
-      border-radius: 999px;
-      background: transparent;
-      color: #60729a;
-      font-size: 0.8rem;
-      font-weight: 900;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      box-shadow: none;
-    }
-
-    .theme-switch-btn.is-active {
-      background: #1f3b73;
-      color: #ffffff;
-      box-shadow: 0 4px 10px rgba(23, 48, 95, 0.2);
-    }
-
-    body[data-theme="dark"] .theme-switch {
-      background: rgba(22, 36, 65, 0.92);
-      border-color: #36507e;
-      box-shadow: 0 10px 22px rgba(2, 8, 20, 0.22);
-    }
-
-    body[data-theme="dark"] .theme-switch-btn {
-      color: #afc0e3;
-    }
-
-    body[data-theme="dark"] .theme-switch-btn.is-active {
-      background: #e63d59;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(230, 61, 89, 0.22);
     }
 
     .brand-badge {
@@ -611,7 +536,7 @@
 
     .btn-primary {
       background: var(--accent);
-      color: #fff;
+      color: #132217;
     }
 
     .btn-secondary {
@@ -841,7 +766,7 @@
 
     body[data-theme="dark"] .modal-card {
       background: #13203c;
-      border-color: #36507b;
+      border-color: #375946;
       box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
     }
 
@@ -945,7 +870,7 @@
     body[data-theme="dark"] .modal-prev-date,
     body[data-theme="dark"] .flashback-picker {
       color: #edf3ff;
-      background: #162441;
+      background: #12271d;
       border-color: #3a5787;
     }
 
@@ -960,7 +885,7 @@
     }
 
     body[data-theme="dark"] .modal-prev-date::-webkit-datetime-edit {
-      border-bottom-color: #46608f;
+      border-bottom-color: #5e7d62;
     }
 
     .modal-prev-date::-webkit-calendar-picker-indicator {
@@ -1017,9 +942,9 @@
     }
 
     body[data-theme="dark"] .flashback-nav-btn {
-      background: #162441;
-      border-color: #3a5787;
-      color: #eef3ff;
+      background: #12271d;
+      border-color: #3c5f49;
+      color: #eef1e5;
     }
 
     .flashback-nav-btn:disabled {
@@ -1242,11 +1167,11 @@
       background:
         repeating-linear-gradient(
           -45deg,
-          #16223d 0 8px,
-          #101a2f 8px 16px
+          #13251b 0 8px,
+          #0e1b14 8px 16px
         );
-      border-color: #30476f;
-      box-shadow: inset 0 0 0 1px rgba(86, 111, 156, 0.34);
+      border-color: #31503d;
+      box-shadow: inset 0 0 0 1px rgba(96, 122, 101, 0.34);
     }
 
     .flashback-day.status-locked .flashback-day-rows {
@@ -1366,9 +1291,9 @@
       margin: 0 0 14px;
       font-size: 0.86rem;
       font-weight: 700;
-      color: #28477f;
-      background: #eef3fc;
-      border: 1px solid #ccd8ee;
+      color: #e7eadb;
+      background: #183126;
+      border: 1px solid #3a5a46;
       border-radius: 7px;
       padding: 8px 10px;
     }
@@ -1570,15 +1495,6 @@
       }
       .brand { font-size: clamp(2rem, 9vw, 2.6rem); }
       .game-tag { font-size: 0.76rem; }
-      .theme-switch {
-        margin-top: 7px;
-      }
-      .theme-switch-btn {
-        min-width: 66px;
-        min-height: 30px;
-        padding: 5px 10px;
-        font-size: 0.74rem;
-      }
       .modal-backdrop { padding: 10px; }
       .modal-card {
         width: min(100%, 98vw);
@@ -1823,7 +1739,7 @@
     }
   </style>
 </head>
-<body>
+<body data-theme="dark">
   <div class="wrap">
     <div class="topbar">
       <div class="topbar-actions-left">
@@ -1858,10 +1774,6 @@
         Week Windle
       </div>
       <div class="game-tag" id="gameNumberTag">Game #1</div>
-      <div class="theme-switch" role="group" aria-label="Theme selector">
-        <button class="theme-switch-btn" type="button" id="themeLightBtn" aria-pressed="false">Light</button>
-        <button class="theme-switch-btn" type="button" id="themeDarkBtn" aria-pressed="false">Dark</button>
-      </div>
     </div>
 
     <section class="card hero">
@@ -2346,53 +2258,9 @@
     const collegeHintSection = document.getElementById("collegeHintSection");
     const collegeHintResult = document.getElementById("collegeHintResult");
     const topToast = document.getElementById("topToast");
-    const themeLightBtn = document.getElementById("themeLightBtn");
-    const themeDarkBtn = document.getElementById("themeDarkBtn");
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     let topToastTimer = null;
     let suppressNextGuessFocusOpen = false;
     let suggestionTouchStart = null;
-    const THEME_STORAGE_KEY = "week-windle-theme";
-    const THEME_COLORS = {
-      light: "#c5112f",
-      dark: "#101b34"
-    };
-
-    function preferredTheme() {
-      return "light";
-    }
-
-    function renderThemeToggle(theme) {
-      const dark = theme === "dark";
-      if (themeLightBtn) {
-        themeLightBtn.classList.toggle("is-active", !dark);
-        themeLightBtn.setAttribute("aria-pressed", !dark ? "true" : "false");
-      }
-      if (themeDarkBtn) {
-        themeDarkBtn.classList.toggle("is-active", dark);
-        themeDarkBtn.setAttribute("aria-pressed", dark ? "true" : "false");
-      }
-    }
-
-    function trackThemeChange(theme) {
-      trackGAEvent("theme_changed", {
-        theme: String(theme || "light"),
-        dark_mode_enabled: theme === "dark",
-      });
-    }
-
-    function applyTheme(theme, trackChange = false) {
-      const next = theme === "dark" ? "dark" : "light";
-      document.body.setAttribute("data-theme", next);
-      if (themeColorMeta) themeColorMeta.setAttribute("content", THEME_COLORS[next]);
-      renderThemeToggle(next);
-      try {
-        localStorage.setItem(THEME_STORAGE_KEY, next);
-      } catch {}
-      if (trackChange) trackThemeChange(next);
-    }
-
-    applyTheme(preferredTheme());
 
     function updateDatalistNames(names = null) {
       playerNames = names ? [...new Set(names)].sort() : [...new Set(DATASET.map(x => x.player))].sort();
@@ -4181,13 +4049,6 @@
         })
         .catch(() => {});
 
-      if (themeLightBtn) {
-        themeLightBtn.addEventListener("click", () => applyTheme("light", true));
-      }
-      if (themeDarkBtn) {
-        themeDarkBtn.addEventListener("click", () => applyTheme("dark", true));
-      }
-
       guessForm.addEventListener("submit", (e) => {
         e.preventDefault();
         submitGuessFromInput();
@@ -4462,15 +4323,6 @@
       });
       hintModal.addEventListener("click", (e) => {
         if (e.target === hintModal) hideHintModal();
-      });
-
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-          applyTheme("light");
-        }
-      });
-      window.addEventListener("pageshow", () => {
-        applyTheme("light");
       });
 
       const initialDailyKey = active.dailyKey;

@@ -3359,6 +3359,10 @@
       });
     }
 
+    function trackHintOpen(info) {
+      trackGAEvent("hint_opened", analyticsPuzzleParams(info));
+    }
+
     function trackShareEvent(name, channel, info, solved, guessCount) {
       trackGAEvent(name, {
         ...analyticsPuzzleParams(info),
@@ -3822,7 +3826,7 @@
           dailyKey: base.dailyKey,
           puzzleKey: `${base.dailyKey}::v${DAILY_ROTATION_VERSION}::prev-day`,
           puzzleNumber: puzzleNumberForDate(base.dailyKey),
-          isPractice: true,
+          isPractice: false,
           isEphemeral: true,
         };
         state = loadFlashbackProgress(base.dailyKey);
@@ -4223,7 +4227,7 @@
         });
       }
       openHintModalBtn.addEventListener("click", () => {
-        trackHintEvent("open", active, "");
+        trackHintOpen(active);
         showHintModal();
       });
       openFlashbackModalBtn.addEventListener("click", () => {
